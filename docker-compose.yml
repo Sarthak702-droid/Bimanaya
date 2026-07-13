@@ -1,19 +1,6 @@
 version: '3.8'
 
 services:
-  db:
-    image: pgvector/pgvector:pg16
-    container_name: bimanyaya_postgres
-    restart: always
-    environment:
-      POSTGRES_DB: bimanyaya
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
   redis:
     image: redis:7-alpine
     container_name: bimanyaya_redis
@@ -42,21 +29,22 @@ services:
     container_name: bimanyaya_go_api
     restart: always
     depends_on:
-      - db
       - redis
     ports:
       - "8080:8080"
     environment:
       - PORT=8080
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/bimanyaya?sslmode=disable
       - REDIS_URL=redis:6379
       - S3_ENDPOINT=http://minio:9000
       - S3_ACCESS_KEY=minioadmin
       - S3_SECRET_KEY=minioadmin
       - S3_BUCKET_NAME=bimanyaya-docs
       - AI_WORKER_URL=http://ai-worker:8000
-      - JWT_SECRET=supersecret-jwt-key-bimanyaya
-      - MIGRATIONS_DIR=/app/db/migrations
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      - CLERK_JWT_ISSUER=${CLERK_JWT_ISSUER}
+      - CLERK_JWKS_URL=${CLERK_JWKS_URL}
+      - CONVEX_URL=${CONVEX_URL}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
 
   ai-worker:
     build:
@@ -70,5 +58,4 @@ services:
       - PORT=8000
 
 volumes:
-  postgres_data:
   minio_data:

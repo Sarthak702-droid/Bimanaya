@@ -10,18 +10,18 @@ import (
 )
 
 type AuditEvent struct {
-	ID            string    `json:"id"`
-	ActorID       *string   `json:"actor_id,omitempty"`
-	ActorRole     *string   `json:"actor_role,omitempty"`
+	ID            string    `json:"_id"`
+	ActorID       *string   `json:"actorId,omitempty"`
+	ActorRole     *string   `json:"actorRole,omitempty"`
 	Action        string    `json:"action"`
-	ResourceType  string    `json:"resource_type"`
-	ResourceID    *string   `json:"resource_id,omitempty"`
-	BeforeHash    *string   `json:"before_hash,omitempty"`
-	AfterHash     *string   `json:"after_hash,omitempty"`
-	IPAddress     *string   `json:"ip_address,omitempty"`
-	UserAgent     *string   `json:"user_agent,omitempty"`
-	CorrelationID string    `json:"correlation_id"`
-	CreatedAt     time.Time `json:"created_at"`
+	ResourceType  string    `json:"resourceType"`
+	ResourceID    *string   `json:"resourceId,omitempty"`
+	BeforeHash    *string   `json:"beforeHash,omitempty"`
+	AfterHash     *string   `json:"afterHash,omitempty"`
+	IPAddress     *string   `json:"ipAddress,omitempty"`
+	UserAgent     *string   `json:"userAgent,omitempty"`
+	CorrelationID string    `json:"correlationId"`
+	CreatedAt     time.Time `json:"createdAt"`
 }
 
 type Service struct {
@@ -33,41 +33,35 @@ func NewService(database *db.DB) *Service {
 }
 
 func (s *Service) GetAuditLogs(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value("user").(auth.User)
+	user, ok := r.Context().Value(auth.UserKey).(auth.User)
 	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "Unauthorized")
 		return
 	}
 
-	// Only admin role can review the system audit trails
 	if user.Role != "ADMIN" {
-		http.Error(w, "Forbidden: administrators only", http.StatusForbidden)
+		writeError(w, http.StatusForbidden, "FORBIDDEN", "Forbidden: administrators only")
 		return
 	}
 
-	rows, err := s.db.Pool.Query(r.Context(),
-		`SELECT id, actor_id, actor_role, action, resource_type, resource_id, 
-		COALESCE(before_hash,''), COALESCE(after_hash,''), COALESCE(ip_address,''), COALESCE(user_agent,''), 
-		correlation_id, created_at 
-		FROM audit_events ORDER BY created_at DESC LIMIT 100`)
+	var events []AuditEvent
+	err := s.db.CallQuery(r.Context(), "audit:list", map[string]interface{}{"limit": 100}, &events)
 	if err != nil {
-		http.Error(w, "Failed to load audit events", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to load audit events")
 		return
-	}
-	defer rows.Close()
-
-	events := make([]AuditEvent, 0)
-	for rows.Next() {
-		var ev AuditEvent
-		err = rows.Scan(
-			&ev.ID, &ev.ActorID, &ev.ActorRole, &ev.Action, &ev.ResourceType, &ev.ResourceID,
-			&ev.BeforeHash, &ev.AfterHash, &ev.IPAddress, &ev.UserAgent, &ev.CorrelationID, &ev.CreatedAt,
-		)
-		if err == nil {
-			events = append(events, ev)
-		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(events)
+}
+
+func writeError(w http.ResponseWriter, status int, code, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"error": map[string]string{
+			"code":    code,
+			"message": message,
+		},
+	})
 }

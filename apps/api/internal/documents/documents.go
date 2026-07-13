@@ -19,21 +19,22 @@ import (
 )
 
 type Document struct {
-	ID                   string     `json:"id"`
-	CaseID               string     `json:"case_id"`
-	DocumentType         string     `json:"document_type"`
-	OriginalFilename     string     `json:"original_filename"`
-	StorageKey           string     `json:"storage_key"`
-	FileHash             string     `json:"file_hash"`
-	MimeType             string     `json:"mime_type"`
-	SizeBytes            int64      `json:"size_bytes"`
-	PageCount            int        `json:"page_count"`
-	MalwareScanStatus    string     `json:"malware_scan_status"`
-	OCRStatus            string     `json:"ocr_status"`
-	ClassificationStatus string     `json:"classification_status"`
-	RetentionUntil       *time.Time `json:"retention_until,omitempty"`
-	UploadedBy           *string    `json:"uploaded_by,omitempty"`
-	CreatedAt            time.Time  `json:"created_at"`
+	ID                   string     `json:"_id"`
+	CaseID               string     `json:"caseId"`
+	DocumentType         string     `json:"documentType"`
+	OriginalFilename     string     `json:"originalFilename"`
+	StorageKey           string     `json:"storageKey"`
+	FileHash             string     `json:"fileHash"`
+	MimeType             string     `json:"mimeType"`
+	SizeBytes            int64      `json:"sizeBytes"`
+	PageCount            int        `json:"pageCount"`
+	MalwareScanStatus    string     `json:"malwareScanStatus"`
+	OCRStatus            string     `json:"ocrStatus"`
+	ClassificationStatus string     `json:"classificationStatus"`
+	RetentionUntil       *time.Time `json:"retentionUntil,omitempty"`
+	UploadedBy           *string    `json:"uploadedBy,omitempty"`
+	LegacyID             string     `json:"legacyId,omitempty"`
+	CreatedAt            time.Time  `json:"createdAt"`
 }
 
 type GetUploadURLRequest struct {
@@ -64,33 +65,32 @@ func NewService(database *db.DB) *Service {
 }
 
 func (s *Service) GetUploadURL(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value("user").(auth.User)
+	user, ok := r.Context().Value(auth.UserKey).(auth.User)
 	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "Unauthorized")
 		return
 	}
 
 	caseID := chi.URLParam(r, "caseId")
 	if caseID == "" {
-		http.Error(w, "Missing case ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing case ID")
 		return
 	}
 
 	var req GetUploadURLRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid input payload", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Invalid input payload")
 		return
 	}
 
-	// Validate MimeType
 	allowedTypes := map[string]bool{
 		"application/pdf": true,
 		"image/jpeg":      true,
 		"image/png":       true,
-		"application/vnd.openxmlformats-officedocument.wordprocessingml.document": true, // docx
+		"application/vnd.openxmlformats-officedocument.wordprocessingml.document": true,
 	}
 	if !allowedTypes[req.MimeType] {
-		http.Error(w, "Unsupported file format. Only PDF, PNG, JPEG, DOCX are supported", http.StatusUnsupportedMediaType)
+		writeError(w, http.StatusUnsupportedMediaType, "UNSUPPORTED_MEDIA_TYPE", "Unsupported file format. Only PDF, PNG, JPEG, DOCX are supported")
 		return
 	}
 
@@ -98,28 +98,33 @@ func (s *Service) GetUploadURL(w http.ResponseWriter, r *http.Request) {
 	ext := filepath.Ext(req.Filename)
 	storageKey := fmt.Sprintf("cases/%s/docs/%s%s", caseID, docID, ext)
 
-	// Simulate signed URL for uploads.
-	// In production, we request a pre-signed PUT URL from AWS S3 / MinIO.
-	// For demo, we return an endpoint in our Go API that will receive the upload.
 	uploadURL := fmt.Sprintf("http://%s/api/v1/documents/upload-endpoint/%s", r.Host, docID)
 
-	// Insert doc metadata in PENDING state
-	_, err := s.db.Pool.Exec(r.Context(),
-		`INSERT INTO documents (
-			id, case_id, document_type, original_filename, storage_key, file_hash, 
-			mime_type, size_bytes, page_count, malware_scan_status, ocr_status, 
-			classification_status, uploaded_by
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
-		docID, caseID, req.DocumentType, req.Filename, storageKey, "PENDING_HASH",
-		req.MimeType, req.SizeBytes, 0, "PENDING", "PENDING", "PENDING", user.ID,
-	)
+	metaArgs := map[string]interface{}{
+		"caseId":               caseID,
+		"documentType":         req.DocumentType,
+		"originalFilename":     req.Filename,
+		"storageKey":           storageKey,
+		"fileHash":             "PENDING_HASH",
+		"mimeType":             req.MimeType,
+		"sizeBytes":            req.SizeBytes,
+		"pageCount":            0,
+		"malwareScanStatus":    "PENDING",
+		"ocrStatus":            "PENDING",
+		"classificationStatus": "PENDING",
+		"uploadedBy":           user.ID,
+		"legacyId":             docID,
+	}
 
+	var resID string
+	err := s.db.CallMutation(r.Context(), "documents:createMetadata", metaArgs, &resID)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to reserve document metadata: %v", err), http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to reserve document metadata: "+err.Error())
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(GetUploadURLResponse{
 		DocumentID: docID,
 		UploadURL:  uploadURL,
@@ -127,31 +132,26 @@ func (s *Service) GetUploadURL(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// UploadEndpoint allows direct file upload to our backend, simulating S3 bucket direct upload for local development
 func (s *Service) UploadEndpoint(w http.ResponseWriter, r *http.Request) {
 	docID := chi.URLParam(r, "documentId")
 	if docID == "" {
-		http.Error(w, "Missing document ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing document ID")
 		return
 	}
 
-	// Parse file
 	file, _, err := r.FormFile("file")
 	if err != nil {
-		http.Error(w, "Failed to read file form field", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Failed to read file form field")
 		return
 	}
 	defer file.Close()
 
-	// Compute checksum hash (sha256)
 	hasher := sha256.New()
 	tee := io.TeeReader(file, hasher)
 
-	// We can save the file locally in the workspace or S3 bucket here
-	// For demo, we just consume the reader to compute the hash
 	_, err = io.Copy(io.Discard, tee)
 	if err != nil {
-		http.Error(w, "Failed to process file stream", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to process file stream")
 		return
 	}
 
@@ -165,48 +165,59 @@ func (s *Service) UploadEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) CompleteUpload(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value("user").(auth.User)
+	user, ok := r.Context().Value(auth.UserKey).(auth.User)
 	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "Unauthorized")
 		return
 	}
 
 	var req CompleteUploadRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid input payload", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Invalid input payload")
 		return
 	}
 
-	_, err := s.db.Pool.Exec(r.Context(),
-		`UPDATE documents SET 
-			file_hash = $1, 
-			page_count = $2, 
-			malware_scan_status = 'CLEAN', 
-			ocr_status = 'READY', 
-			classification_status = 'COMPLETED'
-		WHERE id = $3`,
-		req.FileHash, req.PageCount, req.DocumentID,
-	)
+	updateArgs := map[string]interface{}{
+		"legacyId":             req.DocumentID,
+		"fileHash":             req.FileHash,
+		"pageCount":            req.PageCount,
+		"malwareScanStatus":    "CLEAN",
+		"ocrStatus":            "READY",
+		"classificationStatus": "COMPLETED",
+	}
+
+	var updatedDocID string
+	err := s.db.CallMutation(r.Context(), "documents:updateStatus", updateArgs, &updatedDocID)
 	if err != nil {
-		http.Error(w, "Failed to update document upload status", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to update document upload status")
 		return
 	}
 
-	// Fetch case details to audit and verify workflow state
-	var caseID string
-	err = s.db.Pool.QueryRow(r.Context(), "SELECT case_id FROM documents WHERE id = $1", req.DocumentID).Scan(&caseID)
-	if err == nil {
-		// Log Audit Event
+	// Fetch doc details to audit and verify workflow state
+	var doc Document
+	err = s.db.CallQuery(r.Context(), "documents:getByLegacyId", map[string]interface{}{"legacyId": req.DocumentID}, &doc)
+	if err == nil && doc.CaseID != "" {
 		s.auditLog(r.Context(), user.ID, user.Role, "UPLOAD", "DOCUMENT", req.DocumentID, nil, nil)
 
-		// Optionally update case state to PROCESSING
-		_, _ = s.db.Pool.Exec(r.Context(), "UPDATE cases SET workflow_state = 'PROCESSING', updated_at = NOW() WHERE id = $1", caseID)
-		_, _ = s.db.Pool.Exec(r.Context(),
-			"INSERT INTO case_status_history (case_id, from_state, to_state, changed_by, reason) VALUES ($1, $2, $3, $4, $5)",
-			caseID, "DOCUMENTS_PENDING", "PROCESSING", user.ID, "Document upload completed",
-		)
+		caseUpdateArgs := map[string]interface{}{
+			"legacyId":      doc.CaseID,
+			"workflowState": "PROCESSING",
+		}
+		var resCaseID string
+		_ = s.db.CallMutation(r.Context(), "cases:update", caseUpdateArgs, &resCaseID)
+
+		timelineArgs := map[string]interface{}{
+			"caseId":    doc.CaseID,
+			"fromState": "DOCUMENTS_PENDING",
+			"toState":   "PROCESSING",
+			"changedBy": user.ID,
+			"reason":    "Document upload completed",
+		}
+		var resTimelineID string
+		_ = s.db.CallMutation(r.Context(), "cases:logTimeline", timelineArgs, &resTimelineID)
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Upload marked complete. Processing pipeline scheduled.",
@@ -217,34 +228,15 @@ func (s *Service) CompleteUpload(w http.ResponseWriter, r *http.Request) {
 func (s *Service) GetCaseDocuments(w http.ResponseWriter, r *http.Request) {
 	caseID := chi.URLParam(r, "caseId")
 	if caseID == "" {
-		http.Error(w, "Missing case ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing case ID")
 		return
 	}
 
-	rows, err := s.db.Pool.Query(r.Context(),
-		`SELECT id, case_id, document_type, original_filename, storage_key, file_hash, 
-		mime_type, size_bytes, page_count, malware_scan_status, ocr_status, 
-		classification_status, retention_until, uploaded_by, created_at 
-		FROM documents WHERE case_id = $1 AND deleted_at IS NULL ORDER BY created_at ASC`, caseID)
+	var docs []Document
+	err := s.db.CallQuery(r.Context(), "documents:listByCase", map[string]interface{}{"caseId": caseID}, &docs)
 	if err != nil {
-		http.Error(w, "Failed to query case documents", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to query case documents")
 		return
-	}
-	defer rows.Close()
-
-	docs := make([]Document, 0)
-	for rows.Next() {
-		var doc Document
-		err = rows.Scan(
-			&doc.ID, &doc.CaseID, &doc.DocumentType, &doc.OriginalFilename, &doc.StorageKey,
-			&doc.FileHash, &doc.MimeType, &doc.SizeBytes, &doc.PageCount, &doc.MalwareScanStatus,
-			&doc.OCRStatus, &doc.ClassificationStatus, &doc.RetentionUntil, &doc.UploadedBy, &doc.CreatedAt,
-		)
-		if err != nil {
-			http.Error(w, "Failed to parse document data", http.StatusInternalServerError)
-			return
-		}
-		docs = append(docs, doc)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -254,22 +246,14 @@ func (s *Service) GetCaseDocuments(w http.ResponseWriter, r *http.Request) {
 func (s *Service) GetDocument(w http.ResponseWriter, r *http.Request) {
 	docID := chi.URLParam(r, "documentId")
 	if docID == "" {
-		http.Error(w, "Missing document ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing document ID")
 		return
 	}
 
 	var doc Document
-	err := s.db.Pool.QueryRow(r.Context(),
-		`SELECT id, case_id, document_type, original_filename, storage_key, file_hash, 
-		mime_type, size_bytes, page_count, malware_scan_status, ocr_status, 
-		classification_status, retention_until, uploaded_by, created_at 
-		FROM documents WHERE id = $1 AND deleted_at IS NULL`, docID).Scan(
-		&doc.ID, &doc.CaseID, &doc.DocumentType, &doc.OriginalFilename, &doc.StorageKey,
-		&doc.FileHash, &doc.MimeType, &doc.SizeBytes, &doc.PageCount, &doc.MalwareScanStatus,
-		&doc.OCRStatus, &doc.ClassificationStatus, &doc.RetentionUntil, &doc.UploadedBy, &doc.CreatedAt,
-	)
-	if err != nil {
-		http.Error(w, "Document not found", http.StatusNotFound)
+	err := s.db.CallQuery(r.Context(), "documents:getByLegacyId", map[string]interface{}{"legacyId": docID}, &doc)
+	if err != nil || doc.ID == "" {
+		writeError(w, http.StatusNotFound, "NOT_FOUND", "Document not found")
 		return
 	}
 
@@ -280,28 +264,50 @@ func (s *Service) GetDocument(w http.ResponseWriter, r *http.Request) {
 func (s *Service) DeleteDocument(w http.ResponseWriter, r *http.Request) {
 	docID := chi.URLParam(r, "documentId")
 	if docID == "" {
-		http.Error(w, "Missing document ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing document ID")
 		return
 	}
 
-	// Soft delete document
-	_, err := s.db.Pool.Exec(r.Context(),
-		"UPDATE documents SET deleted_at = NOW(), updated_at = NOW() WHERE id = $1", docID)
-	if err != nil {
-		http.Error(w, "Failed to delete document", http.StatusInternalServerError)
+	var success bool
+	err := s.db.CallMutation(r.Context(), "documents:softDelete", map[string]interface{}{"legacyId": docID}, &success)
+	if err != nil || !success {
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to delete document")
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Document deleted successfully"})
 }
 
 func (s *Service) auditLog(ctx context.Context, actorID, role, action, resType, resID string, beforeHash, afterHash []byte) {
 	correlationID := uuid.New().String()
-	_, _ = s.db.Pool.Exec(ctx,
-		`INSERT INTO audit_events (
-			actor_id, actor_role, action, resource_type, resource_id, before_hash, after_hash, correlation_id
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-		actorID, role, action, resType, resID, beforeHash, afterHash, correlationID,
-	)
+	auditArgs := map[string]interface{}{
+		"actorId":       actorID,
+		"actorRole":     role,
+		"actorType":     "USER",
+		"action":        action,
+		"resourceType":  resType,
+		"resourceId":    resID,
+		"correlationId": correlationID,
+	}
+	if len(beforeHash) > 0 {
+		auditArgs["beforeHash"] = string(beforeHash)
+	}
+	if len(afterHash) > 0 {
+		auditArgs["afterHash"] = string(afterHash)
+	}
+	var resIDStr string
+	_ = s.db.CallMutation(ctx, "audit:log", auditArgs, &resIDStr)
+}
+
+func writeError(w http.ResponseWriter, status int, code, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"error": map[string]string{
+			"code":    code,
+			"message": message,
+		},
+	})
 }

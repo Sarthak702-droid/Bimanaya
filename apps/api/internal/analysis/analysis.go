@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -16,47 +17,47 @@ import (
 )
 
 type ProcessResponse struct {
-	Status        string `json:"status"` // PROCESSING, COMPLETED, FAILED
+	Status        string `json:"status"`
 	Message       string `json:"message"`
 	CorrelationID string `json:"correlation_id"`
 }
 
 type CaseIssue struct {
-	ID            string      `json:"id"`
-	CaseID        string      `json:"case_id"`
-	IssueCategory string      `json:"issue_category"`
+	ID            string      `json:"_id"`
+	CaseID        string      `json:"caseId"`
+	IssueCategory string      `json:"issueCategory"`
 	Summary       string      `json:"summary"`
-	Details       interface{} `json:"details"`
+	Details       interface{} `json:"details,omitempty"`
 	Confidence    float64     `json:"confidence"`
-	CreatedAt     time.Time   `json:"created_at"`
+	CreatedAt     time.Time   `json:"createdAt"`
 }
 
 type Citation struct {
-	ID                string      `json:"id"`
-	CaseID            string      `json:"case_id"`
-	SourceType        string      `json:"source_type"` // POLICY, REGULATION
-	DocumentID        *string     `json:"document_id,omitempty"`
-	KnowledgeSourceID *string     `json:"knowledge_source_id,omitempty"`
-	PageNumber        int         `json:"page_number"`
-	SectionName       string      `json:"section_name"`
-	ClauseNumber      string      `json:"clause_number"`
-	QuotedText        string      `json:"quoted_text"`
-	BoundingBox       interface{} `json:"bounding_box,omitempty"`
+	ID                string      `json:"_id"`
+	CaseID            string      `json:"caseId"`
+	SourceType        string      `json:"sourceType"`
+	DocumentID        *string     `json:"documentId,omitempty"`
+	KnowledgeSourceID *string     `json:"knowledgeSourceId,omitempty"`
+	PageNumber        int         `json:"pageNumber"`
+	SectionName       string      `json:"sectionName"`
+	ClauseNumber      string      `json:"clauseNumber"`
+	QuotedText        string      `json:"quotedText"`
+	BoundingBox       interface{} `json:"boundingBox,omitempty"`
 	Confidence        float64     `json:"confidence"`
-	ValidationStatus  string      `json:"validation_status"`
-	CreatedAt         time.Time   `json:"created_at"`
+	ValidationStatus  string      `json:"validationStatus"`
+	CreatedAt         time.Time   `json:"createdAt"`
 }
 
 type EvidenceItem struct {
-	ID                 string    `json:"id"`
-	CaseID             string    `json:"case_id"`
-	DocumentName       string    `json:"document_name"`
-	WhyRequired        string    `json:"why_required"`
-	Priority           string    `json:"priority"` // HIGH, MEDIUM, LOW
-	IsMandatory        bool      `json:"is_mandatory"`
-	Status             string    `json:"status"` // AVAILABLE, MISSING, CONTRADICTORY
-	UploadedDocumentID *string   `json:"uploaded_document_id,omitempty"`
-	CreatedAt          time.Time `json:"created_at"`
+	ID                 string    `json:"_id"`
+	CaseID             string    `json:"caseId"`
+	DocumentName       string    `json:"documentName"`
+	WhyRequired        string    `json:"whyRequired"`
+	Priority           string    `json:"priority"`
+	IsMandatory        bool      `json:"isMandatory"`
+	Status             string    `json:"status"`
+	UploadedDocumentID *string   `json:"uploadedDocumentId,omitempty"`
+	CreatedAt          time.Time `json:"createdAt"`
 }
 
 type Service struct {
@@ -71,78 +72,98 @@ func NewService(database *db.DB, aiWorkerURL string) *Service {
 	}
 }
 
+type ConvexCase struct {
+	ID                    string  `json:"_id"`
+	CaseNumber            string  `json:"caseNumber"`
+	OwnerUserID           string  `json:"ownerUserId"`
+	InsuranceType         string  `json:"insuranceType"`
+	ClaimCategory         string  `json:"claimCategory,omitempty"`
+	ClaimStatus           string  `json:"claimStatus,omitempty"`
+	InsurerName           string  `json:"insurerName,omitempty"`
+	PolicyNumberEncrypted string  `json:"policyNumberEncrypted,omitempty"`
+	ClaimNumberEncrypted  string  `json:"claimNumberEncrypted,omitempty"`
+	AmountClaimed         float64 `json:"amountClaimed"`
+	AmountPaid            float64 `json:"amountPaid"`
+	AmountDisputed        float64 `json:"amountDisputed"`
+	WorkflowState         string  `json:"workflowState"`
+}
+
+type ConvexDoc struct {
+	ID           string `json:"_id"`
+	StorageKey   string `json:"storageKey"`
+	DocumentType string `json:"documentType"`
+}
+
 // TriggerCaseProcessing starts the Python AI pipeline (FastAPI call)
 func (s *Service) TriggerCaseProcessing(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value("user").(auth.User)
+	user, ok := r.Context().Value(auth.UserKey).(auth.User)
 	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "Unauthorized")
 		return
 	}
 
 	caseID := chi.URLParam(r, "caseId")
 	if caseID == "" {
-		http.Error(w, "Missing case ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing case ID")
 		return
 	}
 
-	// 1. Fetch case details from DB
-	var claimNumber, insurer, claimStatus string
-	var amountClaimed, amountPaid, amountDisputed float64
-	err := s.db.Pool.QueryRow(r.Context(),
-		"SELECT COALESCE(claim_number_encrypted,''), COALESCE(insurer_name,''), COALESCE(claim_status,''), amount_claimed, amount_paid, amount_disputed FROM cases WHERE id = $1",
-		caseID).Scan(&claimNumber, &insurer, &claimStatus, &amountClaimed, &amountPaid, &amountDisputed)
-	if err != nil {
-		http.Error(w, "Case not found", http.StatusNotFound)
+	// 1. Fetch case details from Convex
+	var caseItem ConvexCase
+	err := s.db.CallQuery(r.Context(), "cases:getByLegacyId", map[string]interface{}{"legacyId": caseID}, &caseItem)
+	if err != nil || caseItem.ID == "" {
+		writeError(w, http.StatusNotFound, "NOT_FOUND", "Case not found")
 		return
 	}
 
-	// 2. Fetch associated documents
-	rows, err := s.db.Pool.Query(r.Context(), "SELECT id, storage_key, document_type FROM documents WHERE case_id = $1 AND deleted_at IS NULL", caseID)
+	// 2. Fetch associated documents from Convex
+	var docs []ConvexDoc
+	err = s.db.CallQuery(r.Context(), "documents:listByCase", map[string]interface{}{"caseId": caseID}, &docs)
 	if err != nil {
-		http.Error(w, "Failed to load documents", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to load documents")
 		return
 	}
-	defer rows.Close()
 
 	type docMeta struct {
 		ID           string `json:"id"`
 		StorageKey   string `json:"storage_key"`
 		DocumentType string `json:"document_type"`
 	}
-	docs := make([]docMeta, 0)
-	for rows.Next() {
-		var dm docMeta
-		if err := rows.Scan(&dm.ID, &dm.StorageKey, &dm.DocumentType); err == nil {
-			docs = append(docs, dm)
+	aiDocs := make([]docMeta, len(docs))
+	for i, d := range docs {
+		aiDocs[i] = docMeta{
+			ID:           d.ID,
+			StorageKey:   d.StorageKey,
+			DocumentType: d.DocumentType,
 		}
 	}
 
 	// 3. Make HTTP request to Python AI worker FastAPI server
 	aiPayload := map[string]interface{}{
 		"case_id":         caseID,
-		"claim_number":    claimNumber,
-		"insurer":         insurer,
-		"claim_status":    claimStatus,
-		"amount_claimed":  amountClaimed,
-		"amount_paid":     amountPaid,
-		"amount_disputed": amountDisputed,
-		"documents":       docs,
+		"claim_number":    caseItem.ClaimNumberEncrypted,
+		"insurer":         caseItem.InsurerName,
+		"claim_status":    caseItem.ClaimStatus,
+		"amount_claimed":  caseItem.AmountClaimed,
+		"amount_paid":     caseItem.AmountPaid,
+		"amount_disputed": caseItem.AmountDisputed,
+		"documents":       aiDocs,
 	}
 
 	payloadBytes, err := json.Marshal(aiPayload)
 	if err != nil {
-		http.Error(w, "Serialization error", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Serialization error")
 		return
 	}
 
-	// Fire and forget or synchronous depending on load. Let's make it fire-and-forget in background, but returning 202 Accepted.
+	// Process in background goroutine to prevent blocking HTTP handler
 	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 		defer cancel()
 
 		req, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/process-case", s.aiWorkerURL), bytes.NewBuffer(payloadBytes))
 		if err != nil {
-			fmt.Printf("[AI WORKER ERROR] Failed to construct request: %v\n", err)
+			slog.Error("Failed to construct AI request", "error", err)
 			return
 		}
 		req.Header.Set("Content-Type", "application/json")
@@ -150,84 +171,130 @@ func (s *Service) TriggerCaseProcessing(w http.ResponseWriter, r *http.Request) 
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
-			fmt.Printf("[AI WORKER ERROR] Connection failed: %v\n", err)
+			slog.Error("AI Worker HTTP request failed", "error", err)
 			return
 		}
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusOK {
-			fmt.Printf("[AI WORKER ERROR] Returned status: %d\n", resp.StatusCode)
+			slog.Error("AI Worker returned non-200 status", "status", resp.StatusCode)
 			return
 		}
 
-		// Save the returned findings to database (simulating Python response parsing)
 		var aiResult struct {
-			Issues            []CaseIssue    `json:"issues"`
-			Citations         []Citation     `json:"citations"`
-			EvidenceChecklist []EvidenceItem `json:"evidence_checklist"`
+			Issues []struct {
+				IssueCategory string      `json:"issue_category"`
+				Summary       string      `json:"summary"`
+				Details       interface{} `json:"details"`
+				Confidence    float64     `json:"confidence"`
+			} `json:"issues"`
+			Citations []struct {
+				SourceType        string      `json:"source_type"`
+				DocumentID        *string     `json:"document_id,omitempty"`
+				KnowledgeSourceID *string     `json:"knowledge_source_id,omitempty"`
+				PageNumber        int         `json:"page_number"`
+				SectionName       string      `json:"section_name"`
+				ClauseNumber      string      `json:"clause_number"`
+				QuotedText        string      `json:"quoted_text"`
+				BoundingBox       interface{} `json:"bounding_box,omitempty"`
+				Confidence        float64     `json:"confidence"`
+			} `json:"citations"`
+			EvidenceChecklist []struct {
+				DocumentName       string  `json:"document_name"`
+				WhyRequired        string  `json:"why_required"`
+				Priority           string  `json:"priority"`
+				IsMandatory        bool    `json:"is_mandatory"`
+				Status             string  `json:"status"`
+				UploadedDocumentID *string `json:"uploaded_document_id,omitempty"`
+			} `json:"evidence_checklist"`
 		}
 
 		if err := json.NewDecoder(resp.Body).Decode(&aiResult); err != nil {
-			fmt.Printf("[AI WORKER ERROR] Failed to parse result: %v\n", err)
+			slog.Error("Failed to decode AI worker payload", "error", err)
 			return
 		}
 
-		// Store in database
-		dbCtx := context.Background()
-		tx, err := s.db.Pool.Begin(dbCtx)
-		if err != nil {
+		// Save the returned findings to Convex database atomically
+		saveArgs := map[string]interface{}{
+			"caseId":    caseID,
+			"changedBy": user.ID,
+		}
+
+		issues := make([]map[string]interface{}, len(aiResult.Issues))
+		for i, issue := range aiResult.Issues {
+			detailsBytes, _ := json.Marshal(issue.Details)
+			issues[i] = map[string]interface{}{
+				"issueCategory": issue.IssueCategory,
+				"summary":       issue.Summary,
+				"details":       string(detailsBytes),
+				"confidence":    issue.Confidence,
+				"legacyId":      uuid.New().String(),
+			}
+		}
+		saveArgs["issues"] = issues
+
+		citations := make([]map[string]interface{}, len(aiResult.Citations))
+		for i, cit := range aiResult.Citations {
+			var docIDVal, ksIDVal string
+			if cit.DocumentID != nil {
+				docIDVal = *cit.DocumentID
+			}
+			if cit.KnowledgeSourceID != nil {
+				ksIDVal = *cit.KnowledgeSourceID
+			}
+
+			bboxBytes, _ := json.Marshal(cit.BoundingBox)
+			citations[i] = map[string]interface{}{
+				"sourceType":        cit.SourceType,
+				"pageNumber":        cit.PageNumber,
+				"sectionName":       cit.SectionName,
+				"clauseNumber":      cit.ClauseNumber,
+				"quotedText":        cit.QuotedText,
+				"boundingBox":       string(bboxBytes),
+				"confidence":        cit.Confidence,
+				"validationStatus":  "VALIDATED",
+				"legacyId":          uuid.New().String(),
+			}
+			if docIDVal != "" {
+				citations[i]["documentId"] = docIDVal
+			}
+			if ksIDVal != "" {
+				citations[i]["knowledgeSourceId"] = ksIDVal
+			}
+		}
+		saveArgs["citations"] = citations
+
+		evidenceItems := make([]map[string]interface{}, len(aiResult.EvidenceChecklist))
+		for i, ev := range aiResult.EvidenceChecklist {
+			var upDocID string
+			if ev.UploadedDocumentID != nil {
+				upDocID = *ev.UploadedDocumentID
+			}
+			evidenceItems[i] = map[string]interface{}{
+				"documentName": ev.DocumentName,
+				"whyRequired":  ev.WhyRequired,
+				"priority":     ev.Priority,
+				"isMandatory":  ev.IsMandatory,
+				"status":       ev.Status,
+				"legacyId":     uuid.New().String(),
+			}
+			if upDocID != "" {
+				evidenceItems[i]["uploadedDocumentId"] = upDocID
+			}
+		}
+		saveArgs["evidenceItems"] = evidenceItems
+
+		var success bool
+		err = s.db.CallMutation(ctx, "analysis:saveAnalysisFindings", saveArgs, &success)
+		if err != nil || !success {
+			slog.Error("Failed to save AI findings to Convex", "error", err)
 			return
 		}
-		defer tx.Rollback(dbCtx)
 
-		// Clear old findings
-		_, _ = tx.Exec(dbCtx, "DELETE FROM case_issues WHERE case_id = $1", caseID)
-		_, _ = tx.Exec(dbCtx, "DELETE FROM citations WHERE case_id = $1", caseID)
-		_, _ = tx.Exec(dbCtx, "DELETE FROM evidence_items WHERE case_id = $1", caseID)
-
-		// Insert issues
-		for _, issue := range aiResult.Issues {
-			issueDetailsJSON, _ := json.Marshal(issue.Details)
-			_, _ = tx.Exec(dbCtx,
-				"INSERT INTO case_issues (id, case_id, issue_category, summary, details, confidence) VALUES ($1, $2, $3, $4, $5, $6)",
-				uuid.New().String(), caseID, issue.IssueCategory, issue.Summary, issueDetailsJSON, issue.Confidence,
-			)
-		}
-
-		// Insert citations
-		for _, cit := range aiResult.Citations {
-			bboxJSON, _ := json.Marshal(cit.BoundingBox)
-			_, _ = tx.Exec(dbCtx,
-				`INSERT INTO citations (
-					id, case_id, source_type, document_id, knowledge_source_id, page_number, 
-					section_name, clause_number, quoted_text, bounding_box, confidence, validation_status
-				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-				uuid.New().String(), caseID, cit.SourceType, cit.DocumentID, cit.KnowledgeSourceID,
-				cit.PageNumber, cit.SectionName, cit.ClauseNumber, cit.QuotedText, bboxJSON, cit.Confidence, "VALIDATED",
-			)
-		}
-
-		// Insert checklist
-		for _, ev := range aiResult.EvidenceChecklist {
-			_, _ = tx.Exec(dbCtx,
-				`INSERT INTO evidence_items (
-					id, case_id, document_name, why_required, priority, is_mandatory, status, uploaded_document_id
-				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-				uuid.New().String(), caseID, ev.DocumentName, ev.WhyRequired, ev.Priority, ev.IsMandatory, ev.Status, ev.UploadedDocumentID,
-			)
-		}
-
-		// Update case status to ANALYSIS_READY or REVIEW_REQUIRED
-		_, _ = tx.Exec(dbCtx, "UPDATE cases SET workflow_state = 'ANALYSIS_READY', updated_at = NOW() WHERE id = $1", caseID)
-		_, _ = tx.Exec(dbCtx,
-			"INSERT INTO case_status_history (case_id, from_state, to_state, changed_by, reason) VALUES ($1, $2, $3, $4, $5)",
-			caseID, "PROCESSING", "ANALYSIS_READY", user.ID, "AI analysis completed",
-		)
-
-		_ = tx.Commit(dbCtx)
-		fmt.Printf("[AI WORKER SUCCESS] Fully updated case %s with findings\n", caseID)
+		slog.Info("Successfully processed and saved AI findings", "case_id", caseID)
 	}()
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(ProcessResponse{
 		Status:        "PROCESSING",
@@ -240,21 +307,21 @@ func (s *Service) TriggerCaseProcessing(w http.ResponseWriter, r *http.Request) 
 func (s *Service) GetProcessingStatus(w http.ResponseWriter, r *http.Request) {
 	caseID := chi.URLParam(r, "caseId")
 	if caseID == "" {
-		http.Error(w, "Missing case ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing case ID")
 		return
 	}
 
-	var state string
-	err := s.db.Pool.QueryRow(r.Context(), "SELECT workflow_state FROM cases WHERE id = $1", caseID).Scan(&state)
-	if err != nil {
-		http.Error(w, "Case not found", http.StatusNotFound)
+	var caseItem ConvexCase
+	err := s.db.CallQuery(r.Context(), "cases:getByLegacyId", map[string]interface{}{"legacyId": caseID}, &caseItem)
+	if err != nil || caseItem.ID == "" {
+		writeError(w, http.StatusNotFound, "NOT_FOUND", "Case not found")
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
 		"case_id":        caseID,
-		"workflow_state": state,
+		"workflow_state": caseItem.WorkflowState,
 	})
 }
 
@@ -262,30 +329,25 @@ func (s *Service) GetProcessingStatus(w http.ResponseWriter, r *http.Request) {
 func (s *Service) GetAnalysis(w http.ResponseWriter, r *http.Request) {
 	caseID := chi.URLParam(r, "caseId")
 	if caseID == "" {
-		http.Error(w, "Missing case ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing case ID")
 		return
 	}
 
-	rows, err := s.db.Pool.Query(r.Context(),
-		"SELECT id, case_id, issue_category, summary, details, confidence, created_at FROM case_issues WHERE case_id = $1",
-		caseID)
+	var issues []CaseIssue
+	err := s.db.CallQuery(r.Context(), "analysis:getAnalysis", map[string]interface{}{"caseId": caseID}, &issues)
 	if err != nil {
-		http.Error(w, "Failed to load issues", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to load issues")
 		return
 	}
-	defer rows.Close()
 
-	issues := make([]CaseIssue, 0)
-	for rows.Next() {
-		var is CaseIssue
-		var detailsBytes []byte
-		err = rows.Scan(&is.ID, &is.CaseID, &is.IssueCategory, &is.Summary, &detailsBytes, &is.Confidence, &is.CreatedAt)
-		if err != nil {
-			http.Error(w, "Error parsing issue row", http.StatusInternalServerError)
-			return
+	// Decode any string encoded details for API compatibility
+	for i, issue := range issues {
+		if detailsStr, ok := issue.Details.(string); ok && detailsStr != "" {
+			var detailsMap interface{}
+			if err := json.Unmarshal([]byte(detailsStr), &detailsMap); err == nil {
+				issues[i].Details = detailsMap
+			}
 		}
-		_ = json.Unmarshal(detailsBytes, &is.Details)
-		issues = append(issues, is)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -296,34 +358,24 @@ func (s *Service) GetAnalysis(w http.ResponseWriter, r *http.Request) {
 func (s *Service) GetCitations(w http.ResponseWriter, r *http.Request) {
 	caseID := chi.URLParam(r, "caseId")
 	if caseID == "" {
-		http.Error(w, "Missing case ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing case ID")
 		return
 	}
 
-	rows, err := s.db.Pool.Query(r.Context(),
-		`SELECT id, case_id, source_type, document_id, knowledge_source_id, page_number, 
-		section_name, clause_number, quoted_text, bounding_box, confidence, validation_status, created_at 
-		FROM citations WHERE case_id = $1`, caseID)
+	var citations []Citation
+	err := s.db.CallQuery(r.Context(), "analysis:getCitations", map[string]interface{}{"caseId": caseID}, &citations)
 	if err != nil {
-		http.Error(w, "Failed to load citations", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to load citations")
 		return
 	}
-	defer rows.Close()
 
-	citations := make([]Citation, 0)
-	for rows.Next() {
-		var cit Citation
-		var bboxBytes []byte
-		err = rows.Scan(
-			&cit.ID, &cit.CaseID, &cit.SourceType, &cit.DocumentID, &cit.KnowledgeSourceID, &cit.PageNumber,
-			&cit.SectionName, &cit.ClauseNumber, &cit.QuotedText, &bboxBytes, &cit.Confidence, &cit.ValidationStatus, &cit.CreatedAt,
-		)
-		if err != nil {
-			http.Error(w, "Error parsing citation row", http.StatusInternalServerError)
-			return
+	for i, cit := range citations {
+		if bboxStr, ok := cit.BoundingBox.(string); ok && bboxStr != "" {
+			var bboxMap interface{}
+			if err := json.Unmarshal([]byte(bboxStr), &bboxMap); err == nil {
+				citations[i].BoundingBox = bboxMap
+			}
 		}
-		_ = json.Unmarshal(bboxBytes, &cit.BoundingBox)
-		citations = append(citations, cit)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -334,33 +386,28 @@ func (s *Service) GetCitations(w http.ResponseWriter, r *http.Request) {
 func (s *Service) GetEvidence(w http.ResponseWriter, r *http.Request) {
 	caseID := chi.URLParam(r, "caseId")
 	if caseID == "" {
-		http.Error(w, "Missing case ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing case ID")
 		return
 	}
 
-	rows, err := s.db.Pool.Query(r.Context(),
-		`SELECT id, case_id, document_name, why_required, priority, is_mandatory, status, uploaded_document_id, created_at 
-		FROM evidence_items WHERE case_id = $1`, caseID)
+	var items []EvidenceItem
+	err := s.db.CallQuery(r.Context(), "analysis:getEvidence", map[string]interface{}{"caseId": caseID}, &items)
 	if err != nil {
-		http.Error(w, "Failed to load evidence", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to load evidence")
 		return
-	}
-	defer rows.Close()
-
-	items := make([]EvidenceItem, 0)
-	for rows.Next() {
-		var ev EvidenceItem
-		err = rows.Scan(
-			&ev.ID, &ev.CaseID, &ev.DocumentName, &ev.WhyRequired, &ev.Priority, &ev.IsMandatory,
-			&ev.Status, &ev.UploadedDocumentID, &ev.CreatedAt,
-		)
-		if err != nil {
-			http.Error(w, "Error parsing evidence row", http.StatusInternalServerError)
-			return
-		}
-		items = append(items, ev)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(items)
+}
+
+func writeError(w http.ResponseWriter, status int, code, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"error": map[string]string{
+			"code":    code,
+			"message": message,
+		},
+	})
 }

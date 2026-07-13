@@ -2,58 +2,31 @@ package auth
 
 import (
 	"context"
+	"crypto/rsa"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
-	"math/rand"
+	"math/big"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"bimanyaya/api/internal/db"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 )
 
-type Claims struct {
-	UserID string `json:"user_id"`
-	Role   string `json:"role"`
+type contextKey string
+
+const UserKey contextKey = "user"
+
+type ClerkClaims struct {
+	Email         string `json:"email"`
+	EmailVerified bool   `json:"email_verified"`
 	jwt.RegisteredClaims
-}
-
-type AuthService struct {
-	db        *db.DB
-	jwtSecret []byte
-	// Memory store for OTPs for local development. In production, Redis would store this.
-	otpStore map[string]string 
-}
-
-func NewAuthService(database *db.DB, jwtSecret string) *AuthService {
-	return &AuthService{
-		db:        database,
-		jwtSecret: []byte(jwtSecret),
-		otpStore:  make(map[string]string),
-	}
-}
-
-type OTPRequest struct {
-	Email string `json:"email"`
-	Phone string `json:"phone"`
-}
-
-type OTPVerifyRequest struct {
-	Email string `json:"email"`
-	Phone string `json:"phone"`
-	Code  string `json:"code"`
-}
-
-type TokenResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	User         User   `json:"user"`
 }
 
 type User struct {
@@ -65,211 +38,120 @@ type User struct {
 	PreferredLanguage string `json:"preferred_language"`
 }
 
-func (s *AuthService) RequestOTP(w http.ResponseWriter, r *http.Request) {
-	var req OTPRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
-		return
-	}
-
-	identifier := req.Email
-	if identifier == "" {
-		identifier = req.Phone
-	}
-
-	if identifier == "" {
-		http.Error(w, "Email or phone is required", http.StatusBadRequest)
-		return
-	}
-
-	// Generate 6 digit code
-	code := fmt.Sprintf("%06d", rand.Intn(1000000))
-	s.otpStore[identifier] = code
-
-	// In real application, send via email or SMS. For demo, we return it or log it.
-	fmt.Printf("[OTP DEMO] Sent OTP %s to %s\n", code, identifier)
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "OTP sent successfully (check backend log for code in demo mode)",
-		"code_preview_demo": code, // Returning code directly for ease of API demonstration
-	})
+type JSONWebKey struct {
+	Kty string   `json:"kty"`
+	Kid string   `json:"kid"`
+	Use string   `json:"use"`
+	Alg string   `json:"alg"`
+	N   string   `json:"n"`
+	E   string   `json:"e"`
+	X5c []string `json:"x5c"`
 }
 
-func (s *AuthService) VerifyOTP(w http.ResponseWriter, r *http.Request) {
-	var req OTPVerifyRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
-		return
-	}
-
-	identifier := req.Email
-	if identifier == "" {
-		identifier = req.Phone
-	}
-
-	expectedCode, ok := s.otpStore[identifier]
-	if !ok || expectedCode != req.Code {
-		http.Error(w, "Invalid or expired OTP", http.StatusUnauthorized)
-		return
-	}
-
-	// Clear OTP
-	delete(s.otpStore, identifier)
-
-	ctx := r.Context()
-	var user User
-
-	// Check if user exists, else create
-	var err error
-	if req.Email != "" && req.Phone != "" {
-		err = s.db.Pool.QueryRow(ctx, 
-			"SELECT id, email, COALESCE(phone, ''), role, status, preferred_language FROM users WHERE email = $1 OR phone = $2", 
-			req.Email, req.Phone).Scan(&user.ID, &user.Email, &user.Phone, &user.Role, &user.Status, &user.PreferredLanguage)
-	} else if req.Email != "" {
-		err = s.db.Pool.QueryRow(ctx, 
-			"SELECT id, email, COALESCE(phone, ''), role, status, preferred_language FROM users WHERE email = $1", 
-			req.Email).Scan(&user.ID, &user.Email, &user.Phone, &user.Role, &user.Status, &user.PreferredLanguage)
-	} else {
-		err = s.db.Pool.QueryRow(ctx, 
-			"SELECT id, email, COALESCE(phone, ''), role, status, preferred_language FROM users WHERE phone = $1", 
-			req.Phone).Scan(&user.ID, &user.Email, &user.Phone, &user.Role, &user.Status, &user.PreferredLanguage)
-	}
-
-	if errors.Is(err, pgx.ErrNoRows) {
-		// Register new user
-		user.ID = uuid.New().String()
-		user.Email = req.Email
-		user.Phone = req.Phone
-		user.Role = "POLICYHOLDER"
-		user.Status = "ACTIVE"
-		user.PreferredLanguage = "en"
-
-		var emailVal *string
-		if req.Email != "" {
-			emailVal = &req.Email
-		}
-		var phoneVal *string
-		if req.Phone != "" {
-			phoneVal = &req.Phone
-		}
-
-		_, err = s.db.Pool.Exec(ctx, 
-			"INSERT INTO users (id, email, phone, role, status, preferred_language) VALUES ($1, $2, $3, $4, $5, $6)",
-			user.ID, emailVal, phoneVal, user.Role, user.Status, user.PreferredLanguage)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Failed to create user: %v", err), http.StatusInternalServerError)
-			return
-		}
-	} else if err != nil {
-		http.Error(w, "Database error", http.StatusInternalServerError)
-		return
-	}
-
-	// Auto-promote test roles in Convex
-	if user.Email == "reviewer@bimanyaya.in" && user.Role != "REVIEWER" {
-		user.Role = "REVIEWER"
-		s.db.Pool.Exec(ctx, "UPDATE users SET role = $1 WHERE email = $2", "REVIEWER", user.Email)
-	}
-	if user.Email == "admin@bimanyaya.in" && user.Role != "ADMIN" {
-		user.Role = "ADMIN"
-		s.db.Pool.Exec(ctx, "UPDATE users SET role = $1 WHERE email = $2", "ADMIN", user.Email)
-	}
-
-	// Generate JWT Access Token
-	expirationTime := time.Now().Add(24 * time.Hour)
-	claims := &Claims{
-		UserID: user.ID,
-		Role:   user.Role,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(s.jwtSecret)
-	if err != nil {
-		http.Error(w, "Token generation failed", http.StatusInternalServerError)
-		return
-	}
-
-	// Generate Refresh Token
-	refreshToken := uuid.New().String()
-	_, err = s.db.Pool.Exec(ctx,
-		"INSERT INTO sessions (user_id, refresh_token, ip_address, user_agent, expires_at) VALUES ($1, $2, $3, $4, $5)",
-		user.ID, refreshToken, r.RemoteAddr, r.UserAgent(), time.Now().Add(30*24*time.Hour))
-	if err != nil {
-		http.Error(w, "Session creation failed", http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(TokenResponse{
-		AccessToken:  tokenString,
-		RefreshToken: refreshToken,
-		User:         user,
-	})
+type JWKS struct {
+	Keys []JSONWebKey `json:"keys"`
 }
 
-func (s *AuthService) Logout(w http.ResponseWriter, r *http.Request) {
-	authHeader := r.Header.Get("Authorization")
-	if authHeader == "" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	// Simple logout: in production we revoke the refresh token and optionally blacklist the access token
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Logged out successfully"})
+type AuthService struct {
+	db             *db.DB
+	clerkSecret    string
+	clerkIssuer    string
+	clerkJWKSURL   string
+	convexURL      string
+	jwksMu         sync.RWMutex
+	jwksKeys       map[string]*rsa.PublicKey
+	lastJWKSFetch  time.Time
 }
 
+func NewAuthService(database *db.DB, clerkSecret, clerkIssuer, clerkJWKSURL, convexURL string) *AuthService {
+	return &AuthService{
+		db:           database,
+		clerkSecret:  clerkSecret,
+		clerkIssuer:  clerkIssuer,
+		clerkJWKSURL: clerkJWKSURL,
+		convexURL:    convexURL,
+		jwksKeys:     make(map[string]*rsa.PublicKey),
+	}
+}
+
+// Me endpoint to return current user info
 func (s *AuthService) Me(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value("user").(User)
+	user, ok := r.Context().Value(UserKey).(User)
 	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "User context not found")
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }
 
-// Middleware to secure endpoints
+// AuthMiddleware validates Clerk issued RS256 JWTs using JWKS
 func (s *AuthService) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			http.Error(w, "Missing authorization header", http.StatusUnauthorized)
+			writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "Missing authorization header")
 			return
 		}
 
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			http.Error(w, "Invalid authorization header format", http.StatusUnauthorized)
+			writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "Invalid authorization header format")
 			return
 		}
 
 		tokenString := parts[1]
-		claims := &Claims{}
+		claims := &ClerkClaims{}
 
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			return s.jwtSecret, nil
+			// Validate algorithm is RS256
+			if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+
+			kid, ok := token.Header["kid"].(string)
+			if !ok {
+				return nil, errors.New("missing kid header")
+			}
+
+			pubKey, err := s.getPublicKey(kid)
+			if err != nil {
+				// Retry fetching JWKS if key not found (could be a newly rotated key)
+				slog.Warn("Key ID not found in cache, refreshing JWKS", "kid", kid)
+				if fetchErr := s.refreshJWKS(); fetchErr != nil {
+					slog.Error("Failed to refresh JWKS", "error", fetchErr)
+				}
+				pubKey, err = s.getPublicKey(kid)
+				if err != nil {
+					return nil, fmt.Errorf("key not found after refresh: %w", err)
+				}
+			}
+
+			return pubKey, nil
 		})
 
 		if err != nil || !token.Valid {
-			http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
+			slog.Warn("Token validation failed", "error", err)
+			writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "Invalid or expired token")
 			return
 		}
 
-		// Fetch current user details
-		var user User
-		err = s.db.Pool.QueryRow(r.Context(),
-			"SELECT id, COALESCE(email, ''), COALESCE(phone, ''), role, status, preferred_language FROM users WHERE id = $1",
-			claims.UserID).Scan(&user.ID, &user.Email, &user.Phone, &user.Role, &user.Status, &user.PreferredLanguage)
+		// Validate claims (issuer, expiration, audience etc.)
+		if claims.Issuer != s.clerkIssuer {
+			slog.Warn("Token issuer mismatch", "expected", s.clerkIssuer, "got", claims.Issuer)
+			writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "Token issuer mismatch")
+			return
+		}
 
+		// Resolve user profile via Convex database lookup or sync
+		user, err := s.resolveUserProfile(r.Context(), claims)
 		if err != nil {
-			http.Error(w, "User not found or database error", http.StatusUnauthorized)
+			slog.Error("Failed to resolve user profile", "error", err)
+			writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to resolve user profile")
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "user", user)
+		ctx := context.WithValue(r.Context(), UserKey, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -278,9 +160,9 @@ func (s *AuthService) AuthMiddleware(next http.Handler) http.Handler {
 func RequireRole(roles ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			user, ok := r.Context().Value("user").(User)
+			user, ok := r.Context().Value(UserKey).(User)
 			if !ok {
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "User context not found")
 				return
 			}
 
@@ -295,11 +177,124 @@ func RequireRole(roles ...string) func(http.Handler) http.Handler {
 			}
 
 			if !allowed {
-				http.Error(w, "Forbidden: insufficient permissions", http.StatusForbidden)
+				writeError(w, http.StatusForbidden, "FORBIDDEN", "Insufficient permissions")
 				return
 			}
 
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+// Helper functions for JWKS and key parsing
+func (s *AuthService) getPublicKey(kid string) (*rsa.PublicKey, error) {
+	s.jwksMu.RLock()
+	defer s.jwksMu.RUnlock()
+
+	pubKey, exists := s.jwksKeys[kid]
+	if !exists {
+		return nil, fmt.Errorf("public key not found for kid: %s", kid)
+	}
+	return pubKey, nil
+}
+
+func (s *AuthService) refreshJWKS() error {
+	s.jwksMu.Lock()
+	defer s.jwksMu.Unlock()
+
+	// Rate limit JWKS fetches to once per minute
+	if time.Since(s.lastJWKSFetch) < 1*time.Minute {
+		return nil
+	}
+
+	slog.Info("Fetching JWKS from Clerk", "url", s.clerkJWKSURL)
+	resp, err := http.Get(s.clerkJWKSURL)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("jwks request returned status %d", resp.StatusCode)
+	}
+
+	var jwks JWKS
+	if err := json.NewDecoder(resp.Body).Decode(&jwks); err != nil {
+		return err
+	}
+
+	newKeys := make(map[string]*rsa.PublicKey)
+	for _, key := range jwks.Keys {
+		if key.Kty != "RSA" || key.Use != "sig" {
+			continue
+		}
+
+		decN, err := base64.RawURLEncoding.DecodeString(key.N)
+		if err != nil {
+			continue
+		}
+
+		decE, err := base64.RawURLEncoding.DecodeString(key.E)
+		if err != nil {
+			continue
+		}
+
+		var eVal int
+		for _, b := range decE {
+			eVal = (eVal << 8) | int(b)
+		}
+
+		pubKey := &rsa.PublicKey{
+			N: new(big.Int).SetBytes(decN),
+			E: eVal,
+		}
+
+		newKeys[key.Kid] = pubKey
+	}
+
+	s.jwksKeys = newKeys
+	s.lastJWKSFetch = time.Now()
+	return nil
+}
+
+func (s *AuthService) resolveUserProfile(ctx context.Context, claims *ClerkClaims) (User, error) {
+	// Look up user by Clerk subject (user ID) in Convex db
+	var user User
+	err := s.db.CallQuery(ctx, "users:getCurrent", map[string]interface{}{}, &user)
+	if err != nil {
+		// If query fails or returns null, we need to sync user profile in Convex
+		slog.Info("Syncing Clerk user profile with Convex database", "clerk_id", claims.Subject)
+		
+		var syncedID string
+		syncArgs := map[string]interface{}{
+			"clerkUserId":   claims.Subject,
+			"clerkSubject":  claims.Subject,
+			"email":         claims.Email,
+			"emailVerified": claims.EmailVerified,
+		}
+
+		err = s.db.CallMutation(ctx, "users:syncCurrentUser", syncArgs, &syncedID)
+		if err != nil {
+			return User{}, fmt.Errorf("failed to sync user in convex: %w", err)
+		}
+
+		// Re-fetch synced user profile
+		err = s.db.CallQuery(ctx, "users:getCurrent", map[string]interface{}{}, &user)
+		if err != nil {
+			return User{}, fmt.Errorf("failed to fetch user after sync: %w", err)
+		}
+	}
+
+	return user, nil
+}
+
+func writeError(w http.ResponseWriter, status int, code, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"error": map[string]string{
+			"code":    code,
+			"message": message,
+		},
+	})
 }

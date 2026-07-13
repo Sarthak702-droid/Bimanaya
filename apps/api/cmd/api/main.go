@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -19,8 +20,8 @@ import (
 	"bimanyaya/api/internal/consent"
 	"bimanyaya/api/internal/db"
 	"bimanyaya/api/internal/documents"
-	"bimanyaya/api/internal/eligibility"
 	"bimanyaya/api/internal/drafts"
+	"bimanyaya/api/internal/eligibility"
 	"bimanyaya/api/internal/review"
 
 	"github.com/go-chi/chi/v5"
@@ -37,19 +38,15 @@ func main() {
 	// 1. Load configuration
 	cfg := config.Load()
 
-	// 2. Initialize Database connection
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	database, err := db.Connect(ctx, cfg.DatabaseURL)
+	// 2. Initialize Database connection (Convex client)
+	database, err := db.Connect(cfg)
 	if err != nil {
 		slog.Error("Database connection failed", "error", err)
 		os.Exit(1)
 	}
-	defer database.Close()
 
 	// 3. Initialize Services
-	authSvc := auth.NewAuthService(database, cfg.JWTSecret)
+	authSvc := auth.NewAuthService(database, cfg.ClerkSecretKey, cfg.ClerkJWTIssuer, cfg.ClerkJWKSURL, cfg.ConvexURL)
 	eligibilitySvc := eligibility.NewService(database)
 	caseSvc := cases.NewService(database)
 	consentSvc := consent.NewService(database)
@@ -69,7 +66,8 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
-	r.Use(corsMiddleware)
+	r.Use(corsMiddleware(cfg.CORSAllowedOrigins))
+	r.Use(maxBodySizeMiddleware)
 
 	// Base API endpoint
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
@@ -79,12 +77,6 @@ func main() {
 
 	// API Routes Group
 	r.Route("/api/v1", func(r chi.Router) {
-		
-		// Auth APIs (Public)
-		r.Post("/auth/request-otp", authSvc.RequestOTP)
-		r.Post("/auth/verify-otp", authSvc.VerifyOTP)
-		r.Post("/auth/logout", authSvc.Logout)
-
 		// Document Upload simulation endpoint (Public mock for multipart S3 upload emulation)
 		r.Post("/documents/upload-endpoint/{documentId}", docSvc.UploadEndpoint)
 
@@ -190,17 +182,36 @@ func main() {
 	slog.Info("Server exited.")
 }
 
-func corsMiddleware(next http.Handler) http.Handler {
+func corsMiddleware(allowedOrigins string) func(http.Handler) http.Handler {
+	origins := strings.Split(allowedOrigins, ",")
+	allowedMap := make(map[string]bool)
+	for _, o := range origins {
+		allowedMap[strings.TrimSpace(o)] = true
+	}
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			origin := r.Header.Get("Origin")
+			if allowedMap[origin] {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Set("Access-Control-Allow-Credentials", "true")
+			}
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func maxBodySizeMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
+		r.Body = http.MaxBytesReader(w, r.Body, 10<<20) // Limit requests to 10MB
 		next.ServeHTTP(w, r)
 	})
 }

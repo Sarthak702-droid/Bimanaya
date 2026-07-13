@@ -17,31 +17,33 @@ import (
 )
 
 type Draft struct {
-	ID             string    `json:"id"`
-	CaseID         string    `json:"case_id"`
+	ID             string    `json:"_id"`
+	CaseID         string    `json:"caseId"`
 	Language       string    `json:"language"`
-	Status         string    `json:"status"` // DRAFT, APPROVED, REJECTED
-	CurrentVersion int       `json:"current_version"`
-	SafetyStatus   string    `json:"safety_status"` // PENDING, PASS, WARNING, BLOCK
-	CreatedBy      *string   `json:"created_by,omitempty"`
-	ApprovedBy     *string   `json:"approved_by,omitempty"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	Status         string    `json:"status"`
+	CurrentVersion int       `json:"currentVersion"`
+	SafetyStatus   string    `json:"safetyStatus"`
+	CreatedBy      *string   `json:"createdBy,omitempty"`
+	ApprovedBy     *string   `json:"approvedBy,omitempty"`
+	LegacyID       string    `json:"legacyId,omitempty"`
+	CreatedAt      time.Time `json:"createdAt"`
+	UpdatedAt      time.Time `json:"updatedAt"`
 }
 
 type DraftVersion struct {
-	ID            string      `json:"id"`
-	DraftID       string      `json:"draft_id"`
-	VersionNumber int         `json:"version_number"`
+	ID            string      `json:"_id"`
+	DraftID       string      `json:"draftId"`
+	VersionNumber int         `json:"versionNumber"`
 	Subject       string      `json:"subject"`
-	Content       string      `json:"content"` // HTML/Markdown formatted string
-	MetaDetails   interface{} `json:"meta_details,omitempty"`
-	CreatedBy     *string     `json:"created_by,omitempty"`
-	CreatedAt     time.Time   `json:"created_at"`
+	Content       string      `json:"content"`
+	MetaDetails   interface{} `json:"metaDetails,omitempty"`
+	CreatedBy     *string     `json:"createdBy,omitempty"`
+	LegacyID      string      `json:"legacyId,omitempty"`
+	CreatedAt     time.Time   `json:"createdAt"`
 }
 
 type CreateDraftRequest struct {
-	Language string `json:"language"` // en, hi, or
+	Language string `json:"language"`
 }
 
 type UpdateDraftRequest struct {
@@ -68,31 +70,15 @@ func NewService(database *db.DB, aiWorkerURL string) *Service {
 func (s *Service) GetCaseDrafts(w http.ResponseWriter, r *http.Request) {
 	caseID := chi.URLParam(r, "caseId")
 	if caseID == "" {
-		http.Error(w, "Missing case ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing case ID")
 		return
 	}
 
-	rows, err := s.db.Pool.Query(r.Context(),
-		`SELECT id, case_id, language, status, current_version, safety_status, created_by, approved_by, created_at, updated_at 
-		FROM drafts WHERE case_id = $1 ORDER BY updated_at DESC`, caseID)
+	var drafts []Draft
+	err := s.db.CallQuery(r.Context(), "drafts:listByCase", map[string]interface{}{"caseId": caseID}, &drafts)
 	if err != nil {
-		http.Error(w, "Failed to load drafts", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to load drafts")
 		return
-	}
-	defer rows.Close()
-
-	drafts := make([]Draft, 0)
-	for rows.Next() {
-		var d Draft
-		err = rows.Scan(
-			&d.ID, &d.CaseID, &d.Language, &d.Status, &d.CurrentVersion, &d.SafetyStatus,
-			&d.CreatedBy, &d.ApprovedBy, &d.CreatedAt, &d.UpdatedAt,
-		)
-		if err != nil {
-			http.Error(w, "Error parsing draft", http.StatusInternalServerError)
-			return
-		}
-		drafts = append(drafts, d)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -100,21 +86,21 @@ func (s *Service) GetCaseDrafts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) CreateDraft(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value("user").(auth.User)
+	user, ok := r.Context().Value(auth.UserKey).(auth.User)
 	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "Unauthorized")
 		return
 	}
 
 	caseID := chi.URLParam(r, "caseId")
 	if caseID == "" {
-		http.Error(w, "Missing case ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing case ID")
 		return
 	}
 
 	var req CreateDraftRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid input payload", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Invalid input payload")
 		return
 	}
 
@@ -123,17 +109,14 @@ func (s *Service) CreateDraft(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 1. Check if draft already exists
-	var existingID string
-	err := s.db.Pool.QueryRow(r.Context(),
-		"SELECT id FROM drafts WHERE case_id = $1 AND language = $2", caseID, req.Language).Scan(&existingID)
-
-	if err == nil {
-		http.Error(w, "Draft for this language already exists", http.StatusConflict)
+	var existing Draft
+	_ = s.db.CallQuery(r.Context(), "drafts:getByLegacyId", map[string]interface{}{"legacyId": caseID + "-" + req.Language}, &existing)
+	if existing.ID != "" {
+		writeError(w, http.StatusConflict, "CONFLICT", "Draft for this language already exists")
 		return
 	}
 
-	// 2. Fetch issues and citations to build prompt/payload for Python worker
-	// For demo: we make a direct call to the AI worker to retrieve a generated draft
+	// 2. Fetch draft from AI worker
 	aiPayload := map[string]interface{}{
 		"case_id":  caseID,
 		"language": req.Language,
@@ -145,7 +128,7 @@ func (s *Service) CreateDraft(w http.ResponseWriter, r *http.Request) {
 
 	aiReq, err := http.NewRequestWithContext(reqCtx, "POST", fmt.Sprintf("%s/generate-draft", s.aiWorkerURL), bytes.NewBuffer(payloadBytes))
 	if err != nil {
-		http.Error(w, "Internal AI integration issue", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Internal AI integration issue")
 		return
 	}
 	aiReq.Header.Set("Content-Type", "application/json")
@@ -153,13 +136,13 @@ func (s *Service) CreateDraft(w http.ResponseWriter, r *http.Request) {
 	client := &http.Client{}
 	resp, err := client.Do(aiReq)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("AI Worker offline: %v", err), http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "AI Worker offline")
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		http.Error(w, "AI Worker failed to generate draft", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "AI Worker failed to generate draft")
 		return
 	}
 
@@ -169,57 +152,71 @@ func (s *Service) CreateDraft(w http.ResponseWriter, r *http.Request) {
 		SafetyStatus string `json:"safety_status"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&aiResult); err != nil {
-		http.Error(w, "Failed to parse AI output", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to parse AI output")
 		return
 	}
 
-	// 3. Save draft to DB
+	// 3. Save draft to Convex
 	draftID := uuid.New().String()
 	versionID := uuid.New().String()
 
-	tx, err := s.db.Pool.Begin(r.Context())
-	if err != nil {
-		http.Error(w, "Transaction failed", http.StatusInternalServerError)
-		return
-	}
-	defer tx.Rollback(r.Context())
-
-	_, err = tx.Exec(r.Context(),
-		`INSERT INTO drafts (id, case_id, language, status, current_version, safety_status, created_by) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-		draftID, caseID, req.Language, "DRAFT", 1, aiResult.SafetyStatus, user.ID,
-	)
-	if err != nil {
-		http.Error(w, "Failed to create draft record", http.StatusInternalServerError)
-		return
+	draftArgs := map[string]interface{}{
+		"caseId":         caseID,
+		"language":       req.Language,
+		"status":         "DRAFT",
+		"currentVersion": 1,
+		"safetyStatus":   aiResult.SafetyStatus,
+		"createdBy":      user.ID,
+		"legacyId":       draftID,
 	}
 
-	_, err = tx.Exec(r.Context(),
-		`INSERT INTO draft_versions (id, draft_id, version_number, subject, content, created_by) 
-		VALUES ($1, $2, $3, $4, $5, $6)`,
-		versionID, draftID, 1, aiResult.Subject, aiResult.Content, user.ID,
-	)
+	var convexDraftID string
+	err = s.db.CallMutation(r.Context(), "drafts:create", draftArgs, &convexDraftID)
 	if err != nil {
-		http.Error(w, "Failed to create draft version", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to create draft record: "+err.Error())
 		return
 	}
 
-	// Transition case status to REVIEW_REQUIRED if safety check passed, else NEEDS_CLARIFICATION
+	versionArgs := map[string]interface{}{
+		"draftId":       convexDraftID,
+		"versionNumber": 1,
+		"subject":       aiResult.Subject,
+		"content":       aiResult.Content,
+		"createdBy":     user.ID,
+		"legacyId":      versionID,
+	}
+
+	var convexVersionID string
+	err = s.db.CallMutation(r.Context(), "drafts:createVersion", versionArgs, &convexVersionID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to create draft version: "+err.Error())
+		return
+	}
+
+	// Update case state
 	caseState := "REVIEW_REQUIRED"
 	if aiResult.SafetyStatus == "BLOCK" {
 		caseState = "NEEDS_CLARIFICATION"
 	}
-	_, _ = tx.Exec(r.Context(), "UPDATE cases SET workflow_state = $1, updated_at = NOW() WHERE id = $2", caseState, caseID)
-	_, _ = tx.Exec(r.Context(),
-		"INSERT INTO case_status_history (case_id, from_state, to_state, changed_by, reason) VALUES ($1, $2, $3, $4, $5)",
-		caseID, "ANALYSIS_READY", caseState, user.ID, "Grievance draft generated by AI",
-	)
 
-	if err := tx.Commit(r.Context()); err != nil {
-		http.Error(w, "Commit failed", http.StatusInternalServerError)
-		return
+	caseUpdateArgs := map[string]interface{}{
+		"legacyId":      caseID,
+		"workflowState": caseState,
 	}
+	var resCaseID string
+	_ = s.db.CallMutation(r.Context(), "cases:update", caseUpdateArgs, &resCaseID)
 
+	timelineArgs := map[string]interface{}{
+		"caseId":    caseID,
+		"fromState": "ANALYSIS_READY",
+		"toState":   caseState,
+		"changedBy": user.ID,
+		"reason":    "Grievance draft generated by AI",
+	}
+	var resTimelineID string
+	_ = s.db.CallMutation(r.Context(), "cases:logTimeline", timelineArgs, &resTimelineID)
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"draft_id":      draftID,
@@ -230,68 +227,62 @@ func (s *Service) CreateDraft(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) PatchDraft(w http.ResponseWriter, r *http.Request) {
-	user, ok := r.Context().Value("user").(auth.User)
+	user, ok := r.Context().Value(auth.UserKey).(auth.User)
 	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "Unauthorized")
 		return
 	}
 
 	draftID := chi.URLParam(r, "draftId")
 	if draftID == "" {
-		http.Error(w, "Missing draft ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing draft ID")
 		return
 	}
 
 	var req UpdateDraftRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid input payload", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Invalid input payload")
 		return
 	}
 
-	// Fetch current version number
-	var curVersion int
-	err := s.db.Pool.QueryRow(r.Context(), "SELECT current_version FROM drafts WHERE id = $1", draftID).Scan(&curVersion)
-	if err != nil {
-		http.Error(w, "Draft not found", http.StatusNotFound)
+	var d Draft
+	err := s.db.CallQuery(r.Context(), "drafts:getByLegacyId", map[string]interface{}{"legacyId": draftID}, &d)
+	if err != nil || d.ID == "" {
+		writeError(w, http.StatusNotFound, "NOT_FOUND", "Draft not found")
 		return
 	}
 
-	nextVersion := curVersion + 1
-
-	tx, err := s.db.Pool.Begin(r.Context())
-	if err != nil {
-		http.Error(w, "Database error", http.StatusInternalServerError)
-		return
-	}
-	defer tx.Rollback(r.Context())
-
-	// 1. Insert new version
+	nextVersion := d.CurrentVersion + 1
 	versionID := uuid.New().String()
-	_, err = tx.Exec(r.Context(),
-		`INSERT INTO draft_versions (id, draft_id, version_number, subject, content, created_by) 
-		VALUES ($1, $2, $3, $4, $5, $6)`,
-		versionID, draftID, nextVersion, req.Subject, req.Content, user.ID,
-	)
+
+	versionArgs := map[string]interface{}{
+		"draftId":       d.ID,
+		"versionNumber": nextVersion,
+		"subject":       req.Subject,
+		"content":       req.Content,
+		"createdBy":     user.ID,
+		"legacyId":      versionID,
+	}
+
+	var convexVerID string
+	err = s.db.CallMutation(r.Context(), "drafts:createVersion", versionArgs, &convexVerID)
 	if err != nil {
-		http.Error(w, "Failed to create new version", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to create new draft version: "+err.Error())
 		return
 	}
 
-	// 2. Update parent draft meta
-	_, err = tx.Exec(r.Context(),
-		"UPDATE drafts SET current_version = $1, updated_at = NOW() WHERE id = $2",
-		nextVersion, draftID,
-	)
+	updateArgs := map[string]interface{}{
+		"legacyId":       draftID,
+		"currentVersion": nextVersion,
+	}
+	var resDraftID string
+	err = s.db.CallMutation(r.Context(), "drafts:update", updateArgs, &resDraftID)
 	if err != nil {
-		http.Error(w, "Failed to update draft current version", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to update draft header: "+err.Error())
 		return
 	}
 
-	if err := tx.Commit(r.Context()); err != nil {
-		http.Error(w, "Failed to commit version update", http.StatusInternalServerError)
-		return
-	}
-
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"message":         "Draft version updated successfully",
@@ -302,38 +293,36 @@ func (s *Service) PatchDraft(w http.ResponseWriter, r *http.Request) {
 func (s *Service) TranslateDraft(w http.ResponseWriter, r *http.Request) {
 	draftID := chi.URLParam(r, "draftId")
 	if draftID == "" {
-		http.Error(w, "Missing draft ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing draft ID")
 		return
 	}
 
 	var req TranslateDraftRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid input payload", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Invalid input payload")
 		return
 	}
 
-	// Fetch current draft version content
-	var curVersion int
-	var caseID string
-	err := s.db.Pool.QueryRow(r.Context(), "SELECT case_id, current_version FROM drafts WHERE id = $1", draftID).Scan(&caseID, &curVersion)
-	if err != nil {
-		http.Error(w, "Draft not found", http.StatusNotFound)
+	var d Draft
+	err := s.db.CallQuery(r.Context(), "drafts:getByLegacyId", map[string]interface{}{"legacyId": draftID}, &d)
+	if err != nil || d.ID == "" {
+		writeError(w, http.StatusNotFound, "NOT_FOUND", "Draft not found")
 		return
 	}
 
-	var subject, content string
-	err = s.db.Pool.QueryRow(r.Context(),
-		"SELECT subject, content FROM draft_versions WHERE draft_id = $1 AND version_number = $2",
-		draftID, curVersion).Scan(&subject, &content)
-	if err != nil {
-		http.Error(w, "Draft content not found", http.StatusInternalServerError)
+	var ver DraftVersion
+	err = s.db.CallQuery(r.Context(), "drafts:getVersion", map[string]interface{}{
+		"draftId":       d.ID,
+		"versionNumber": d.CurrentVersion,
+	}, &ver)
+	if err != nil || ver.ID == "" {
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Draft version content not found")
 		return
 	}
 
-	// Make HTTP call to Python worker for translation
 	transPayload := map[string]string{
-		"text":            content,
-		"subject":         subject,
+		"text":            ver.Content,
+		"subject":         ver.Subject,
 		"target_language": req.TargetLanguage,
 	}
 	payloadBytes, _ := json.Marshal(transPayload)
@@ -343,7 +332,7 @@ func (s *Service) TranslateDraft(w http.ResponseWriter, r *http.Request) {
 
 	transReq, err := http.NewRequestWithContext(reqCtx, "POST", fmt.Sprintf("%s/translate", s.aiWorkerURL), bytes.NewBuffer(payloadBytes))
 	if err != nil {
-		http.Error(w, "Internal AI translation setup issue", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Internal AI translation setup issue")
 		return
 	}
 	transReq.Header.Set("Content-Type", "application/json")
@@ -351,13 +340,13 @@ func (s *Service) TranslateDraft(w http.ResponseWriter, r *http.Request) {
 	client := &http.Client{}
 	resp, err := client.Do(transReq)
 	if err != nil {
-		http.Error(w, "Translation worker unavailable", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Translation worker offline")
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		http.Error(w, "Translation worker failed request", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Translation worker failed request")
 		return
 	}
 
@@ -366,47 +355,39 @@ func (s *Service) TranslateDraft(w http.ResponseWriter, r *http.Request) {
 		TranslatedText    string `json:"translated_text"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&translationResult); err != nil {
-		http.Error(w, "Failed to parse translation result", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to parse translation result")
 		return
 	}
 
-	// Save new translated draft
 	newDraftID := uuid.New().String()
 	newVersionID := uuid.New().String()
 
-	tx, err := s.db.Pool.Begin(r.Context())
-	if err != nil {
-		http.Error(w, "Database transaction failed", http.StatusInternalServerError)
-		return
+	newDraftArgs := map[string]interface{}{
+		"caseId":         d.CaseID,
+		"language":       req.TargetLanguage,
+		"status":         "DRAFT",
+		"currentVersion": 1,
+		"safetyStatus":   "PASS",
+		"legacyId":       newDraftID,
 	}
-	defer tx.Rollback(r.Context())
 
-	// Insert translated draft
-	_, err = tx.Exec(r.Context(),
-		`INSERT INTO drafts (id, case_id, language, status, current_version, safety_status) 
-		VALUES ($1, $2, $3, $4, $5, $6)`,
-		newDraftID, caseID, req.TargetLanguage, "DRAFT", 1, "PASS",
-	)
+	var convNewDraftID string
+	err = s.db.CallMutation(r.Context(), "drafts:create", newDraftArgs, &convNewDraftID)
 	if err != nil {
-		http.Error(w, "Failed to insert translated draft record", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to insert translated draft record")
 		return
 	}
 
-	// Insert version
-	_, err = tx.Exec(r.Context(),
-		`INSERT INTO draft_versions (id, draft_id, version_number, subject, content) 
-		VALUES ($1, $2, $3, $4, $5)`,
-		newVersionID, newDraftID, 1, translationResult.TranslatedSubject, translationResult.TranslatedText,
-	)
-	if err != nil {
-		http.Error(w, "Failed to insert translated draft version", http.StatusInternalServerError)
-		return
+	newVerArgs := map[string]interface{}{
+		"draftId":       convNewDraftID,
+		"versionNumber": 1,
+		"subject":       translationResult.TranslatedSubject,
+		"content":       translationResult.TranslatedText,
+		"legacyId":      newVersionID,
 	}
 
-	if err := tx.Commit(r.Context()); err != nil {
-		http.Error(w, "Failed to save translation", http.StatusInternalServerError)
-		return
-	}
+	var convNewVerID string
+	_ = s.db.CallMutation(r.Context(), "drafts:createVersion", newVerArgs, &convNewVerID)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
@@ -416,35 +397,33 @@ func (s *Service) TranslateDraft(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ExportPDF fetches the draft and generates a downloadable PDF document using the AI worker.
 func (s *Service) ExportPDF(w http.ResponseWriter, r *http.Request) {
 	draftID := chi.URLParam(r, "draftId")
 	if draftID == "" {
-		http.Error(w, "Missing draft ID", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Missing draft ID")
 		return
 	}
 
-	// 1. Fetch current draft version content
-	var curVersion int
-	err := s.db.Pool.QueryRow(r.Context(), "SELECT current_version FROM drafts WHERE id = $1", draftID).Scan(&curVersion)
-	if err != nil {
-		http.Error(w, "Draft not found", http.StatusNotFound)
+	var d Draft
+	err := s.db.CallQuery(r.Context(), "drafts:getByLegacyId", map[string]interface{}{"legacyId": draftID}, &d)
+	if err != nil || d.ID == "" {
+		writeError(w, http.StatusNotFound, "NOT_FOUND", "Draft not found")
 		return
 	}
 
-	var subject, content string
-	err = s.db.Pool.QueryRow(r.Context(),
-		"SELECT subject, content FROM draft_versions WHERE draft_id = $1 AND version_number = $2",
-		draftID, curVersion).Scan(&subject, &content)
-	if err != nil {
-		http.Error(w, "Draft content not found", http.StatusInternalServerError)
+	var ver DraftVersion
+	err = s.db.CallQuery(r.Context(), "drafts:getVersion", map[string]interface{}{
+		"draftId":       d.ID,
+		"versionNumber": d.CurrentVersion,
+	}, &ver)
+	if err != nil || ver.ID == "" {
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Draft version content not found")
 		return
 	}
 
-	// 2. Make HTTP request to AI worker POST /generate-pdf
 	pdfPayload := map[string]string{
-		"subject":      subject,
-		"html_content": content,
+		"subject":      ver.Subject,
+		"html_content": ver.Content,
 	}
 	payloadBytes, _ := json.Marshal(pdfPayload)
 
@@ -453,7 +432,7 @@ func (s *Service) ExportPDF(w http.ResponseWriter, r *http.Request) {
 
 	pdfReq, err := http.NewRequestWithContext(reqCtx, "POST", fmt.Sprintf("%s/generate-pdf", s.aiWorkerURL), bytes.NewBuffer(payloadBytes))
 	if err != nil {
-		http.Error(w, "Internal PDF generation setup issue", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Internal PDF generation setup issue")
 		return
 	}
 	pdfReq.Header.Set("Content-Type", "application/json")
@@ -461,24 +440,29 @@ func (s *Service) ExportPDF(w http.ResponseWriter, r *http.Request) {
 	client := &http.Client{}
 	resp, err := client.Do(pdfReq)
 	if err != nil {
-		http.Error(w, "PDF generation worker offline", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "PDF generation worker offline")
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		http.Error(w, "PDF generation failed", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "PDF generation failed")
 		return
 	}
 
-	// 3. Write PDF response headers
 	w.Header().Set("Content-Type", "application/pdf")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"grievance_%s.pdf\"", draftID))
 
-	// Copy body bytes directly to response writer
-	_, err = io.Copy(w, resp.Body)
-	if err != nil {
-		return
-	}
+	_, _ = io.Copy(w, resp.Body)
 }
 
+func writeError(w http.ResponseWriter, status int, code, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"error": map[string]string{
+			"code":    code,
+			"message": message,
+		},
+	})
+}
