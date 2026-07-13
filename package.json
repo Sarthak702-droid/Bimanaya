@@ -1,0 +1,17 @@
+{
+  "name": "bimanyaya-convex",
+  "version": "1.0.0",
+  "description": "BimaNyaya Convex Backend Integration",
+  "main": "index.js",
+  "scripts": {
+    "convex:dev": "convex dev",
+    "convex:deploy": "convex deploy"
+  },
+  "dependencies": {
+    "@convex-dev/auth": "^0.0.94",
+    "convex": "^1.11.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
