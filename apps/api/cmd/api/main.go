@@ -80,6 +80,10 @@ func main() {
 		// Document Upload simulation endpoint (Public mock for multipart S3 upload emulation)
 		r.Post("/documents/upload-endpoint/{documentId}", docSvc.UploadEndpoint)
 
+		// Public Auth Routes (for local E2E simulation)
+		r.Post("/auth/request-otp", authSvc.RequestOTP)
+		r.Post("/auth/verify-otp", authSvc.VerifyOTP)
+
 		// Protected Routes
 		r.Group(func(r chi.Router) {
 			r.Use(authSvc.AuthMiddleware)

@@ -207,6 +207,24 @@ func (s *Service) TriggerCaseProcessing(w http.ResponseWriter, r *http.Request) 
 				Status             string  `json:"status"`
 				UploadedDocumentID *string `json:"uploaded_document_id,omitempty"`
 			} `json:"evidence_checklist"`
+			DocumentUpdates []struct {
+				DocumentID           string `json:"document_id"`
+				DocumentType         string `json:"document_type"`
+				OCRStatus            string `json:"ocr_status"`
+				ClassificationStatus string `json:"classification_status"`
+				Pages                []struct {
+					PageNumber int    `json:"page_number"`
+					StorageKey string `json:"storage_key"`
+				} `json:"pages"`
+				Extractions []struct {
+					FieldName       string  `json:"field_name"`
+					RawValue        string  `json:"raw_value"`
+					NormalizedValue string  `json:"normalized_value"`
+					PageNumber      int     `json:"page_number"`
+					SourceText      string  `json:"source_text"`
+					Confidence      float64 `json:"confidence"`
+				} `json:"extractions"`
+			} `json:"document_updates"`
 		}
 
 		if err := json.NewDecoder(resp.Body).Decode(&aiResult); err != nil {
@@ -289,6 +307,49 @@ func (s *Service) TriggerCaseProcessing(w http.ResponseWriter, r *http.Request) 
 		if err != nil || !success {
 			slog.Error("Failed to save AI findings to Convex", "error", err)
 			return
+		}
+
+		// Save document classification, page text mappings, and field extractions to Convex
+		for _, docUpdate := range aiResult.DocumentUpdates {
+			var updatedDocID string
+			err := s.db.CallMutation(ctx, "documents:updateTypeAndStatus", map[string]interface{}{
+				"legacyId":             docUpdate.DocumentID,
+				"documentType":         docUpdate.DocumentType,
+				"ocrStatus":            docUpdate.OCRStatus,
+				"classificationStatus": docUpdate.ClassificationStatus,
+			}, &updatedDocID)
+			if err != nil {
+				slog.Error("Failed to update document type and status in Convex", "document_id", docUpdate.DocumentID, "error", err)
+			}
+
+			for _, page := range docUpdate.Pages {
+				var pageID string
+				err := s.db.CallMutation(ctx, "documents:savePage", map[string]interface{}{
+					"documentId": docUpdate.DocumentID,
+					"pageNumber": page.PageNumber,
+					"storageKey": page.StorageKey,
+				}, &pageID)
+				if err != nil {
+					slog.Error("Failed to save document page to Convex", "document_id", docUpdate.DocumentID, "page", page.PageNumber, "error", err)
+				}
+			}
+
+			for _, ext := range docUpdate.Extractions {
+				var extID string
+				err := s.db.CallMutation(ctx, "documents:saveExtraction", map[string]interface{}{
+					"documentId":      docUpdate.DocumentID,
+					"fieldName":       ext.FieldName,
+					"fieldValue":      ext.RawValue,
+					"normalizedValue": ext.NormalizedValue,
+					"pageNumber":      ext.PageNumber,
+					"sourceText":      ext.SourceText,
+					"confidence":      ext.Confidence,
+					"reviewStatus":    "PENDING",
+				}, &extID)
+				if err != nil {
+					slog.Error("Failed to save document extraction to Convex", "document_id", docUpdate.DocumentID, "field", ext.FieldName, "error", err)
+				}
+			}
 		}
 
 		slog.Info("Successfully processed and saved AI findings", "case_id", caseID)

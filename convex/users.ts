@@ -161,3 +161,42 @@ export const updateRole = mutation({
     return user._id;
   },
 });
+
+// ── Get User by Email S2S (called from Go API auth handler) ──────────────
+export const getByEmailS2S = query({
+  args: { email: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+  },
+});
+
+// ── Register User S2S (called from Go API auth handler) ──────────────────
+export const registerUserS2S = mutation({
+  args: {
+    email: v.string(),
+    phone: v.optional(v.string()),
+    role: v.string(),
+    legacyId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const now = new Date().toISOString();
+    return await ctx.db.insert("users", {
+      clerkUserId: args.legacyId,
+      clerkSubject: args.legacyId,
+      email: args.email,
+      emailVerified: true,
+      phone: args.phone,
+      preferredLanguage: "en",
+      role: args.role as any,
+      status: "ACTIVE",
+      onboardingCompleted: false,
+      lastLoginAt: now,
+      createdAt: now,
+      updatedAt: now,
+      legacyId: args.legacyId,
+    });
+  },
+});

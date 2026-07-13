@@ -32,6 +32,8 @@ services:
       - redis
     ports:
       - "8080:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - PORT=8080
       - REDIS_URL=redis:6379
@@ -54,8 +56,13 @@ services:
     restart: always
     ports:
       - "8000:8000"
+    volumes:
+      - ./apps/ai-worker/app:/app/app
+      - /home/sarthaktripathy/Documents/BimaNyaya:/workspace
     environment:
       - PORT=8000
+      - SARVAM_API_KEY=${SARVAM_API_KEY}
 
 volumes:
   minio_data:
+

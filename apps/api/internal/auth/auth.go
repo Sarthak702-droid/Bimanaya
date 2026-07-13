@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math/big"
+	"math/rand"
 	"net/http"
 	"strings"
 	"sync"
@@ -17,6 +18,7 @@ import (
 	"bimanyaya/api/internal/db"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 type contextKey string
@@ -52,6 +54,17 @@ type JWKS struct {
 	Keys []JSONWebKey `json:"keys"`
 }
 
+type OTPRequest struct {
+	Email string `json:"email"`
+	Phone string `json:"phone"`
+}
+
+type OTPVerifyRequest struct {
+	Email string `json:"email"`
+	Phone string `json:"phone"`
+	Code  string `json:"code"`
+}
+
 type AuthService struct {
 	db             *db.DB
 	clerkSecret    string
@@ -61,6 +74,8 @@ type AuthService struct {
 	jwksMu         sync.RWMutex
 	jwksKeys       map[string]*rsa.PublicKey
 	lastJWKSFetch  time.Time
+	otpStore       map[string]string
+	otpMu          sync.Mutex
 }
 
 func NewAuthService(database *db.DB, clerkSecret, clerkIssuer, clerkJWKSURL, convexURL string) *AuthService {
@@ -71,6 +86,7 @@ func NewAuthService(database *db.DB, clerkSecret, clerkIssuer, clerkJWKSURL, con
 		clerkJWKSURL: clerkJWKSURL,
 		convexURL:    convexURL,
 		jwksKeys:     make(map[string]*rsa.PublicKey),
+		otpStore:     make(map[string]string),
 	}
 }
 
@@ -104,6 +120,11 @@ func (s *AuthService) AuthMiddleware(next http.Handler) http.Handler {
 		claims := &ClerkClaims{}
 
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			// Support mock HMAC tokens signed with clerkSecret key
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); ok {
+				return []byte(s.clerkSecret), nil
+			}
+
 			// Validate algorithm is RS256
 			if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -261,27 +282,31 @@ func (s *AuthService) resolveUserProfile(ctx context.Context, claims *ClerkClaim
 	// Look up user by Clerk subject (user ID) in Convex db
 	var user User
 	err := s.db.CallQuery(ctx, "users:getCurrent", map[string]interface{}{}, &user)
-	if err != nil {
-		// If query fails or returns null, we need to sync user profile in Convex
-		slog.Info("Syncing Clerk user profile with Convex database", "clerk_id", claims.Subject)
-		
-		var syncedID string
-		syncArgs := map[string]interface{}{
-			"clerkUserId":   claims.Subject,
-			"clerkSubject":  claims.Subject,
-			"email":         claims.Email,
-			"emailVerified": claims.EmailVerified,
-		}
-
-		err = s.db.CallMutation(ctx, "users:syncCurrentUser", syncArgs, &syncedID)
+	if err != nil || user.ID == "" {
+		// Fallback to getByLegacyId (for mock tokens where getUserIdentity is not set in Convex auth)
+		err = s.db.CallQuery(ctx, "users:getByLegacyId", map[string]interface{}{"legacyId": claims.Subject}, &user)
 		if err != nil {
-			return User{}, fmt.Errorf("failed to sync user in convex: %w", err)
-		}
+			// If getByLegacyId fails as well, sync Clerk user profile in Convex
+			slog.Info("Syncing Clerk user profile with Convex database", "clerk_id", claims.Subject)
+			
+			var syncedID string
+			syncArgs := map[string]interface{}{
+				"clerkUserId":   claims.Subject,
+				"clerkSubject":  claims.Subject,
+				"email":         claims.Email,
+				"emailVerified": claims.EmailVerified,
+			}
 
-		// Re-fetch synced user profile
-		err = s.db.CallQuery(ctx, "users:getCurrent", map[string]interface{}{}, &user)
-		if err != nil {
-			return User{}, fmt.Errorf("failed to fetch user after sync: %w", err)
+			err = s.db.CallMutation(ctx, "users:syncCurrentUser", syncArgs, &syncedID)
+			if err != nil {
+				return User{}, fmt.Errorf("failed to sync user in convex: %w", err)
+			}
+
+			// Re-fetch synced user profile
+			err = s.db.CallQuery(ctx, "users:getCurrent", map[string]interface{}{}, &user)
+			if err != nil {
+				return User{}, fmt.Errorf("failed to fetch user after sync: %w", err)
+			}
 		}
 	}
 
@@ -296,5 +321,119 @@ func writeError(w http.ResponseWriter, status int, code, message string) {
 			"code":    code,
 			"message": message,
 		},
+	})
+}
+
+func (s *AuthService) RequestOTP(w http.ResponseWriter, r *http.Request) {
+	var req OTPRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Invalid input")
+		return
+	}
+
+	identifier := req.Email
+	if identifier == "" {
+		identifier = req.Phone
+	}
+
+	if identifier == "" {
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Email or phone is required")
+		return
+	}
+
+	code := fmt.Sprintf("%06d", rand.Intn(1000000))
+	
+	s.otpMu.Lock()
+	s.otpStore[identifier] = code
+	s.otpMu.Unlock()
+
+	slog.Info("[OTP DEMO] Sent OTP", "code", code, "to", identifier)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message":           "OTP sent successfully",
+		"code_preview_demo": code,
+	})
+}
+
+func (s *AuthService) VerifyOTP(w http.ResponseWriter, r *http.Request) {
+	var req OTPVerifyRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "BAD_REQUEST", "Invalid input")
+		return
+	}
+
+	identifier := req.Email
+	if identifier == "" {
+		identifier = req.Phone
+	}
+
+	s.otpMu.Lock()
+	expectedCode, ok := s.otpStore[identifier]
+	if ok && expectedCode == req.Code {
+		delete(s.otpStore, identifier)
+	}
+	s.otpMu.Unlock()
+
+	if !ok || expectedCode != req.Code {
+		writeError(w, http.StatusUnauthorized, "UNAUTHORIZED", "Invalid or expired OTP")
+		return
+	}
+
+	ctx := r.Context()
+	var user User
+
+	err := s.db.CallQuery(ctx, "users:getByEmailS2S", map[string]interface{}{"email": req.Email}, &user)
+	if err != nil || user.ID == "" {
+		legacyID := "user_" + strings.ReplaceAll(uuid.New().String(), "-", "")
+		role := "POLICYHOLDER"
+		
+		if req.Email == "reviewer@bimanyaya.in" {
+			role = "REVIEWER"
+		} else if req.Email == "admin@bimanyaya.in" {
+			role = "ADMIN"
+		}
+
+		var createdID string
+		err = s.db.CallMutation(ctx, "users:registerUserS2S", map[string]interface{}{
+			"email":    req.Email,
+			"phone":    req.Phone,
+			"role":     role,
+			"legacyId": legacyID,
+		}, &createdID)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", fmt.Sprintf("Failed to register user in Convex: %v", err))
+			return
+		}
+
+		err = s.db.CallQuery(ctx, "users:getByEmailS2S", map[string]interface{}{"email": req.Email}, &user)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to retrieve user after registration")
+			return
+		}
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub":            user.ID,
+		"email":          user.Email,
+		"email_verified": true,
+		"role":           user.Role,
+		"iss":            s.clerkIssuer,
+		"exp":            time.Now().Add(24 * time.Hour).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte(s.clerkSecret))
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to generate token")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"access_token": tokenString,
+		"token_type":   "Bearer",
+		"expires_in":   86400,
 	})
 }

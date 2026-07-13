@@ -100,3 +100,67 @@ export const softDelete = mutation({
     return true;
   },
 });
+
+// ── Save Document Extraction ───────────────────────────────────────────
+export const saveExtraction = mutation({
+  args: {
+    documentId: v.string(),
+    fieldName: v.string(),
+    fieldValue: v.optional(v.string()),
+    normalizedValue: v.optional(v.string()),
+    pageNumber: v.optional(v.number()),
+    sourceText: v.optional(v.string()),
+    confidence: v.number(),
+    reviewStatus: v.string(),
+    legacyId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("documentExtractions", {
+      ...args,
+      createdAt: new Date().toISOString(),
+    });
+  },
+});
+
+// ── Save Document Page ──────────────────────────────────────────────────
+export const savePage = mutation({
+  args: {
+    documentId: v.string(),
+    pageNumber: v.number(),
+    storageKey: v.string(),
+    legacyId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("documentPages", {
+      ...args,
+      createdAt: new Date().toISOString(),
+    });
+  },
+});
+
+// ── Update Document Type & Status ───────────────────────────────────────
+export const updateTypeAndStatus = mutation({
+  args: {
+    legacyId: v.string(),
+    documentType: v.string(),
+    ocrStatus: v.string(),
+    classificationStatus: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const doc = await ctx.db
+      .query("documents")
+      .withIndex("by_legacy_id", (q) => q.eq("legacyId", args.legacyId))
+      .first();
+
+    if (!doc) {
+      throw new Error(`Document not found for legacyId: ${args.legacyId}`);
+    }
+
+    await ctx.db.patch(doc._id, {
+      documentType: args.documentType,
+      ocrStatus: args.ocrStatus,
+      classificationStatus: args.classificationStatus,
+    });
+    return doc._id;
+  },
+});

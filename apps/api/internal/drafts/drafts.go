@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -21,7 +22,7 @@ type Draft struct {
 	CaseID         string    `json:"caseId"`
 	Language       string    `json:"language"`
 	Status         string    `json:"status"`
-	CurrentVersion int       `json:"currentVersion"`
+	CurrentVersion float64   `json:"currentVersion"`
 	SafetyStatus   string    `json:"safetyStatus"`
 	CreatedBy      *string   `json:"createdBy,omitempty"`
 	ApprovedBy     *string   `json:"approvedBy,omitempty"`
@@ -33,7 +34,7 @@ type Draft struct {
 type DraftVersion struct {
 	ID            string      `json:"_id"`
 	DraftID       string      `json:"draftId"`
-	VersionNumber int         `json:"versionNumber"`
+	VersionNumber float64     `json:"versionNumber"`
 	Subject       string      `json:"subject"`
 	Content       string      `json:"content"`
 	MetaDetails   interface{} `json:"metaDetails,omitempty"`
@@ -286,7 +287,7 @@ func (s *Service) PatchDraft(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"message":         "Draft version updated successfully",
-		"current_version": nextVersion,
+		"current_version": int(nextVersion),
 	})
 }
 
@@ -306,6 +307,7 @@ func (s *Service) TranslateDraft(w http.ResponseWriter, r *http.Request) {
 	var d Draft
 	err := s.db.CallQuery(r.Context(), "drafts:getByLegacyId", map[string]interface{}{"legacyId": draftID}, &d)
 	if err != nil || d.ID == "" {
+		slog.Error("TranslateDraft: draft lookup failed", "err", err, "draft_id", draftID, "retrieved_id", d.ID)
 		writeError(w, http.StatusNotFound, "NOT_FOUND", "Draft not found")
 		return
 	}
@@ -313,7 +315,7 @@ func (s *Service) TranslateDraft(w http.ResponseWriter, r *http.Request) {
 	var ver DraftVersion
 	err = s.db.CallQuery(r.Context(), "drafts:getVersion", map[string]interface{}{
 		"draftId":       d.ID,
-		"versionNumber": d.CurrentVersion,
+		"versionNumber": int(d.CurrentVersion),
 	}, &ver)
 	if err != nil || ver.ID == "" {
 		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Draft version content not found")
@@ -414,7 +416,7 @@ func (s *Service) ExportPDF(w http.ResponseWriter, r *http.Request) {
 	var ver DraftVersion
 	err = s.db.CallQuery(r.Context(), "drafts:getVersion", map[string]interface{}{
 		"draftId":       d.ID,
-		"versionNumber": d.CurrentVersion,
+		"versionNumber": int(d.CurrentVersion),
 	}, &ver)
 	if err != nil || ver.ID == "" {
 		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Draft version content not found")
