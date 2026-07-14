@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { useUser, useAuth as useClerkAuth } from '@clerk/clerk-react'
 
 export type UserRole = 'POLICYHOLDER' | 'REVIEWER' | 'ADMIN'
 
@@ -48,23 +49,37 @@ const DEFAULT_USERS: Record<UserRole, UserProfile> = {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [showLoginModal, setShowLoginModal] = useState(false)
+  const { user: clerkUser, isLoaded: isClerkLoaded, isSignedIn: isClerkSignedIn } = useUser()
+  const { signOut: clerkSignOut } = useClerkAuth()
 
-  // Load user from localStorage on mount
+  // Sync Clerk authentication with AuthContext state
   useEffect(() => {
-    const savedUser = localStorage.getItem('bn_user')
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser))
-      } catch (e) {
-        localStorage.removeItem('bn_user')
+    if (isClerkLoaded) {
+      if (isClerkSignedIn && clerkUser) {
+        // Retrieve role from Clerk publicMetadata or default to POLICYHOLDER
+        const userRole = (clerkUser.publicMetadata?.role as UserRole) || 'POLICYHOLDER'
+        const profile: UserProfile = {
+          id: clerkUser.id,
+          name: clerkUser.fullName || clerkUser.username || 'Clerk User',
+          email: clerkUser.primaryEmailAddress?.emailAddress || '',
+          role: userRole,
+          avatarUrl: clerkUser.imageUrl,
+        }
+        setUser(profile)
+        localStorage.setItem('bn_user', JSON.stringify(profile))
+      } else {
+        // Fallback to local storage mock user if no Clerk session is active
+        const savedUser = localStorage.getItem('bn_user')
+        if (savedUser) {
+          try {
+            setUser(JSON.parse(savedUser))
+          } catch (e) {
+            localStorage.removeItem('bn_user')
+          }
+        }
       }
-    } else {
-      // Default auto-login as Policyholder for convenience, but can switch
-      const defaultUser = DEFAULT_USERS.POLICYHOLDER
-      setUser(defaultUser)
-      localStorage.setItem('bn_user', JSON.stringify(defaultUser))
     }
-  }, [])
+  }, [isClerkLoaded, isClerkSignedIn, clerkUser])
 
   const signIn = (role: UserRole, customEmail?: string, customName?: string) => {
     const profile: UserProfile = {
@@ -79,9 +94,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setShowLoginModal(false)
   }
 
-  const signOut = () => {
+  const signOut = async () => {
     setUser(null)
     localStorage.removeItem('bn_user')
+    if (isClerkSignedIn) {
+      try {
+        await clerkSignOut()
+      } catch (e) {
+        console.error('Error during Clerk signout:', e)
+      }
+    }
     window.location.href = '/'
   }
 
@@ -134,9 +156,9 @@ function LoginModal({ onClose }: { onClose: () => void }) {
       <div
         className="glass-card animate-fade-in"
         style={{
-          maxWidth: 460,
+          maxWidth: 480,
           width: '100%',
-          padding: '32px 40px',
+          padding: '36px 40px',
           background: 'var(--surface-container-low)',
           border: '1px solid var(--glass-border)',
           borderRadius: 24,
@@ -161,12 +183,51 @@ function LoginModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        <p style={{ color: 'var(--on-surface-variant)', fontSize: 14, marginBottom: 24, lineHeight: 1.5 }}>
-          Simulating Clerk secure authentication. Select a workspace profile below to test specific role capabilities.
-        </p>
+        {/* Clerk Buttons */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+          <a
+            href="/sign-in"
+            className="btn btn-primary"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '12px 20px',
+              borderRadius: 100,
+              fontSize: 14,
+              fontWeight: 700,
+              textDecoration: 'none',
+              boxShadow: '0 0 14px var(--accent-light)',
+            }}
+          >
+            Sign In with Clerk
+          </a>
+          <a
+            href="/sign-up"
+            className="btn btn-secondary"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '12px 20px',
+              borderRadius: 100,
+              fontSize: 14,
+              fontWeight: 700,
+              textDecoration: 'none',
+            }}
+          >
+            Create Clerk Account
+          </a>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0', color: 'var(--on-surface-variant)', fontSize: 11, fontWeight: 600, letterSpacing: '0.05em' }}>
+          <div style={{ flex: 1, height: 1, background: 'var(--outline-variant)' }} />
+          <span style={{ padding: '0 12px', textTransform: 'uppercase' }}>Or Local Demo Workspace</span>
+          <div style={{ flex: 1, height: 1, background: 'var(--outline-variant)' }} />
+        </div>
 
         {/* Profile Selector cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
           {(['POLICYHOLDER', 'REVIEWER', 'ADMIN'] as UserRole[]).map((r) => {
             const defUser = DEFAULT_USERS[r]
             return (
@@ -176,9 +237,9 @@ function LoginModal({ onClose }: { onClose: () => void }) {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 16,
+                  gap: 12,
                   width: '100%',
-                  padding: 16,
+                  padding: 10,
                   background: 'var(--surface-container)',
                   border: '1px solid var(--outline-variant)',
                   borderRadius: 12,
@@ -189,7 +250,7 @@ function LoginModal({ onClose }: { onClose: () => void }) {
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = 'var(--accent)'
                   e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(77, 255, 163, 0.1)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(77, 255, 163, 0.08)'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = 'var(--outline-variant)'
@@ -200,43 +261,36 @@ function LoginModal({ onClose }: { onClose: () => void }) {
                 <img
                   src={defUser.avatarUrl}
                   alt={defUser.name}
-                  style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--outline-variant)' }}
+                  style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }}
                 />
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 15, color: 'var(--on-surface)' }}>{defUser.name}</div>
-                  <div style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>{defUser.email}</div>
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      marginTop: 4,
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: '0.05em',
-                      padding: '2px 8px',
-                      borderRadius: 4,
-                      background: r === 'POLICYHOLDER' ? 'rgba(77, 255, 163, 0.15)' : (r === 'REVIEWER' ? 'rgba(102, 224, 255, 0.15)' : 'rgba(255, 107, 107, 0.15)'),
-                      color: r === 'POLICYHOLDER' ? '#4dffa3' : (r === 'REVIEWER' ? '#66e0ff' : '#ff6b6b'),
-                    }}
-                  >
-                    {r}
-                  </span>
+                  <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--on-surface)' }}>{defUser.name}</div>
+                  <div style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>{defUser.email}</div>
                 </div>
+                <span
+                  style={{
+                    marginLeft: 'auto',
+                    fontSize: 9,
+                    fontWeight: 800,
+                    letterSpacing: '0.05em',
+                    padding: '2px 6px',
+                    borderRadius: 4,
+                    background: r === 'POLICYHOLDER' ? 'rgba(77, 255, 163, 0.15)' : (r === 'REVIEWER' ? 'rgba(102, 224, 255, 0.15)' : 'rgba(255, 107, 107, 0.15)'),
+                    color: r === 'POLICYHOLDER' ? '#4dffa3' : (r === 'REVIEWER' ? '#66e0ff' : '#ff6b6b'),
+                  }}
+                >
+                  {r}
+                </span>
               </button>
             )
           })}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', color: 'var(--on-surface-variant)', fontSize: 12 }}>
-          <div style={{ flex: 1, height: 1, background: 'var(--outline-variant)' }} />
-          <span style={{ padding: '0 12px' }}>OR CUSTOM EMAIL</span>
-          <div style={{ flex: 1, height: 1, background: 'var(--outline-variant)' }} />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <input
             type="text"
             className="input"
-            placeholder="Full Name"
+            placeholder="Custom Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--on-surface)' }}
@@ -244,33 +298,22 @@ function LoginModal({ onClose }: { onClose: () => void }) {
           <input
             type="email"
             className="input"
-            placeholder="Email Address"
+            placeholder="Custom Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--on-surface)' }}
           />
-          <select
-            className="input"
-            value={role}
-            onChange={(e) => setRole(e.target.value as UserRole)}
-            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--on-surface)' }}
+          <button
+            onClick={() => {
+              if (email) signIn(role, email, name || undefined)
+            }}
+            disabled={!email}
+            className="btn btn-primary"
+            style={{ width: '100%', justifyContent: 'center', padding: '12px', borderRadius: 8, opacity: email ? 1 : 0.6 }}
           >
-            <option value="POLICYHOLDER">Policyholder Workspace</option>
-            <option value="REVIEWER">Reviewer Workspace</option>
-            <option value="ADMIN">System Administrator</option>
-          </select>
+            Enter Custom Dashboard
+          </button>
         </div>
-
-        <button
-          onClick={() => {
-            if (email) signIn(role, email, name || undefined)
-          }}
-          disabled={!email}
-          className="btn btn-primary"
-          style={{ width: '100%', justifyContent: 'center', opacity: email ? 1 : 0.6 }}
-        >
-          Sign In Custom Profile
-        </button>
       </div>
     </div>
   )

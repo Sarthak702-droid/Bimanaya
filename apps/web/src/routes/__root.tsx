@@ -1,6 +1,9 @@
 import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
 import { ThemeProvider } from '../context/ThemeContext'
 import { AuthProvider } from '../context/AuthContext'
+import { ClerkProvider } from '@clerk/clerk-react'
+
+const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || 'pk_test_YWxlcnQtZ2hvc3QtNy5jbGVyay5hY2NvdW50cy5kZXYk'
 
 import appCss from '../styles.css?url'
 
@@ -56,9 +59,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <Outlet />
-      </AuthProvider>
+      <ClerkProvider publishableKey={publishableKey}>
+        <AuthProvider>
+          <Outlet />
+        </AuthProvider>
+      </ClerkProvider>
     </ThemeProvider>
   )
 }

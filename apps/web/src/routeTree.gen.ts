@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as ReviewerRouteImport } from './routes/reviewer'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -23,6 +25,16 @@ import { Route as DashboardLegalAidRouteImport } from './routes/dashboard/legal-
 import { Route as DashboardClaimsRouteImport } from './routes/dashboard/claims'
 import { Route as DashboardCasesNewIndexRouteImport } from './routes/dashboard/cases/new/index'
 
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReviewerRoute = ReviewerRouteImport.update({
   id: '/reviewer',
   path: '/reviewer',
@@ -94,6 +106,8 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/reviewer': typeof ReviewerRouteWithChildren
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/dashboard/claims': typeof DashboardClaimsRoute
   '/dashboard/legal-aid': typeof DashboardLegalAidRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
@@ -107,6 +121,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/dashboard/claims': typeof DashboardClaimsRoute
   '/dashboard/legal-aid': typeof DashboardLegalAidRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
@@ -123,6 +139,8 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/reviewer': typeof ReviewerRouteWithChildren
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/dashboard/claims': typeof DashboardClaimsRoute
   '/dashboard/legal-aid': typeof DashboardLegalAidRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
@@ -140,6 +158,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/reviewer'
+    | '/sign-in'
+    | '/sign-up'
     | '/dashboard/claims'
     | '/dashboard/legal-aid'
     | '/dashboard/settings'
@@ -153,6 +173,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/sign-in'
+    | '/sign-up'
     | '/dashboard/claims'
     | '/dashboard/legal-aid'
     | '/dashboard/settings'
@@ -168,6 +190,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/reviewer'
+    | '/sign-in'
+    | '/sign-up'
     | '/dashboard/claims'
     | '/dashboard/legal-aid'
     | '/dashboard/settings'
@@ -184,10 +208,26 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   ReviewerRoute: typeof ReviewerRouteWithChildren
+  SignInRoute: typeof SignInRoute
+  SignUpRoute: typeof SignUpRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reviewer': {
       id: '/reviewer'
       path: '/reviewer'
@@ -325,6 +365,8 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   DashboardRoute: DashboardRouteWithChildren,
   ReviewerRoute: ReviewerRouteWithChildren,
+  SignInRoute: SignInRoute,
+  SignUpRoute: SignUpRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
