@@ -45,7 +45,8 @@ The monorepo operates on a modular, decoupled full-stack architecture designed f
 │   ├── api            # Go Core API Gateway
 │   │   ├── cmd        # Entrypoint (main.go)
 │   │   └── internal   # Route Handlers, Clerk JWT Middleware, Convex HTTP Client
-│   └── ai-worker      # Python FastAPI Microservice (OCR, Translation, PDF Export)
+│   ├── ai-worker      # Python FastAPI Microservice (OCR, Translation, PDF Export)
+│   └── web            # TanStack Start Frontend (Vite, GSAP, WebGL Voronoi, Clerk Integration)
 ├── convex             # Convex Database Schemas, Mutations, Actions, and Queries
 ├── docker-compose.yml # Dev orchestration config
 ├── test_apis.sh       # E2E API Verification Script
@@ -55,6 +56,13 @@ The monorepo operates on a modular, decoupled full-stack architecture designed f
 ---
 
 ## 🛠 Tech Stack
+
+### Frontend Web App (`apps/web`)
+- **TanStack Start** (React router & SSR framework)
+- **Clerk React** (User authentication with custom `/sign-in` & `/sign-up` routes)
+- **GSAP** (Smooth scroll-down and stagger reveal animations)
+- **WebGL / GLSL Shaders** (Interactive, pointer-responsive Voronoi Cells background)
+- **Vanilla CSS** (Dark-emerald-mint professional design token system)
 
 ### Go API Gateway (`apps/api`)
 - **Go 1.25**
@@ -75,6 +83,7 @@ The monorepo operates on a modular, decoupled full-stack architecture designed f
 
 ### 1. Prerequisites
 Ensure you have the following installed locally:
+- [Node.js](https://nodejs.org/) (v18+)
 - [Go](https://go.dev/doc/install) (v1.25+)
 - [Python 3.10+](https://www.python.org/downloads/)
 - [Docker & Docker Compose](https://docs.docker.com/get-docker/)
@@ -89,13 +98,13 @@ Create a `.env` file in the root directory based on the `.env.example` template:
 CLERK_SECRET_KEY=sk_test_...
 CLERK_JWT_ISSUER=https://<your-app>.clerk.accounts.dev
 CLERK_JWKS_URL=https://<your-app>.clerk.accounts.dev/.well-known/jwks.json
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
 
 # Convex Deployment
 CONVEX_URL=https://<your-deployment>.convex.cloud
-
-# CORS & Gateway Settings
-CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
 ```
+
+Create `.env.local` inside the root and configure Convex URL settings matching your local server context if deploying database functions locally.
 
 ### 3. Deploying Convex Functions
 To initialize the database schema and upload queries/mutations to your deployment:
@@ -103,8 +112,19 @@ To initialize the database schema and upload queries/mutations to your deploymen
 npx convex dev
 ```
 
-### 4. Running Locally via Docker Compose
-To start the services (Go API, Python AI-Worker, Redis, MinIO) in the background:
+### 4. Running the Web Application
+Run the root development script to boot the frontend Vite dev server (port `3000` / `3001`):
+```bash
+npm run dev
+```
+
+To compile and verify the production build for both client and server targets:
+```bash
+npm run build
+```
+
+### 5. Running Backends locally via Docker Compose
+To start the backing microservices (Go API, Python AI-Worker, Redis, MinIO) in the background:
 ```bash
 docker-compose up -d --build
 ```
