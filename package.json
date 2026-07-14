@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "convex:dev": "convex dev",
-    "convex:deploy": "convex deploy"
+    "convex:deploy": "convex deploy",
+    "build": "npm run build --prefix apps/web",
+    "dev": "npm run dev --prefix apps/web"
   },
   "dependencies": {
     "convex": "^1.11.0"

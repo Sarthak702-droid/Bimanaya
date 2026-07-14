@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BimaNyaya - Export &amp; Readiness</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&amp;family=JetBrains+Mono:wght@400&amp;family=Source+Serif+4:wght@400&amp;family=Work+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#131b2e",
+                        "primary-container": "#131b2e",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#cbdbf5",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "on-surface": "#0b1c30",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-tint": "#565e74",
+                        "surface-variant": "#d3e4fe",
+                        "secondary-container": "#316bf3",
+                        "on-surface-variant": "#45464d",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#213145",
+                        "outline": "#76777d",
+                        "on-tertiary-fixed": "#2a1700",
+                        "tertiary": "#000000",
+                        "on-tertiary-container": "#b87500",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "tertiary-container": "#2a1700",
+                        "primary": "#000000",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-container-low": "#eff4ff",
+                        "on-primary-container": "#7c839b",
+                        "surface-container-high": "#dce9ff",
+                        "surface-container": "#e5eeff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-bright": "#f8f9ff",
+                        "secondary": "#0051d5",
+                        "inverse-primary": "#bec6e0",
+                        "secondary-fixed": "#dbe1ff",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "background": "#f8f9ff",
+                        "on-secondary-container": "#fefcff",
+                        "surface": "#f8f9ff",
+                        "on-background": "#0b1c30",
+                        "primary-fixed": "#dae2fd",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "primary-fixed-dim": "#bec6e0",
+                        "outline-variant": "#c6c6cd",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "editor-width": "720px",
+                        "stack-lg": "32px",
+                        "container-max": "1280px",
+                        "sidebar-width": "320px",
+                        "gutter": "24px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Work Sans"],
+                        "mono-ui": ["jetbrainsMono"],
+                        "body-compact": ["\"Source Serif 4\""],
+                        "body-main": ["\"Source Serif 4\""],
+                        "display-doc": ["Work Sans"],
+                        "label-bold": ["Inter"],
+                        "headline-lg-mobile": ["Work Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "mono-ui": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-compact": ["16px", { "lineHeight": "26px", "fontWeight": "400" }],
+                        "body-main": ["18px", { "lineHeight": "30px", "fontWeight": "400" }],
+                        "display-doc": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background h-full overflow-hidden flex flex-col font-body-main antialiased selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopNavBar -->
+<header class="bg-surface border-b border-outline-variant fixed top-0 left-0 w-full z-50 flex justify-between items-center px-lg h-16 max-w-container-max mx-auto px-6">
+<div class="flex items-center gap-8">
+<span class="font-headline-md text-headline-md font-bold text-primary">BimaNyaya</span>
+<nav class="hidden md:flex gap-6 h-full items-center">
+<a class="text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70 font-title-lg text-title-lg" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70 font-title-lg text-title-lg" href="#">Grievances</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70 font-title-lg text-title-lg" href="#">Reviews</a>
+<a class="text-secondary font-bold border-b-2 border-secondary pb-1 hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70 font-title-lg text-title-lg" href="#">Experts</a>
+</nav>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button class="hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70"><span class="material-symbols-outlined">notifications</span></button>
+<button class="hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70"><span class="material-symbols-outlined">account_circle</span></button>
+</div>
+</header>
+<div class="flex flex-1 pt-16 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="bg-surface-container-low border-r border-outline-variant docked left-0 h-full w-64 fixed left-0 top-16 h-[calc(100vh-64px)] flex flex-col p-md hidden md:flex z-40 p-4">
+<div class="mb-8">
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Grievance Module</h2>
+<p class="font-label-md text-label-md text-on-surface-variant mt-1">Case #8829-B</p>
+</div>
+<nav class="flex flex-col gap-2 flex-1">
+<a class="flex items-center gap-3 p-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-high transition-all scale-95 active:scale-90 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">edit_note</span> Editor
+                </a>
+<a class="flex items-center gap-3 p-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-high transition-all scale-95 active:scale-90 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">timeline</span> Timeline
+                </a>
+<a class="flex items-center gap-3 p-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-high transition-all scale-95 active:scale-90 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">verified_user</span> Expertise
+                </a>
+<a class="flex items-center gap-3 p-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-high transition-all scale-95 active:scale-90 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">forum</span> Feedback
+                </a>
+<a class="flex items-center gap-3 p-3 rounded-lg bg-secondary-container text-on-secondary-container font-bold hover:bg-surface-container-high transition-all scale-95 active:scale-90 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">file_download</span> Export
+                </a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant">
+<button class="w-full bg-primary text-on-primary py-2 px-4 rounded font-label-bold text-label-bold uppercase tracking-wider hover:bg-primary/90 transition-colors">
+                    Submit Review
+                </button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 ml-0 md:ml-64 bg-background overflow-y-auto p-gutter relative">
+<div class="max-w-editor-width mx-auto">
+<header class="mb-stack-lg border-b border-outline-variant pb-4 flex justify-between items-end">
+<div>
+<h1 class="font-display-doc text-display-doc text-on-surface mb-2">Export &amp; Readiness</h1>
+<p class="text-on-surface-variant font-body-compact text-body-compact">Case #8829-B final grievance package assembly.</p>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-high px-3 py-1.5 rounded border border-outline-variant shadow-sm">
+<span class="material-symbols-outlined text-[#059669] text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-bold text-label-bold text-on-surface uppercase">Ready for Submission</span>
+</div>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md mb-stack-lg">
+<!-- Card 1: Case Summary PDF -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4 hover:bg-[#F1F5F9] transition-colors relative group">
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center gap-3">
+<div class="bg-error-container text-on-error-container p-2 rounded flex items-center justify-center">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+</div>
+<div>
+<h3 class="font-body-compact text-body-compact font-bold text-on-surface leading-tight">Case Summary</h3>
+<span class="font-mono-ui text-mono-ui text-on-surface-variant">summary_final.pdf</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[#059669] text-sm" style="font-variation-settings: 'FILL' 1;" title="Ready">check_circle</span>
+</div>
+<div class="flex justify-between items-center mt-4">
+<span class="font-label-bold text-label-bold text-on-surface-variant">1.2 MB • 4 Pages</span>
+<button class="text-secondary hover:text-on-secondary-fixed-variant transition-colors"><span class="material-symbols-outlined">download</span></button>
+</div>
+</div>
+<!-- Card 2: Evidence Appendix -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4 hover:bg-[#F1F5F9] transition-colors relative group">
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center gap-3">
+<div class="bg-surface-container-high text-on-surface p-2 rounded flex items-center justify-center">
+<span class="material-symbols-outlined">folder_zip</span>
+</div>
+<div>
+<h3 class="font-body-compact text-body-compact font-bold text-on-surface leading-tight">Evidence Appendix</h3>
+<span class="font-mono-ui text-mono-ui text-on-surface-variant">evidence_pack.zip</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[#059669] text-sm" style="font-variation-settings: 'FILL' 1;" title="Ready">check_circle</span>
+</div>
+<div class="flex justify-between items-center mt-4">
+<span class="font-label-bold text-label-bold text-on-surface-variant">14.5 MB • 12 Files</span>
+<button class="text-secondary hover:text-on-secondary-fixed-variant transition-colors"><span class="material-symbols-outlined">download</span></button>
+</div>
+</div>
+<!-- Card 3: Grievance Letter DOCX -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4 hover:bg-[#F1F5F9] transition-colors relative group">
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center gap-3">
+<div class="bg-secondary-container text-on-secondary-container p-2 rounded flex items-center justify-center">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div>
+<h3 class="font-body-compact text-body-compact font-bold text-on-surface leading-tight">Grievance Letter</h3>
+<span class="font-mono-ui text-mono-ui text-on-surface-variant">official_letter.docx</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[#059669] text-sm" style="font-variation-settings: 'FILL' 1;" title="Ready">check_circle</span>
+</div>
+<div class="flex justify-between items-center mt-4">
+<span class="font-label-bold text-label-bold text-on-surface-variant">45 KB • 2 Pages</span>
+<button class="text-secondary hover:text-on-secondary-fixed-variant transition-colors"><span class="material-symbols-outlined">download</span></button>
+</div>
+</div>
+<!-- Card 4: Citation Ledger -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4 hover:bg-[#F1F5F9] transition-colors relative group">
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center gap-3">
+<div class="bg-tertiary-fixed text-on-tertiary-fixed-variant p-2 rounded flex items-center justify-center">
+<span class="material-symbols-outlined">menu_book</span>
+</div>
+<div>
+<h3 class="font-body-compact text-body-compact font-bold text-on-surface leading-tight">Citation Ledger</h3>
+<span class="font-mono-ui text-mono-ui text-on-surface-variant">citations.csv</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[#059669] text-sm" style="font-variation-settings: 'FILL' 1;" title="Ready">check_circle</span>
+</div>
+<div class="flex justify-between items-center mt-4">
+<span class="font-label-bold text-label-bold text-on-surface-variant">12 KB • Data</span>
+<button class="text-secondary hover:text-on-secondary-fixed-variant transition-colors"><span class="material-symbols-outlined">download</span></button>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-lg mb-stack-lg shadow-sm">
+<h3 class="font-headline-lg text-headline-lg font-bold text-on-surface mb-4">Submission Instructions</h3>
+<div class="space-y-4">
+<div class="flex gap-4 p-4 bg-surface-container-low rounded border border-outline-variant">
+<div class="text-on-surface-variant">
+<span class="material-symbols-outlined">gavel</span>
+</div>
+<div>
+<h4 class="font-label-bold text-label-bold uppercase text-on-surface tracking-wider mb-1">To: Insurance Ombudsman</h4>
+<p class="font-body-compact text-body-compact text-on-surface-variant mb-2">Required: Case Summary PDF, Evidence Appendix.</p>
+<span class="font-mono-ui text-mono-ui bg-surface px-2 py-1 rounded border border-outline-variant text-on-surface">ombudsman.bima@gov.in</span>
+</div>
+</div>
+<div class="flex gap-4 p-4 bg-surface-container-low rounded border border-outline-variant">
+<div class="text-on-surface-variant">
+<span class="material-symbols-outlined">corporate_fare</span>
+</div>
+<div>
+<h4 class="font-label-bold text-label-bold uppercase text-on-surface tracking-wider mb-1">To: Insurer Grievance Cell</h4>
+<p class="font-body-compact text-body-compact text-on-surface-variant mb-2">Required: Grievance Letter DOCX, Citation Ledger.</p>
+<span class="font-mono-ui text-mono-ui bg-surface px-2 py-1 rounded border border-outline-variant text-on-surface">grievance@insurecorp.com</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex justify-end gap-4 mt-stack-lg pb-stack-lg">
+<button class="px-6 py-3 border-2 border-outline-variant text-on-surface font-label-bold text-label-bold uppercase tracking-wider rounded hover:bg-surface-container-low transition-colors">
+                        Preview All
+                    </button>
+<button class="px-6 py-3 bg-[#0F172A] text-on-primary font-label-bold text-label-bold uppercase tracking-wider rounded hover:bg-[#1E293B] transition-colors flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-sm">download_for_offline</span>
+                        Download Complete Pack
+                    </button>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant docked bottom-0 w-full w-full py-md px-lg flex justify-between items-center px-6 py-4 z-50 fixed bottom-0">
+<div class="text-on-surface-variant font-body-sm text-body-sm text-sm">
+            © 2024 BimaNyaya Insurance Systems. Evidence-Based Design Protocol.
+        </div>
+<div class="flex gap-4 text-sm">
+<a class="text-on-surface-variant hover:text-primary opacity-80 hover:opacity-100 transition-opacity" href="#">Legal Compliance</a>
+<a class="text-on-surface-variant hover:text-primary opacity-80 hover:opacity-100 transition-opacity" href="#">Data Privacy</a>
+<a class="text-on-surface-variant hover:text-primary opacity-80 hover:opacity-100 transition-opacity" href="#">Audit Logs</a>
+</div>
+</footer>
+</body></html>

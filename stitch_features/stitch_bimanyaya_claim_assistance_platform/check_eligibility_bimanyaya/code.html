@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BimaNyaya - Eligibility Wizard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar for checklist if it gets long */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c6c6cd;
+            border-radius: 4px;
+        }
+        /* Radio card styles */
+        input[type="radio"]:checked + div {
+            border-color: #006a61; /* secondary color */
+            background-color: #e4e2e4; /* surface-container-highest */
+        }
+        input[type="radio"]:checked + div .icon-container {
+            color: #006a61;
+        }
+        input[type="checkbox"]:checked + div {
+            border-color: #006a61;
+            background-color: #f0edef;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e4e2e4",
+                        "primary-container": "#131b2e",
+                        "on-secondary-fixed": "#00201d",
+                        "tertiary-container": "#2a1700",
+                        "inverse-primary": "#bec6e0",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "secondary-container": "#86f2e4",
+                        "surface-dim": "#dcd9db",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f3f0f2",
+                        "on-primary-fixed": "#131b2e",
+                        "inverse-surface": "#303032",
+                        "outline": "#76777d",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f6f3f5",
+                        "background": "#fcf8fa",
+                        "on-secondary-fixed-variant": "#005049",
+                        "secondary-fixed": "#89f5e7",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary": "#000000",
+                        "on-surface-variant": "#45464d",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-background": "#1b1b1d",
+                        "primary-fixed-dim": "#bec6e0",
+                        "primary": "#000000",
+                        "surface-container-highest": "#e4e2e4",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-container": "#f0edef",
+                        "error": "#ba1a1a",
+                        "on-surface": "#1b1b1d",
+                        "surface-bright": "#fcf8fa",
+                        "on-tertiary-container": "#b87500",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#eae7e9",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#006f66",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#565e74",
+                        "secondary": "#006a61",
+                        "surface": "#fcf8fa",
+                        "secondary-fixed-dim": "#6bd8cb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "3xl": "64px",
+                        "xl": "32px",
+                        "2xl": "48px",
+                        "xs": "4px",
+                        "container-max": "1280px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "margin-mobile": "16px",
+                        "sm": "8px",
+                        "base": "8px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "title-lg": ["Geist"],
+                        "label-md": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Geist"],
+                        "label-sm": ["Geist"]
+                    },
+                    "fontSize": {
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col antialiased">
+<!-- Focused Wizard Header -->
+<header class="flex justify-between items-center w-full px-lg py-md border-b border-outline-variant bg-surface z-50 sticky top-0">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary" data-weight="fill" style="font-variation-settings: 'FILL' 1;">shield_person</span>
+<span class="text-title-lg font-title-lg tracking-tight text-primary">BimaNyaya</span>
+</div>
+<button class="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" onclick="alert('Closing Wizard')">
+<span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+            Exit
+        </button>
+</header>
+<!-- Main Wizard Canvas -->
+<main class="flex-grow flex flex-col items-center justify-start py-xl px-margin-mobile md:px-xl w-full">
+<div class="w-full max-w-3xl flex flex-col gap-xl">
+<!-- Progress Indicator -->
+<div class="w-full flex flex-col gap-sm" id="progress-container">
+<div class="flex justify-between items-end">
+<span class="font-label-md text-label-md text-secondary uppercase tracking-wider">Eligibility Check</span>
+<span class="font-label-md text-label-md text-on-surface-variant"><span id="step-counter">1</span> of 6</span>
+</div>
+<div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary transition-all duration-500 ease-out" id="progress-bar" style="width: 16.66%;"></div>
+</div>
+</div>
+<!-- Steps Container -->
+<div class="w-full bg-surface border border-outline-variant rounded-xl p-lg md:p-2xl min-h-[400px] flex flex-col" id="wizard-steps">
+<!-- Step 1: Insurance Type -->
+<div class="wizard-step flex flex-col gap-lg h-full" id="step-1">
+<div class="flex flex-col gap-xs">
+<h2 class="font-headline-md text-headline-md text-primary">What type of insurance claim is this?</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Select the primary category of the policy involved.</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md flex-grow content-start">
+<!-- Option 1 -->
+<label class="cursor-pointer relative">
+<input checked="" class="sr-only" name="ins_type" type="radio" value="health"/>
+<div class="border border-outline-variant rounded-lg p-md flex items-start gap-md hover:bg-surface-container-low transition-colors h-full">
+<div class="icon-container text-on-surface-variant p-sm bg-surface-container rounded-DEFAULT">
+<span class="material-symbols-outlined">medical_services</span>
+</div>
+<div class="flex flex-col gap-xs">
+<span class="font-title-lg text-title-lg text-primary text-[16px]">Health &amp; Medical</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Hospitalization, treatments, and medical expenses.</span>
+</div>
+</div>
+</label>
+<!-- Option 2 -->
+<label class="cursor-pointer relative">
+<input class="sr-only" name="ins_type" type="radio" value="life"/>
+<div class="border border-outline-variant rounded-lg p-md flex items-start gap-md hover:bg-surface-container-low transition-colors h-full">
+<div class="icon-container text-on-surface-variant p-sm bg-surface-container rounded-DEFAULT">
+<span class="material-symbols-outlined">favorite</span>
+</div>
+<div class="flex flex-col gap-xs">
+<span class="font-title-lg text-title-lg text-primary text-[16px]">Life Insurance</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Death benefits, critical illness, term policies.</span>
+</div>
+</div>
+</label>
+<!-- Option 3 -->
+<label class="cursor-pointer relative">
+<input class="sr-only" name="ins_type" type="radio" value="motor"/>
+<div class="border border-outline-variant rounded-lg p-md flex items-start gap-md hover:bg-surface-container-low transition-colors h-full">
+<div class="icon-container text-on-surface-variant p-sm bg-surface-container rounded-DEFAULT">
+<span class="material-symbols-outlined">directions_car</span>
+</div>
+<div class="flex flex-col gap-xs">
+<span class="font-title-lg text-title-lg text-primary text-[16px]">Motor &amp; Vehicle</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Accidents, theft, and third-party liabilities.</span>
+</div>
+</div>
+</label>
+<!-- Option 4 -->
+<label class="cursor-pointer relative">
+<input class="sr-only" name="ins_type" type="radio" value="property"/>
+<div class="border border-outline-variant rounded-lg p-md flex items-start gap-md hover:bg-surface-container-low transition-colors h-full">
+<div class="icon-container text-on-surface-variant p-sm bg-surface-container rounded-DEFAULT">
+<span class="material-symbols-outlined">home</span>
+</div>
+<div class="flex flex-col gap-xs">
+<span class="font-title-lg text-title-lg text-primary text-[16px]">Property &amp; Fire</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Damage to home, business premises, or contents.</span>
+</div>
+</div>
+</label>
+</div>
+</div>
+<!-- Step 2: Claim Status -->
+<div class="wizard-step flex flex-col gap-lg h-full hidden" id="step-2">
+<div class="flex flex-col gap-xs">
+<h2 class="font-headline-md text-headline-md text-primary">What is the current status of your claim?</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">We need to know where you are in the process.</p>
+</div>
+<div class="flex flex-col gap-md flex-grow">
+<label class="cursor-pointer relative">
+<input class="sr-only" name="claim_status" type="radio" value="rejected"/>
+<div class="border border-outline-variant rounded-lg p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<span class="font-body-md text-body-md font-medium text-primary">Fully Rejected / Repudiated</span>
+<span class="material-symbols-outlined text-outline">radio_button_unchecked</span>
+</div>
+</label>
+<label class="cursor-pointer relative">
+<input class="sr-only" name="claim_status" type="radio" value="partial"/>
+<div class="border border-outline-variant rounded-lg p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<span class="font-body-md text-body-md font-medium text-primary">Partially Approved (Short Settlement)</span>
+<span class="material-symbols-outlined text-outline">radio_button_unchecked</span>
+</div>
+</label>
+<label class="cursor-pointer relative">
+<input class="sr-only" name="claim_status" type="radio" value="delayed"/>
+<div class="border border-outline-variant rounded-lg p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<span class="font-body-md text-body-md font-medium text-primary">Unreasonably Delayed (&gt;30 days)</span>
+<span class="material-symbols-outlined text-outline">radio_button_unchecked</span>
+</div>
+</label>
+</div>
+<style>
+                        input[type="radio"]:checked + div span.material-symbols-outlined {
+                            font-variation-settings: 'FILL' 1;
+                            color: #006a61;
+                        }
+                        input[type="radio"]:checked + div span.material-symbols-outlined::after {
+                            content: "radio_button_checked";
+                            position: absolute;
+                            right: 16px;
+                            background: #e4e2e4;
+                        }
+                    </style>
+</div>
+<!-- Step 3: Insurer Reason (Simplified for demo) -->
+<div class="wizard-step flex flex-col gap-lg h-full hidden" id="step-3">
+<div class="flex flex-col gap-xs">
+<h2 class="font-headline-md text-headline-md text-primary">Why did the insurer decline/reduce the claim?</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Select the closest match based on their communication.</p>
+</div>
+<div class="grid grid-cols-1 gap-sm flex-grow content-start">
+<select class="w-full bg-surface border border-outline rounded-lg p-md text-body-md font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none appearance-none">
+<option value="">Select a reason...</option>
+<option value="pre_existing">Pre-existing disease/condition</option>
+<option value="non_disclosure">Non-disclosure of material facts</option>
+<option value="exclusion">Falls under policy exclusions</option>
+<option value="delay_intimation">Delay in intimation/submission</option>
+<option value="customary">Reasonable &amp; customary clause (deductions)</option>
+<option value="other">Other / Not specified clearly</option>
+</select>
+</div>
+</div>
+<!-- Step 4: Documents -->
+<div class="wizard-step flex flex-col gap-lg h-full hidden" id="step-4">
+<div class="flex flex-col gap-xs">
+<h2 class="font-headline-md text-headline-md text-primary">Document Checklist</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Do you have access to these essential documents? (Select all you have)</p>
+</div>
+<div class="flex flex-col gap-sm flex-grow">
+<label class="flex items-center gap-md p-md border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors">
+<input class="w-5 h-5 text-secondary border-outline rounded-sm focus:ring-secondary" type="checkbox"/>
+<span class="font-body-md text-body-md text-primary">Complete Policy Copy (Schedule &amp; Terms)</span>
+</label>
+<label class="flex items-center gap-md p-md border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors">
+<input class="w-5 h-5 text-secondary border-outline rounded-sm focus:ring-secondary" type="checkbox"/>
+<span class="font-body-md text-body-md text-primary">Rejection / Deduction Letter from Insurer</span>
+</label>
+<label class="flex items-center gap-md p-md border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors">
+<input class="w-5 h-5 text-secondary border-outline rounded-sm focus:ring-secondary" type="checkbox"/>
+<span class="font-body-md text-body-md text-primary">Original Claim Form &amp; Bills</span>
+</label>
+</div>
+</div>
+<!-- Step 5: Authority -->
+<div class="wizard-step flex flex-col gap-lg h-full hidden" id="step-5">
+<div class="flex flex-col gap-xs">
+<h2 class="font-headline-md text-headline-md text-primary">Your Authority</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">What is your relationship to this policy?</p>
+</div>
+<div class="flex flex-col gap-md flex-grow">
+<label class="cursor-pointer relative">
+<input class="sr-only" name="authority" type="radio" value="self"/>
+<div class="border border-outline-variant rounded-lg p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<span class="font-body-md text-body-md font-medium text-primary">I am the Policyholder / Insured</span>
+<span class="material-symbols-outlined text-outline">person</span>
+</div>
+</label>
+<label class="cursor-pointer relative">
+<input class="sr-only" name="authority" type="radio" value="family"/>
+<div class="border border-outline-variant rounded-lg p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<span class="font-body-md text-body-md font-medium text-primary">Legal Heir / Nominee (Death Claim)</span>
+<span class="material-symbols-outlined text-outline">family_restroom</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Step 6: Urgency -->
+<div class="wizard-step flex flex-col gap-lg h-full hidden" id="step-6">
+<div class="flex flex-col gap-xs">
+<h2 class="font-headline-md text-headline-md text-primary">Risk &amp; Urgency</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Are there any immediate risks associated with this delay/denial?</p>
+</div>
+<div class="flex flex-col gap-md flex-grow">
+<label class="cursor-pointer relative">
+<input class="sr-only" name="urgency" type="radio" value="standard"/>
+<div class="border border-outline-variant rounded-lg p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<span class="font-body-md text-body-md font-medium text-primary">No immediate medical/financial emergency</span>
+</div>
+</label>
+<label class="cursor-pointer relative">
+<input class="sr-only" name="urgency" type="radio" value="medical"/>
+<div class="border border-outline-variant rounded-lg p-md flex items-center justify-between hover:bg-surface-container-low transition-colors border-l-4 border-l-error">
+<span class="font-body-md text-body-md font-medium text-primary">Patient is in hospital awaiting discharge/funds</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Result Step -->
+<div class="wizard-step flex flex-col gap-lg h-full hidden items-center justify-center text-center" id="step-result">
+<div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center mb-sm">
+<span class="material-symbols-outlined text-on-secondary-container" style="font-size: 32px; font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-primary">Eligible for Review</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg mt-sm">
+                        Based on your answers, your claim falls within the scope of matters BimaNyaya can assist with. We can help you analyze the rejection and prepare a strong appeal.
+                    </p>
+<div class="mt-xl w-full max-w-sm flex flex-col gap-sm">
+<button class="w-full bg-secondary text-on-secondary font-label-md text-label-md py-3 px-6 rounded-lg hover:bg-on-secondary-fixed-variant transition-colors flex justify-center items-center gap-2">
+                            Start My Case
+                            <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<div class="mt-xl pt-lg border-t border-outline-variant w-full max-w-xl text-left">
+<p class="font-body-sm text-body-sm text-outline">
+<strong>Legal Disclaimer:</strong> This check does not decide whether your claim is payable, nor does it guarantee a successful outcome. It solely determines if the nature of your dispute aligns with the services provided by BimaNyaya platform.
+                        </p>
+</div>
+</div>
+<!-- Footer Navigation -->
+<div class="mt-auto pt-lg border-t border-outline-variant flex justify-between items-center w-full" id="wizard-footer">
+<button class="px-6 py-2 border border-outline-variant text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container-low transition-colors invisible" id="btn-back">
+                        Back
+                    </button>
+<button class="px-6 py-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg hover:bg-on-surface-variant transition-colors flex items-center gap-2" id="btn-next">
+                        Continue
+                        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const totalSteps = 6;
+            let currentStep = 1;
+            
+            const steps = document.querySelectorAll('.wizard-step');
+            const btnNext = document.getElementById('btn-next');
+            const btnBack = document.getElementById('btn-back');
+            const progressBar = document.getElementById('progress-bar');
+            const stepCounter = document.getElementById('step-counter');
+            const wizardFooter = document.getElementById('wizard-footer');
+            const progressContainer = document.getElementById('progress-container');
+
+            function updateWizard() {
+                // Hide all steps
+                steps.forEach(step => step.classList.add('hidden'));
+                
+                // Show current step or result
+                if(currentStep <= totalSteps) {
+                    document.getElementById(`step-${currentStep}`).classList.remove('hidden');
+                    
+                    // Update progress UI
+                    progressContainer.classList.remove('hidden');
+                    wizardFooter.classList.remove('hidden');
+                    const progressPercentage = (currentStep / totalSteps) * 100;
+                    progressBar.style.width = `${progressPercentage}%`;
+                    stepCounter.textContent = currentStep;
+
+                    // Buttons logic
+                    if (currentStep === 1) {
+                        btnBack.classList.add('invisible');
+                    } else {
+                        btnBack.classList.remove('invisible');
+                    }
+                    
+                    if (currentStep === totalSteps) {
+                        btnNext.innerHTML = 'See Results <span class="material-symbols-outlined" style="font-size: 18px;">analytics</span>';
+                    } else {
+                        btnNext.innerHTML = 'Continue <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>';
+                    }
+                } else {
+                    // Result state
+                    document.getElementById('step-result').classList.remove('hidden');
+                    progressContainer.classList.add('hidden');
+                    wizardFooter.classList.add('hidden');
+                }
+            }
+
+            btnNext.addEventListener('click', () => {
+                if (currentStep <= totalSteps) {
+                    currentStep++;
+                    updateWizard();
+                }
+            });
+
+            btnBack.addEventListener('click', () => {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateWizard();
+                }
+            });
+
+            // Initialize
+            updateWizard();
+        });
+    </script>
+</body></html>

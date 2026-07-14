@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Document Upload - BimaNyaya</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#565e74",
+                        "surface-container-high": "#eae7e9",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "secondary-container": "#86f2e4",
+                        "on-primary-container": "#7c839b",
+                        "primary-fixed": "#dae2fd",
+                        "on-tertiary-fixed": "#2a1700",
+                        "primary-container": "#131b2e",
+                        "surface-bright": "#fcf8fa",
+                        "on-primary-fixed": "#131b2e",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f3f0f2",
+                        "surface-container-low": "#f6f3f5",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#1b1b1d",
+                        "surface-container": "#f0edef",
+                        "on-secondary-container": "#006f66",
+                        "tertiary": "#000000",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "primary": "#000000",
+                        "on-surface-variant": "#45464d",
+                        "inverse-primary": "#bec6e0",
+                        "surface-container-highest": "#e4e2e4",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-secondary-fixed-variant": "#005049",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#dcd9db",
+                        "error": "#ba1a1a",
+                        "surface": "#fcf8fa",
+                        "secondary-fixed": "#89f5e7",
+                        "tertiary-fixed": "#ffddb8",
+                        "outline-variant": "#c6c6cd",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#00201d",
+                        "surface-variant": "#e4e2e4",
+                        "background": "#fcf8fa",
+                        "tertiary-container": "#2a1700",
+                        "on-tertiary-container": "#b87500",
+                        "on-background": "#1b1b1d",
+                        "outline": "#76777d",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#6bd8cb",
+                        "secondary": "#006a61",
+                        "inverse-surface": "#303032",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "2xl": "48px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "gutter": "24px",
+                        "container-max": "1280px",
+                        "md": "16px",
+                        "base": "8px",
+                        "3xl": "64px",
+                        "xs": "4px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "title-lg": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row">
+<!-- Top Navigation (Desktop & Mobile Shell) -->
+<header class="sticky top-0 z-50 flex justify-between items-center w-full px-6 py-3 bg-background border-b border-outline-variant md:hidden">
+<div class="flex items-center gap-4">
+<span class="text-xl font-headline-md font-black text-on-background tracking-tighter">BimaNyaya</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-secondary-fixed hover:text-on-background transition-colors hover:bg-surface-container-highest rounded-full p-2">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-secondary-fixed hover:text-on-background transition-colors hover:bg-surface-container-highest rounded-full p-2">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Desktop Side Nav -->
+<nav class="hidden lg:flex flex-col h-screen p-4 gap-2 bg-surface border-r border-outline-variant w-64 sticky top-0 shrink-0">
+<div class="mb-8 px-3 pt-4">
+<span class="text-lg font-headline-md font-bold text-primary block">BimaNyaya Portal</span>
+<span class="font-body-sm text-on-surface-variant block mt-1">Policyholder View</span>
+</div>
+<button class="bg-primary text-on-primary font-label-md rounded-lg px-4 py-3 mb-6 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity w-full">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+            New Dispute
+        </button>
+<div class="flex flex-col gap-2 flex-grow">
+<a class="text-secondary-fixed hover:text-on-surface hover:bg-surface-container-high rounded-lg px-3 py-2 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Overview</span>
+</a>
+<a class="text-secondary-fixed hover:text-on-surface hover:bg-surface-container-high rounded-lg px-3 py-2 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+<span class="font-body-md text-body-md">My Claims</span>
+</a>
+<!-- Active State Context: Document Upload is part of Documentation / Policy Vault -->
+<a class="bg-secondary-container text-on-secondary-container font-medium rounded-lg px-3 py-2 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-body-md text-body-md">Policy Vault</span>
+</a>
+<a class="text-secondary-fixed hover:text-on-surface hover:bg-surface-container-high rounded-lg px-3 py-2 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="blind">blind</span>
+<span class="font-body-md text-body-md">Legal Aid</span>
+</a>
+<a class="text-secondary-fixed hover:text-on-surface hover:bg-surface-container-high rounded-lg px-3 py-2 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="font-body-md text-body-md">Support</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-2 border-t border-outline-variant pt-4">
+<a class="text-secondary-fixed hover:text-on-surface hover:bg-surface-container-high rounded-lg px-3 py-2 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+<a class="text-secondary-fixed hover:text-on-surface hover:bg-surface-container-high rounded-lg px-3 py-2 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-body-md text-body-md">Sign Out</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow p-margin-mobile md:p-gutter xl:p-xl max-w-container-max mx-auto w-full pb-24 md:pb-gutter">
+<!-- Header -->
+<div class="mb-xl">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background mb-2">Upload Documents</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Securely submit your required claim documentation for review. Please ensure all files are clear and legible.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Upload Area & Status -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<!-- Drag & Drop Zone -->
+<div class="bg-surface border-2 border-dashed border-outline-variant rounded-xl p-xl flex flex-col items-center justify-center text-center transition-all hover:bg-surface-container-lowest hover:border-primary cursor-pointer min-h-[320px]">
+<div class="bg-primary-fixed/20 p-4 rounded-full mb-6">
+<span class="material-symbols-outlined text-4xl text-primary" data-icon="cloud_upload">cloud_upload</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface mb-2">Drag &amp; Drop files here</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">or click to browse from your device</p>
+<button class="bg-primary text-on-primary font-label-md text-label-md rounded-lg px-6 py-3 min-w-[160px] hover:bg-primary/90 transition-colors">
+                        Select Files
+                    </button>
+<p class="font-body-sm text-body-sm text-outline mt-6">
+                        Supported formats: PDF, JPG, PNG (Max 10MB per file)
+                    </p>
+</div>
+<!-- Uploaded Files List -->
+<div>
+<h2 class="font-title-lg text-title-lg text-on-background mb-md">Current Uploads</h2>
+<div class="flex flex-col gap-sm">
+<!-- File Card: Scanning -->
+<div class="bg-surface border border-outline-variant rounded-lg p-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="bg-surface-container-highest p-3 rounded-md">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="picture_as_pdf">picture_as_pdf</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface truncate max-w-[200px] md:max-w-sm">Rejection_Letter_2023.pdf</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">2.4 MB</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center gap-2">
+<div class="w-32 h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed-dim w-3/4 animate-pulse"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">75%</span>
+</div>
+<span class="bg-secondary-container/20 text-on-secondary-container font-label-sm text-label-sm px-2 py-1 rounded border border-secondary-container/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="document_scanner">document_scanner</span>
+                                    Scanning
+                                </span>
+<button class="text-outline hover:text-error transition-colors p-1">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+</div>
+<!-- File Card: Ready -->
+<div class="bg-surface border border-outline-variant rounded-lg p-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="bg-surface-container-highest p-3 rounded-md">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="image">image</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface truncate max-w-[200px] md:max-w-sm">Policy_Schedule_Scan.jpg</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">1.1 MB</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="bg-[#e6f4ea] text-[#137333] font-label-sm text-label-sm px-2 py-1 rounded border border-[#ceead6] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="check_circle">check_circle</span>
+                                    Ready
+                                </span>
+<button class="text-outline hover:text-error transition-colors p-1">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+<!-- File Card: Needs Better Copy -->
+<div class="bg-surface border border-error/30 rounded-lg p-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex items-center gap-md">
+<div class="bg-error-container/30 p-3 rounded-md">
+<span class="material-symbols-outlined text-error" data-icon="error">error</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface truncate max-w-[200px] md:max-w-sm">Discharge_Summary_Blurry.png</p>
+<p class="font-body-sm text-body-sm text-error">Unreadable text detected</p>
+</div>
+</div>
+<div class="flex items-center gap-4 self-end md:self-auto">
+<span class="bg-error-container text-on-error-container font-label-sm text-label-sm px-2 py-1 rounded border border-error/20 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="warning">warning</span>
+                                    Needs Better Copy
+                                </span>
+<button class="text-outline hover:text-on-surface transition-colors p-1">
+<span class="material-symbols-outlined" data-icon="refresh">refresh</span>
+</button>
+<button class="text-outline hover:text-error transition-colors p-1">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Requirements -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<div class="bg-surface border border-outline-variant rounded-xl p-lg sticky top-lg">
+<h2 class="font-title-lg text-title-lg text-on-background mb-md">Required Documents</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6">These files are mandatory to process your appeal.</p>
+<ul class="flex flex-col gap-4">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary-fixed-dim mt-0.5" data-icon="task_alt">task_alt</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Rejection Letter</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Provided by your insurer</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary-fixed-dim mt-0.5" data-icon="task_alt">task_alt</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Policy Schedule</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">First few pages outlining terms</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-outline mt-0.5" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Discharge Summary</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Hospital discharge details</p>
+</div>
+</li>
+</ul>
+<hr class="border-t border-outline-variant my-6"/>
+<h2 class="font-title-lg text-title-lg text-on-background mb-md">Optional Documents</h2>
+<ul class="flex flex-col gap-4">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-outline mt-0.5" data-icon="add_circle">add_circle</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Medical Bills</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Detailed invoices and receipts</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-outline mt-0.5" data-icon="add_circle">add_circle</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Prescriptions</p>
+</div>
+</li>
+</ul>
+<div class="mt-8 flex flex-col gap-3">
+<button class="bg-primary text-on-primary font-label-md text-label-md rounded-lg py-3 w-full opacity-50 cursor-not-allowed">
+                            Submit Documents
+                        </button>
+<p class="font-body-sm text-body-sm text-center text-on-surface-variant">
+                            2 of 3 required documents ready
+                        </p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Bottom Navigation (Visible only on small screens) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface-container-low border-t border-outline-variant lg:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-xl pb-safe">
+<a class="flex flex-col items-center justify-center text-secondary-fixed p-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-[10px] uppercase tracking-wider mt-1">Home</span>
+</a>
+<!-- Active state mapped to Policy Vault intent -->
+<a class="flex flex-col items-center justify-center text-primary bg-primary-container/10 rounded-xl p-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-label-md text-[10px] uppercase tracking-wider mt-1">Docs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed p-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="font-label-md text-[10px] uppercase tracking-wider mt-1">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed p-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-[10px] uppercase tracking-wider mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BimaNyaya Homepage</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e4e2e4",
+                        "primary-container": "#131b2e",
+                        "on-secondary-fixed": "#00201d",
+                        "tertiary-container": "#2a1700",
+                        "inverse-primary": "#bec6e0",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "secondary-container": "#86f2e4",
+                        "surface-dim": "#dcd9db",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f3f0f2",
+                        "on-primary-fixed": "#131b2e",
+                        "inverse-surface": "#303032",
+                        "outline": "#76777d",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f6f3f5",
+                        "background": "#fcf8fa",
+                        "on-secondary-fixed-variant": "#005049",
+                        "secondary-fixed": "#89f5e7",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary": "#000000",
+                        "on-surface-variant": "#45464d",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-background": "#1b1b1d",
+                        "primary-fixed-dim": "#bec6e0",
+                        "primary": "#000000",
+                        "surface-container-highest": "#e4e2e4",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-container": "#f0edef",
+                        "error": "#ba1a1a",
+                        "on-surface": "#1b1b1d",
+                        "surface-bright": "#fcf8fa",
+                        "on-tertiary-container": "#b87500",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#eae7e9",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#006f66",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#565e74",
+                        "secondary": "#006a61",
+                        "surface": "#fcf8fa",
+                        "secondary-fixed-dim": "#6bd8cb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "3xl": "64px",
+                        "xl": "32px",
+                        "2xl": "48px",
+                        "xs": "4px",
+                        "container-max": "1280px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "margin-mobile": "16px",
+                        "sm": "8px",
+                        "base": "8px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "title-lg": ["Geist"],
+                        "label-md": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Geist"],
+                        "label-sm": ["Geist"]
+                    },
+                    "fontSize": {
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="sticky top-0 z-50 flex justify-between items-center w-full px-6 py-3 bg-background border-b border-outline-variant flat no shadows">
+<div class="flex items-center gap-xl">
+<span class="text-xl font-headline font-black text-on-background tracking-tighter">BimaNyaya</span>
+<div class="hidden md:flex gap-lg font-body text-on-background Headlines: font-headline font-bold tracking-tight">
+<a class="text-secondary-fixed hover:text-on-background transition-colors hover:bg-surface-container-highest transition-all px-2 py-1 rounded" href="#">Dashboard</a>
+<a class="text-secondary-fixed hover:text-on-background transition-colors hover:bg-surface-container-highest transition-all px-2 py-1 rounded" href="#">Claims</a>
+<a class="text-secondary-fixed hover:text-on-background transition-colors hover:bg-surface-container-highest transition-all px-2 py-1 rounded" href="#">Appeals</a>
+<a class="text-secondary-fixed hover:text-on-background transition-colors hover:bg-surface-container-highest transition-all px-2 py-1 rounded" href="#">Documentation</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex gap-sm">
+<button class="p-2 text-primary dark:text-primary hover:bg-surface-container-highest transition-all rounded-full"><span class="material-symbols-outlined">notifications</span></button>
+<button class="p-2 text-primary dark:text-primary hover:bg-surface-container-highest transition-all rounded-full"><span class="material-symbols-outlined">translate</span></button>
+<button class="p-2 text-primary dark:text-primary hover:bg-surface-container-highest transition-all rounded-full"><span class="material-symbols-outlined">account_circle</span></button>
+</div>
+<button class="bg-[#0d9488] text-on-primary px-4 py-2 rounded-lg font-label-md hover:bg-opacity-90 transition-opacity Active: scale-[0.98] duration-100">Check My Claim</button>
+</div>
+</nav>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 lg:hidden bg-surface-container-low dark:bg-surface-container-low border-t border-outline-variant shadow-lg rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-primary bg-primary-container/10 rounded-xl p-2 active:bg-surface-variant tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label text-[10px] uppercase tracking-wider text-primary dark:text-primary">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed p-2 active:bg-surface-variant tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined mb-1">account_balance_wallet</span>
+<span class="font-label text-[10px] uppercase tracking-wider text-primary dark:text-primary">Claims</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed p-2 active:bg-surface-variant tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined mb-1">notifications</span>
+<span class="font-label text-[10px] uppercase tracking-wider text-primary dark:text-primary">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed p-2 active:bg-surface-variant tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label text-[10px] uppercase tracking-wider text-primary dark:text-primary">Profile</span>
+</a>
+</nav>
+<main class="pb-2xl md:pb-0">
+<!-- Hero Section -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-xl py-2xl lg:py-3xl flex flex-col lg:flex-row items-center gap-2xl">
+<div class="flex-1 space-y-lg">
+<h1 class="font-display-lg text-display-lg text-primary font-bold">
+                    Understand your rejected or underpaid health-insurance claim.
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                    Our platform uses advanced analysis to break down complex insurance policies, identify discrepancies, and guide you through the appeals process with clinical integrity.
+                </p>
+<div class="flex gap-md pt-sm">
+<button class="bg-[#0d9488] text-white px-xl py-3 rounded-lg font-label-md hover:bg-opacity-90 transition-opacity">
+                        Start Claim Analysis
+                    </button>
+<button class="border border-[#0f172a] text-[#0f172a] px-xl py-3 rounded-lg font-label-md hover:bg-surface-container-low transition-colors">
+                        View Demo
+                    </button>
+</div>
+</div>
+<div class="flex-1 w-full max-w-lg lg:max-w-none relative">
+<div class="aspect-square bg-surface border border-outline-variant rounded-xl overflow-hidden relative shadow-sm p-lg flex flex-col gap-md">
+<div class="border-b border-outline-variant pb-md mb-sm flex justify-between items-center">
+<span class="font-title-lg text-title-lg">Claim #8492-B</span>
+<span class="bg-[#ba1a1a]/10 text-[#ba1a1a] px-2 py-1 rounded-full font-label-sm">Rejected</span>
+</div>
+<div class="space-y-md">
+<div class="p-md bg-surface-container-low rounded-lg border border-outline-variant">
+<h3 class="font-label-md text-label-md font-bold mb-xs">Reason: Medical Necessity</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">The procedure was deemed elective based on initial clinical notes.</p>
+</div>
+<div class="p-md bg-surface-container-low rounded-lg border border-outline-variant border-l-4 border-l-[#0d9488]">
+<h3 class="font-label-md text-label-md font-bold text-[#0d9488] mb-xs">Policy Citation Found</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Section 4.2.1 states exceptions for chronic condition management. Evidence required.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Trust Strip -->
+<section class="border-y border-outline-variant bg-surface-container-low py-lg">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-xl flex flex-wrap justify-center gap-xl md:gap-3xl items-center text-on-surface-variant font-label-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined">policy</span>
+                    Policy-specific Analysis
+                </div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined">language</span>
+                    Multilingual Support
+                </div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined">verified_user</span>
+                    Privacy-conscious Design
+                </div>
+</div>
+</section>
+<!-- Features / Supported Categories -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-xl py-2xl lg:py-3xl">
+<div class="text-center mb-xl">
+<h2 class="font-headline-lg text-headline-lg mb-sm">Supported Categories</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">We handle complex claim rejections across major categories.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- Card 1 -->
+<div class="bg-surface border border-outline-variant p-lg rounded-xl flex flex-col gap-md hover:shadow-md transition-shadow">
+<div class="h-12 w-12 bg-primary-container/10 text-primary-container rounded-lg flex items-center justify-center mb-sm">
+<span class="material-symbols-outlined">hotel</span>
+</div>
+<h3 class="font-title-lg text-title-lg">Room-rent Caps</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Analyze proportionate deductions applied due to exceeding room rent limits.</p>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface border border-outline-variant p-lg rounded-xl flex flex-col gap-md hover:shadow-md transition-shadow">
+<div class="h-12 w-12 bg-primary-container/10 text-primary-container rounded-lg flex items-center justify-center mb-sm">
+<span class="material-symbols-outlined">hourglass_empty</span>
+</div>
+<h3 class="font-title-lg text-title-lg">Waiting-period</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Verify pre-existing disease (PED) declarations against waiting period clauses.</p>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface border border-outline-variant p-lg rounded-xl flex flex-col gap-md hover:shadow-md transition-shadow">
+<div class="h-12 w-12 bg-primary-container/10 text-primary-container rounded-lg flex items-center justify-center mb-sm">
+<span class="material-symbols-outlined">medical_services</span>
+</div>
+<h3 class="font-title-lg text-title-lg">Medical Necessity</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Cross-reference clinical notes with standard medical necessity definitions.</p>
+</div>
+</div>
+</section>
+</main>
+</body></html>

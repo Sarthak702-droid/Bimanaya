@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Automated Processing - BimaNyaya</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-tint": "#565e74",
+                      "surface-container-high": "#eae7e9",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "secondary-container": "#86f2e4",
+                      "on-primary-container": "#7c839b",
+                      "primary-fixed": "#dae2fd",
+                      "on-tertiary-fixed": "#2a1700",
+                      "primary-container": "#131b2e",
+                      "surface-bright": "#fcf8fa",
+                      "on-primary-fixed": "#131b2e",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#f3f0f2",
+                      "surface-container-low": "#f6f3f5",
+                      "primary-fixed-dim": "#bec6e0",
+                      "on-tertiary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "on-surface": "#1b1b1d",
+                      "surface-container": "#f0edef",
+                      "on-secondary-container": "#006f66",
+                      "tertiary": "#000000",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "primary": "#000000",
+                      "on-surface-variant": "#45464d",
+                      "inverse-primary": "#bec6e0",
+                      "surface-container-highest": "#e4e2e4",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-secondary-fixed-variant": "#005049",
+                      "error-container": "#ffdad6",
+                      "surface-dim": "#dcd9db",
+                      "error": "#ba1a1a",
+                      "surface": "#fcf8fa",
+                      "secondary-fixed": "#89f5e7",
+                      "tertiary-fixed": "#ffddb8",
+                      "outline-variant": "#c6c6cd",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-fixed": "#00201d",
+                      "surface-variant": "#e4e2e4",
+                      "background": "#fcf8fa",
+                      "tertiary-container": "#2a1700",
+                      "on-tertiary-container": "#b87500",
+                      "on-background": "#1b1b1d",
+                      "outline": "#76777d",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#6bd8cb",
+                      "secondary": "#006a61",
+                      "inverse-surface": "#303032",
+                      "on-secondary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "2xl": "48px",
+                      "xl": "32px",
+                      "sm": "8px",
+                      "gutter": "24px",
+                      "container-max": "1280px",
+                      "md": "16px",
+                      "base": "8px",
+                      "3xl": "64px",
+                      "xs": "4px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "Geist"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Geist"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "title-lg": [
+                              "Geist"
+                      ],
+                      "label-sm": [
+                              "Geist"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "title-lg": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[style*="'FILL' 1"] {
+          font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(0, 106, 97, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(0, 106, 97, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(0, 106, 97, 0);
+            }
+        }
+
+        .spin-slow {
+            animation: spin 8s linear infinite;
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md flex">
+<!-- SideNavBar -->
+<nav class="hidden lg:flex flex-col h-screen p-4 gap-2 bg-surface dark:bg-surface border-r border-outline-variant w-64 sticky top-0">
+<div class="px-3 py-4 mb-4">
+<h1 class="text-lg font-headline font-bold text-primary">BimaNyaya Portal</h1>
+<p class="font-body-sm text-secondary-fixed text-on-surface-variant">Policyholder View</p>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<a class="text-secondary-fixed hover:text-on-surface hover:bg-surface-container-high rounded-lg px-3 py-2 flex items-center gap-3 transition-colors font-body text-sm" href="#">
+<span class="material-symbols-outlined text-outline">dashboard</span>
+                Overview
+            </a>
+<a class="bg-secondary-container text-on-secondary-container font-medium rounded-lg px-3 py-2 flex items-center gap-3 font-body text-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">gavel</span>
+                My Claims
+            </a>
+<a class="text-secondary-fixed hover:text-on-surface hover:bg-surface-container-high rounded-lg px-3 py-2 flex items-center gap-3 transition-colors font-body text-sm" href="#">
+<span class="material-symbols-outlined text-outline">description</span>
+                Policy Vault
+            </a>
+<a class="text-secondary-fixed hover:text-on-surface hover:bg-surface-container-high rounded-lg px-3 py-2 flex items-center gap-3 transition-colors font-body text-sm" href="#">
+<span class="material-symbols-outlined text-outline">blind</span>
+                Legal Aid
+            </a>
+<a class="text-secondary-fixed hover:text-on-surface hover:bg-surface-container-high rounded-lg px-3 py-2 flex items-center gap-3 transition-colors font-body text-sm" href="#">
+<span class="material-symbols-outlined text-outline">contact_support</span>
+                Support
+            </a>
+<a class="text-secondary-fixed hover:text-on-surface hover:bg-surface-container-high rounded-lg px-3 py-2 flex items-center gap-3 transition-colors font-body text-sm" href="#">
+<span class="material-symbols-outlined text-outline">settings</span>
+                Settings
+            </a>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container hover:bg-surface-container-highest transition-all rounded-lg py-3 font-label-md mt-4 mb-4 border border-outline-variant flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span> New Dispute
+        </button>
+<div class="border-t border-outline-variant pt-4 flex flex-col gap-2">
+<a class="text-secondary-fixed hover:text-on-surface hover:bg-surface-container-high rounded-lg px-3 py-2 flex items-center gap-3 transition-colors font-body text-sm" href="#">
+<span class="material-symbols-outlined text-outline">published_with_changes</span>
+                Switch Role
+            </a>
+<a class="text-secondary-fixed hover:text-on-surface hover:bg-surface-container-high rounded-lg px-3 py-2 flex items-center gap-3 transition-colors font-body text-sm" href="#">
+<span class="material-symbols-outlined text-outline">logout</span>
+                Sign Out
+            </a>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0 max-w-container-max mx-auto w-full">
+<!-- TopNavBar (Mobile only for content clarity, or hidden if linear process) -->
+<header class="sticky top-0 z-50 flex justify-between items-center w-full px-6 py-3 bg-background border-b border-outline-variant lg:hidden">
+<div class="text-xl font-headline font-black text-on-background tracking-tighter">BimaNyaya</div>
+<button class="text-secondary-fixed hover:text-on-background transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</header>
+<div class="p-margin-mobile md:p-lg flex-1 flex flex-col justify-center gap-gutter">
+<div class="text-center max-w-2xl mx-auto mb-xl">
+<h2 class="font-headline-lg text-headline-lg md:font-display-lg md:text-display-lg text-on-surface mb-sm">Automated Processing</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Our secure AI is currently analyzing your claim documents against policy parameters. Please do not close this window.</p>
+</div>
+<!-- Bento Grid Layout for Processing Details -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Central Progress Widget -->
+<div class="md:col-span-8 bg-surface rounded-xl border border-outline-variant p-lg flex flex-col items-center justify-center min-h-[400px] relative overflow-hidden">
+<!-- Subtle background texture/pattern could go here -->
+<div class="relative w-64 h-64 flex items-center justify-center">
+<!-- Circular Progress SVG -->
+<svg class="absolute inset-0 w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<!-- Background Circle -->
+<circle class="text-surface-container-highest" cx="50" cy="50" fill="none" r="45" stroke="currentColor" stroke-width="2"></circle>
+<!-- Progress Circle -->
+<circle class="text-secondary transition-all duration-1000 ease-out" cx="50" cy="50" fill="none" r="45" stroke="currentColor" stroke-dasharray="283" stroke-dashoffset="99" stroke-linecap="round" stroke-width="4"></circle>
+</svg>
+<!-- Pulsing Outer Ring -->
+<div class="absolute inset-4 rounded-full border-2 border-secondary/20 pulse-ring"></div>
+<div class="absolute inset-8 rounded-full border border-secondary/10 pulse-ring" style="animation-delay: 1s;"></div>
+<!-- Percentage Display -->
+<div class="relative z-10 flex flex-col items-center">
+<span class="font-display-lg text-display-lg text-on-surface tabular-nums">65%</span>
+<span class="font-label-md text-label-md text-secondary tracking-widest uppercase mt-xs">Processing</span>
+</div>
+</div>
+<div class="mt-xl text-center">
+<div class="inline-flex items-center gap-2 bg-surface-container-high rounded-full px-4 py-2 border border-outline-variant">
+<span class="material-symbols-outlined text-sm text-secondary animate-spin">sync</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Estimated time remaining: ~45 seconds</span>
+</div>
+</div>
+</div>
+<!-- Timeline / Stages -->
+<div class="md:col-span-4 bg-surface rounded-xl border border-outline-variant p-lg flex flex-col">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-lg border-b border-outline-variant pb-sm">Processing Stages</h3>
+<div class="flex-1 flex flex-col gap-0 relative">
+<!-- Connecting Line -->
+<div class="absolute left-[15px] top-4 bottom-8 w-px bg-outline-variant"></div>
+<!-- Stage 1: Completed -->
+<div class="flex gap-md relative z-10 py-sm">
+<div class="w-8 h-8 rounded-full bg-secondary-container border border-secondary text-on-secondary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="flex-1 pt-1">
+<p class="font-label-md text-label-md text-on-surface">Files secured</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Encrypted vault storage initialized.</p>
+</div>
+</div>
+<!-- Stage 2: Completed -->
+<div class="flex gap-md relative z-10 py-sm">
+<div class="w-8 h-8 rounded-full bg-secondary-container border border-secondary text-on-secondary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="flex-1 pt-1">
+<p class="font-label-md text-label-md text-on-surface">Malware scan completed</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Clean bill of health on all 4 documents.</p>
+</div>
+</div>
+<!-- Stage 3: Completed -->
+<div class="flex gap-md relative z-10 py-sm">
+<div class="w-8 h-8 rounded-full bg-secondary-container border border-secondary text-on-secondary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="flex-1 pt-1">
+<p class="font-label-md text-label-md text-on-surface">Text extracted</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">OCR parsing successful (99.8% confidence).</p>
+</div>
+</div>
+<!-- Stage 4: In Progress -->
+<div class="flex gap-md relative z-10 py-sm">
+<div class="w-8 h-8 rounded-full bg-surface border-2 border-secondary text-secondary flex items-center justify-center shrink-0 pulse-ring bg-surface-container-lowest">
+<div class="w-3 h-3 rounded-full bg-secondary"></div>
+</div>
+<div class="flex-1 pt-1">
+<p class="font-label-md text-label-md text-on-surface font-semibold">Claim details identified</p>
+<p class="font-body-sm text-body-sm text-secondary">Analyzing medical codes...</p>
+</div>
+</div>
+<!-- Stage 5: Pending -->
+<div class="flex gap-md relative z-10 py-sm opacity-50">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline text-outline flex items-center justify-center shrink-0">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+</div>
+<div class="flex-1 pt-1">
+<p class="font-label-md text-label-md text-on-surface">Policy clauses matched</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Pending identification completion.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Activity Log -->
+<div class="md:col-span-12 bg-surface rounded-xl border border-outline-variant p-lg">
+<div class="flex justify-between items-center mb-md border-b border-outline-variant pb-sm">
+<h3 class="font-title-lg text-title-lg text-on-surface">System Activity Log</h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">ID: CLM-2948-AUTO</span>
+</div>
+<div class="font-mono text-sm text-on-surface-variant h-32 overflow-y-auto space-y-1">
+<div class="flex gap-4 hover:bg-surface-container-low px-2 py-1 rounded">
+<span class="text-outline w-24 shrink-0">[10:42:01]</span>
+<span class="text-secondary">INFO: Initiating secure tunnel for document transfer.</span>
+</div>
+<div class="flex gap-4 hover:bg-surface-container-low px-2 py-1 rounded">
+<span class="text-outline w-24 shrink-0">[10:42:05]</span>
+<span class="text-secondary">INFO: Payload received. Size: 4.2MB.</span>
+</div>
+<div class="flex gap-4 hover:bg-surface-container-low px-2 py-1 rounded">
+<span class="text-outline w-24 shrink-0">[10:42:12]</span>
+<span class="text-secondary">SUCCESS: ClamAV scan returned clean (0 threats).</span>
+</div>
+<div class="flex gap-4 hover:bg-surface-container-low px-2 py-1 rounded">
+<span class="text-outline w-24 shrink-0">[10:42:18]</span>
+<span class="text-secondary">INFO: Tesseract OCR engine started on PDF payload.</span>
+</div>
+<div class="flex gap-4 hover:bg-surface-container-low px-2 py-1 rounded bg-secondary-container/10">
+<span class="text-outline w-24 shrink-0">[10:42:45]</span>
+<span class="text-on-surface font-semibold">PROCESSING: LLM context window loaded. Identifying ICD-10 codes...</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 lg:hidden bg-surface-container-low dark:bg-surface-container-low border-t border-outline-variant shadow-lg rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-secondary-fixed p-2" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label text-[10px] uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary bg-primary-container/10 rounded-xl p-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-label text-[10px] uppercase tracking-wider text-primary">Claims</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed p-2" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-label text-[10px] uppercase tracking-wider">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed p-2" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label text-[10px] uppercase tracking-wider">Profile</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User &amp; Partner Management - BimaNyaya Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=JetBrains+Mono:wght@400&amp;family=Source+Serif+4:wght@400&amp;family=Work+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#eff4ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-secondary-fixed": "#00174b",
+                        "tertiary-fixed": "#ffddb8",
+                        "tertiary": "#000000",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "outline": "#76777d",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#316bf3",
+                        "on-secondary-container": "#fefcff",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary-container": "#7c839b",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-fixed": "#131b2e",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#e5eeff",
+                        "inverse-surface": "#213145",
+                        "on-tertiary-container": "#b87500",
+                        "secondary": "#0051d5",
+                        "outline-variant": "#c6c6cd",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "inverse-primary": "#bec6e0",
+                        "error": "#ba1a1a",
+                        "primary-fixed": "#dae2fd",
+                        "primary-container": "#131b2e",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#2a1700",
+                        "surface-container-high": "#dce9ff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface-tint": "#565e74",
+                        "primary": "#000000",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "surface-variant": "#d3e4fe",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-surface-variant": "#45464d",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "background": "#f8f9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "sidebar-width": "320px",
+                        "gutter": "24px",
+                        "editor-width": "720px",
+                        "stack-lg": "32px",
+                        "container-max": "1280px",
+                        "stack-sm": "8px"
+                    },
+                    "fontFamily": {
+                        "display-doc": ["Work Sans"],
+                        "body-compact": ["\"Source Serif 4\""],
+                        "mono-ui": ["jetbrainsMono"],
+                        "body-main": ["\"Source Serif 4\""],
+                        "headline-lg-mobile": ["Work Sans"],
+                        "label-bold": ["Inter"],
+                        "headline-lg": ["Work Sans"]
+                    },
+                    "fontSize": {
+                        "display-doc": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-compact": ["16px", { "lineHeight": "26px", "fontWeight": "400" }],
+                        "mono-ui": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-main": ["18px", { "lineHeight": "30px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Source Serif 4', serif; }
+        .font-sans-ui { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface h-full flex flex-col font-sans-ui">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-lg h-16 max-w-container-max mx-auto bg-surface border-b border-outline-variant px-6">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-primary">BimaNyaya</span>
+</div>
+<nav class="hidden md:flex gap-8 h-full items-center font-title-lg text-title-lg">
+<a class="text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer h-full flex items-center" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer h-full flex items-center" href="#">Grievances</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer h-full flex items-center" href="#">Reviews</a>
+<a class="text-secondary font-bold border-b-2 border-secondary h-full flex items-center mt-[2px]" href="#">Experts</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar & Main Content Wrapper -->
+<div class="flex flex-1 pt-16">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] flex flex-col p-md bg-surface-container-low border-r border-outline-variant w-64 p-4 hidden md:flex">
+<div class="mb-8 px-2">
+<div class="flex items-center gap-3 mb-2">
+<img alt="Case Review Avatar" class="w-10 h-10 rounded-full object-cover" data-alt="A small, professional headshot avatar of a legal reviewer in a minimalist office setting. The lighting is bright and clean, fitting a modern light-mode interface. The color palette features neutral tones with a touch of deep blue to signify trust and authority." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIrazUycm2W3zzNsrAhFyu0OIQi1H5-vZAvGL5uLutJlb754Z7QLfRYQJhhYzpaPhXPVZMJobfYSP-n05OL0ZZA1LPoFNEzCk3y5aZYkWZtsK2dK1QO3HL-nTq4_Zn6ED7F_jSzDiRPzxLQLnhVNapl2ciL4yP6ZnKGMPAK9jbuGslXnZom3YD4Gcy7X1Y0LncZlXEuzwtMxuYrJoDHxNyZZyPOtqqQKNVLQnGAMzPgIwlBl22DLNG7km2kDRpa--7yJk6y4MlZpb6"/>
+<div>
+<h2 class="font-label-md text-label-md font-bold text-on-surface">Grievance Module</h2>
+<p class="text-xs text-on-surface-variant">Case #8829-B</p>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-2 font-label-md text-label-md flex-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined text-[20px]">edit_note</span>
+                    Editor
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined text-[20px]">timeline</span>
+                    Timeline
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-bold" href="#">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+                    Expertise
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined text-[20px]">forum</span>
+                    Feedback
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined text-[20px]">file_download</span>
+                    Export
+                </a>
+</nav>
+<div class="mt-auto pt-4">
+<button class="w-full bg-primary text-on-primary py-2 rounded-lg font-label-md text-label-md font-bold hover:opacity-90 transition-opacity">
+                    Submit Review
+                </button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 md:ml-64 p-gutter overflow-y-auto">
+<div class="max-w-container-max mx-auto space-y-gutter">
+<!-- Page Header -->
+<div class="flex justify-between items-end border-b border-outline-variant pb-4">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">User &amp; Partner Management</h1>
+<p class="font-body-compact text-body-compact text-on-surface-variant">Overseeing reviewer capacity, partner onboarding, and network health.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 border border-secondary text-secondary rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors">
+                            Export Report
+                        </button>
+<button class="px-4 py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span> Add Partner
+                        </button>
+</div>
+</div>
+<!-- Top Stats Row -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl">
+<p class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider mb-2">Total Reviewers</p>
+<p class="font-display-doc text-display-doc text-on-surface">342</p>
+<p class="text-sm text-[#059669] flex items-center mt-2"><span class="material-symbols-outlined text-[16px] mr-1">trending_up</span> +12 this month</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl">
+<p class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider mb-2">Active Partners</p>
+<p class="font-display-doc text-display-doc text-on-surface">18</p>
+<p class="text-sm text-on-surface-variant mt-2">Insurance providers</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl">
+<p class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider mb-2">Avg Resolution Time</p>
+<p class="font-display-doc text-display-doc text-on-surface">4.2d</p>
+<p class="text-sm text-[#059669] flex items-center mt-2"><span class="material-symbols-outlined text-[16px] mr-1">trending_down</span> -0.5d vs last Q</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-4 rounded-xl">
+<p class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider mb-2">Reviewer Capacity</p>
+<div class="flex items-end gap-2">
+<p class="font-display-doc text-display-doc text-on-surface">86%</p>
+<p class="text-sm text-error font-medium pb-2">High Load</p>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full mt-2 overflow-hidden">
+<div class="bg-error h-full" style="width: 86%"></div>
+</div>
+</div>
+</div>
+<!-- Main Bento Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Left Column: Tables & Lists -->
+<div class="lg:col-span-2 space-y-gutter">
+<!-- Reviewer Onboarding Table -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+<div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Reviewer Pipeline</h3>
+<button class="text-secondary font-label-bold text-label-bold hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-compact text-body-compact">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="px-6 py-3 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Candidate</th>
+<th class="px-6 py-3 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Specialty</th>
+<th class="px-6 py-3 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-6 py-3 font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 flex items-center gap-3">
+<img alt="Dr. Sharma" class="w-8 h-8 rounded-full object-cover" data-alt="A professional headshot of a legal expert in a bright, modern light-mode setting. Neutral colors with subtle blue tones to convey trust." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDptfecXWwqD7-O67gU4mf6dq5YMhJ9jKy0oqfZrAQfpLtJWgAmvqxgN4-EDYVwJWL8kGFWC6zQlMJ2k534g_GGJ36biI6HJsiZX5eTwvZxVxMUnRsDcmZw8-GBfuOKiqynOkNKELUfyTLVLt30-UKLa1xvaXSSrMoqCntwt7ijdfeLm2xyFavt5ujCoIzlClFnbnjW0S1ZYG6l-hMFdVh5t4qoArdj7YSJZwIT7wmHH_1i5HXsrVC067WVVzVSdB-1GR7YHWq85VUY"/>
+<div>
+<p class="font-medium text-on-surface">Dr. A. Sharma</p>
+<p class="text-xs text-on-surface-variant font-mono-ui text-mono-ui">Cred: IN-MED-892</p>
+</div>
+</td>
+<td class="px-6 py-4 text-on-surface-variant">Cardiology</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-surface-dim text-on-surface rounded-md font-label-bold text-label-bold text-[10px]">VERIFYING DOCS</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-secondary opacity-0 group-hover:opacity-100 transition-opacity"><span class="material-symbols-outlined text-[20px]">chevron_right</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface font-medium text-sm">LJ</div>
+<div>
+<p class="font-medium text-on-surface">Legal: L. Jones</p>
+<p class="text-xs text-on-surface-variant font-mono-ui text-mono-ui">Cred: BAR-4421</p>
+</div>
+</td>
+<td class="px-6 py-4 text-on-surface-variant">Contract Law</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-[#dcfce7] text-[#166534] rounded-md font-label-bold text-label-bold text-[10px]">APPROVED</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-secondary opacity-0 group-hover:opacity-100 transition-opacity"><span class="material-symbols-outlined text-[20px]">chevron_right</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Partner Activity -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-4">Partner SLA Compliance</h3>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between font-label-bold text-label-bold text-on-surface mb-1">
+<span>National Health Ins.</span>
+<span class="text-[#059669]">98%</span>
+</div>
+<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
+<div class="bg-[#059669] h-full" style="width: 98%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-bold text-label-bold text-on-surface mb-1">
+<span>SecureLife Mutual</span>
+<span class="text-on-surface">92%</span>
+</div>
+<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full" style="width: 92%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-bold text-label-bold text-on-surface mb-1">
+<span>Apex Casualty</span>
+<span class="text-[#ca8a04]">84%</span>
+</div>
+<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
+<div class="bg-[#eab308] h-full" style="width: 84%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Maps & Sentiment -->
+<div class="space-y-gutter">
+<!-- Jurisdiction Heatmap -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 h-80 flex flex-col relative overflow-hidden">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2 relative z-10">Jurisdiction Heatmap</h3>
+<p class="font-body-compact text-body-compact text-on-surface-variant text-sm mb-4 relative z-10">Claim origination density.</p>
+<div class="flex-1 bg-surface-variant rounded-lg overflow-hidden relative border border-outline-variant/50">
+<img class="absolute inset-0 w-full h-full object-cover opacity-60" data-alt="A minimalist, stylized map of a region in light mode. The map uses subtle grays and whites, with distinct heatmap zones overlaid in shades of clinical blue and emerald green to indicate data density. The aesthetic is clean, professional, and data-driven." data-location="India" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAt4Uo-nsFLg3LdFJNilUvKeOp5NO4xEsHQyw9r6_0Th703l5BpTIygIx2WPoNrJtVtZf-j5n0pJCb37MZyOpA3oq3HQcC-OCPheFz5vNtJ-gI5KYTn78e6UFt9kR4ztBt9409tD8j3OuHvHi9_pNX4eeLekFDTVZ02r_P45rUpsB9FQsuHw1zapN7dQXhUFZPrtCxxu_jqmiv2wnuW7PpSK5MU0-ryVgSyHx6rjQ-tHaQb9VbC9HlWFMitpQaCP3yRdTcQS4u9WN-W"/>
+<!-- Heatmap markers (simulated) -->
+<div class="absolute top-1/4 left-1/3 w-6 h-6 rounded-full bg-secondary/40 animate-pulse border-2 border-secondary"></div>
+<div class="absolute top-1/2 left-2/3 w-10 h-10 rounded-full bg-error/30 animate-pulse border-2 border-error"></div>
+</div>
+</div>
+<!-- Feedback Sentiment -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-4">Feedback Sentiment</h3>
+<div class="flex items-center gap-4 mb-6">
+<div class="text-4xl font-display-doc font-bold text-[#059669]">4.8</div>
+<div class="flex-1">
+<div class="flex gap-1 text-[#059669] mb-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star_half</span>
+</div>
+<p class="font-body-compact text-body-compact text-on-surface-variant text-sm">Policyholder satisfaction index based on post-resolution surveys.</p>
+</div>
+</div>
+<div class="space-y-3">
+<div class="bg-surface-bright border border-outline-variant p-3 rounded-lg flex gap-3">
+<span class="material-symbols-outlined text-[#059669] mt-0.5">thumb_up</span>
+<p class="font-body-compact text-body-compact text-sm text-on-surface">"The independent review felt objective and fair. Process was clearly explained."</p>
+</div>
+<div class="bg-surface-bright border border-outline-variant p-3 rounded-lg flex gap-3">
+<span class="material-symbols-outlined text-error mt-0.5">feedback</span>
+<p class="font-body-compact text-body-compact text-sm text-on-surface">"Took longer than the initial 5-day estimate to get the specialist's report."</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background antialiased" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BimaNyaya - Reviewer Case Queue</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&amp;family=JetBrains+Mono:wght@400&amp;family=Source+Serif+4:wght@400&amp;family=Work+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#131b2e",
+                    "on-tertiary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#213145",
+                    "secondary": "#0051d5",
+                    "outline-variant": "#c6c6cd",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-tertiary-container": "#b87500",
+                    "inverse-primary": "#bec6e0",
+                    "primary-fixed": "#dae2fd",
+                    "error": "#ba1a1a",
+                    "outline": "#76777d",
+                    "error-container": "#ffdad6",
+                    "surface": "#f8f9ff",
+                    "surface-dim": "#cbdbf5",
+                    "on-primary-container": "#7c839b",
+                    "inverse-on-surface": "#eaf1ff",
+                    "secondary-container": "#316bf3",
+                    "on-secondary-container": "#fefcff",
+                    "on-primary-fixed": "#131b2e",
+                    "on-error-container": "#93000a",
+                    "surface-container": "#e5eeff",
+                    "on-tertiary-fixed": "#2a1700",
+                    "surface-container-low": "#eff4ff",
+                    "tertiary-fixed": "#ffddb8",
+                    "tertiary": "#000000",
+                    "on-secondary-fixed": "#00174b",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-background": "#0b1c30",
+                    "surface-bright": "#f8f9ff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-surface-variant": "#45464d",
+                    "on-secondary-fixed-variant": "#003ea8",
+                    "background": "#f8f9ff",
+                    "on-surface": "#0b1c30",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "surface-variant": "#d3e4fe",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "tertiary-container": "#2a1700",
+                    "surface-container-high": "#dce9ff",
+                    "primary-fixed-dim": "#bec6e0",
+                    "primary": "#000000",
+                    "surface-tint": "#565e74",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#dbe1ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "stack-lg": "32px",
+                    "container-max": "1280px",
+                    "stack-sm": "8px",
+                    "stack-md": "16px",
+                    "sidebar-width": "320px",
+                    "gutter": "24px",
+                    "editor-width": "720px"
+            },
+            "fontFamily": {
+                    "body-compact": ["\"Source Serif 4\""],
+                    "display-doc": ["Work Sans"],
+                    "label-bold": ["Inter"],
+                    "headline-lg": ["Work Sans"],
+                    "headline-lg-mobile": ["Work Sans"],
+                    "mono-ui": ["jetbrainsMono"],
+                    "body-main": ["\"Source Serif 4\""]
+            },
+            "fontSize": {
+                    "body-compact": ["16px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "display-doc": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "mono-ui": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-main": ["18px", {"lineHeight": "30px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar for high-density tables */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #f8f9ff; 
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: #c6c6cd; 
+            border-radius: 4px;
+        }
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #76777d; 
+        }
+    </style>
+</head>
+<body class="flex flex-col h-full bg-background text-on-background">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-lg h-16 max-w-container-max mx-auto bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline flat no shadows">
+<div class="flex items-center gap-6">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">BimaNyaya</h1>
+<nav class="hidden md:flex gap-4">
+<a class="font-title-lg text-title-lg text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Dashboard</a>
+<a class="font-title-lg text-title-lg text-secondary font-bold border-b-2 border-secondary pb-1 hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Grievances</a>
+<a class="font-title-lg text-title-lg text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Reviews</a>
+<a class="font-title-lg text-title-lg text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Experts</a>
+</nav>
+</div>
+<div class="flex items-center gap-4 text-primary dark:text-primary-fixed">
+<span class="material-symbols-outlined cursor-pointer hover:text-secondary transition-colors duration-200" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-secondary transition-colors duration-200" data-icon="account_circle">account_circle</span>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow pt-16 flex justify-center w-full px-gutter pb-stack-lg">
+<div class="w-full max-w-container-max mt-stack-lg flex flex-col gap-stack-md">
+<!-- Header & Filters -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 bg-surface-container-lowest p-stack-md rounded-xl border border-outline-variant">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary mb-1">Grievance Queue</h2>
+<p class="font-body-compact text-body-compact text-on-surface-variant">Manage and assign pending legal and clinical reviews.</p>
+</div>
+<div class="flex flex-wrap gap-3 w-full md:w-auto">
+<!-- Search -->
+<div class="relative w-full md:w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full pl-10 pr-3 py-2 bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:ring-0 font-body-compact text-body-compact text-on-surface transition-colors" placeholder="Search cases..." type="text"/>
+</div>
+<!-- Filters -->
+<select class="bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:ring-0 font-body-compact text-body-compact text-on-surface py-2 pl-3 pr-8 appearance-none cursor-pointer">
+<option>All Risks</option>
+<option>High Risk</option>
+<option>Medium Risk</option>
+<option>Low Risk</option>
+</select>
+<select class="bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:ring-0 font-body-compact text-body-compact text-on-surface py-2 pl-3 pr-8 appearance-none cursor-pointer">
+<option>All Categories</option>
+<option>Health</option>
+<option>Motor</option>
+<option>Life</option>
+</select>
+</div>
+</div>
+<!-- Table Container -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden flex flex-col">
+<div class="overflow-x-auto table-container">
+<table class="w-full text-left whitespace-nowrap">
+<thead class="bg-surface-container-low border-b border-outline-variant font-label-bold text-label-bold text-on-surface-variant uppercase">
+<tr>
+<th class="py-3 px-4 font-semibold tracking-wider">Case Number</th>
+<th class="py-3 px-4 font-semibold tracking-wider">Category</th>
+<th class="py-3 px-4 font-semibold tracking-wider">Insurer</th>
+<th class="py-3 px-4 font-semibold tracking-wider text-right">Disputed Amt</th>
+<th class="py-3 px-4 font-semibold tracking-wider text-center">Risk Level</th>
+<th class="py-3 px-4 font-semibold tracking-wider">Language</th>
+<th class="py-3 px-4 font-semibold tracking-wider">Deadline</th>
+<th class="py-3 px-4 font-semibold tracking-wider">Status</th>
+<th class="py-3 px-4 font-semibold tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="font-mono-ui text-mono-ui text-on-surface divide-y divide-outline-variant/50">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-variant/30 transition-colors group cursor-pointer">
+<td class="py-2 px-4 font-medium text-secondary">#BN-2024-8829</td>
+<td class="py-2 px-4"><span class="inline-flex items-center gap-1"><span class="material-symbols-outlined text-xs" data-icon="medical_services">medical_services</span> Health</span></td>
+<td class="py-2 px-4">Reliable Care Inc.</td>
+<td class="py-2 px-4 text-right">₹4,50,000</td>
+<td class="py-2 px-4 text-center">
+<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-bold text-[10px]">HIGH</span>
+</td>
+<td class="py-2 px-4">English</td>
+<td class="py-2 px-4 text-error">Today, 14:00</td>
+<td class="py-2 px-4">
+<span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span> Pending Review</span>
+</td>
+<td class="py-2 px-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="open_in_new">open_in_new</span></button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-variant/30 transition-colors group cursor-pointer bg-surface-container-low/50">
+<td class="py-2 px-4 font-medium text-secondary">#BN-2024-8830</td>
+<td class="py-2 px-4"><span class="inline-flex items-center gap-1"><span class="material-symbols-outlined text-xs" data-icon="directions_car">directions_car</span> Motor</span></td>
+<td class="py-2 px-4">AutoGuard General</td>
+<td class="py-2 px-4 text-right">₹1,25,000</td>
+<td class="py-2 px-4 text-center">
+<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant font-label-bold text-[10px]">LOW</span>
+</td>
+<td class="py-2 px-4">Hindi</td>
+<td class="py-2 px-4">Oct 26, 2024</td>
+<td class="py-2 px-4">
+<span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-secondary-container"></span> In Progress</span>
+</td>
+<td class="py-2 px-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="open_in_new">open_in_new</span></button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-variant/30 transition-colors group cursor-pointer">
+<td class="py-2 px-4 font-medium text-secondary">#BN-2024-8831</td>
+<td class="py-2 px-4"><span class="inline-flex items-center gap-1"><span class="material-symbols-outlined text-xs" data-icon="favorite">favorite</span> Life</span></td>
+<td class="py-2 px-4">SecureLife Ltd.</td>
+<td class="py-2 px-4 text-right">₹15,00,000</td>
+<td class="py-2 px-4 text-center">
+<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-bold text-[10px]">MEDIUM</span>
+</td>
+<td class="py-2 px-4">Marathi</td>
+<td class="py-2 px-4">Oct 27, 2024</td>
+<td class="py-2 px-4">
+<span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-outline-variant"></span> Draft</span>
+</td>
+<td class="py-2 px-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="open_in_new">open_in_new</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination / Footer -->
+<div class="bg-surface-container-low border-t border-outline-variant p-3 flex justify-between items-center font-mono-ui text-mono-ui text-on-surface-variant">
+<div>Showing 1 to 3 of 42 entries</div>
+<div class="flex gap-2">
+<button class="p-1 hover:bg-surface-variant rounded disabled:opacity-50"><span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span></button>
+<button class="p-1 hover:bg-surface-variant rounded"><span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span></button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

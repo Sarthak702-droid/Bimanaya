@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BimaNyaya - System Health &amp; Costs</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Source+Serif+4:opsz,wght@8..60,400;600&amp;family=Work+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-low": "#eff4ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-secondary-fixed": "#00174b",
+                        "tertiary-fixed": "#ffddb8",
+                        "tertiary": "#000000",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "outline": "#76777d",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#316bf3",
+                        "on-secondary-container": "#fefcff",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary-container": "#7c839b",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-fixed": "#131b2e",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#e5eeff",
+                        "inverse-surface": "#213145",
+                        "on-tertiary-container": "#b87500",
+                        "secondary": "#0051d5",
+                        "outline-variant": "#c6c6cd",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "inverse-primary": "#bec6e0",
+                        "error": "#ba1a1a",
+                        "primary-fixed": "#dae2fd",
+                        "primary-container": "#131b2e",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#2a1700",
+                        "surface-container-high": "#dce9ff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface-tint": "#565e74",
+                        "primary": "#000000",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "surface-variant": "#d3e4fe",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-surface-variant": "#45464d",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "background": "#f8f9ff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "stack-md": "16px",
+                        "sidebar-width": "320px",
+                        "gutter": "24px",
+                        "editor-width": "720px",
+                        "stack-lg": "32px",
+                        "container-max": "1280px",
+                        "stack-sm": "8px"
+                    },
+                    fontFamily: {
+                        "display-doc": ["Work Sans"],
+                        "body-compact": ["\"Source Serif 4\""],
+                        "mono-ui": ["jetbrainsMono"],
+                        "body-main": ["\"Source Serif 4\""],
+                        "headline-lg-mobile": ["Work Sans"],
+                        "label-bold": ["Inter"],
+                        "headline-lg": ["Work Sans"]
+                    },
+                    fontSize: {
+                        "display-doc": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-compact": ["16px", { lineHeight: "26px", fontWeight: "400" }],
+                        "mono-ui": ["13px", { lineHeight: "20px", fontWeight: "400" }],
+                        "body-main": ["18px", { lineHeight: "30px", fontWeight: "400" }],
+                        "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "label-bold": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "headline-lg": ["28px", { lineHeight: "36px", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .glass-panel {
+                @apply bg-surface-container-lowest/80 backdrop-blur-md border border-outline-variant;
+            }
+            .data-card {
+                @apply bg-surface-container-lowest border border-outline-variant p-stack-md rounded-lg flex flex-col gap-stack-sm;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-main antialiased h-full flex flex-col">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-lg h-16 max-w-container-max mx-auto bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline flat no shadows px-6">
+<div class="flex items-center gap-8">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">BimaNyaya</span>
+<div class="hidden md:flex gap-6">
+<a class="text-secondary font-bold border-b-2 border-secondary pb-1" href="#">Dashboard</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Grievances</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Reviews</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Experts</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-compact font-body-compact p-0 w-48 placeholder-on-surface-variant" placeholder="Search resources..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-secondary transition-colors duration-200"><span class="material-symbols-outlined">notifications</span></button>
+<button class="text-on-surface-variant hover:text-secondary transition-colors duration-200"><span class="material-symbols-outlined">account_circle</span></button>
+</div>
+</nav>
+<!-- Main Workspace -->
+<main class="flex-1 mt-16 pt-stack-md px-gutter max-w-container-max mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-stack-lg">
+<!-- Left Column: Metrics & Source Management -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<!-- Header Section -->
+<header class="flex justify-between items-end pb-stack-sm border-b border-outline-variant">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-background mb-1">System Health &amp; Costs</h1>
+<p class="font-body-compact text-body-compact text-on-surface-variant">Technical performance and resource utilization metrics.</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary-container text-on-secondary-container font-label-bold text-label-bold">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span>
+                        SYSTEM ACTIVE
+                    </span>
+</div>
+</header>
+<!-- Key Metrics Bento -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-stack-md">
+<div class="data-card">
+<div class="flex justify-between items-start">
+<span class="font-label-bold text-label-bold text-on-surface-variant uppercase">OCR Success Rate</span>
+<span class="material-symbols-outlined text-secondary">document_scanner</span>
+</div>
+<div class="flex items-end gap-2">
+<span class="font-display-doc text-display-doc">99.2%</span>
+<span class="font-label-bold text-label-bold text-secondary mb-1">↑ 0.1%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 mt-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 99.2%"></div>
+</div>
+</div>
+<div class="data-card">
+<div class="flex justify-between items-start">
+<span class="font-label-bold text-label-bold text-on-surface-variant uppercase">LLM Token Costs (MTD)</span>
+<span class="material-symbols-outlined text-on-tertiary-container">payments</span>
+</div>
+<div class="flex items-end gap-2">
+<span class="font-display-doc text-display-doc">$1,240</span>
+<span class="font-label-bold text-label-bold text-error mb-1">↑ 5%</span>
+</div>
+<p class="font-mono-ui text-mono-ui text-on-surface-variant mt-1">~4.1M Tokens Processed</p>
+</div>
+<div class="data-card">
+<div class="flex justify-between items-start">
+<span class="font-label-bold text-label-bold text-on-surface-variant uppercase">Processing Error Rate</span>
+<span class="material-symbols-outlined text-error">warning</span>
+</div>
+<div class="flex items-end gap-2">
+<span class="font-display-doc text-display-doc">0.8%</span>
+<span class="font-label-bold text-label-bold text-secondary mb-1">↓ 0.2%</span>
+</div>
+<p class="font-mono-ui text-mono-ui text-on-surface-variant mt-1">12 failed jobs in 24h</p>
+</div>
+</section>
+<!-- Cost per Case Trends Chart (Simulated) -->
+<section class="glass-panel p-stack-md rounded-lg">
+<div class="flex justify-between items-center mb-stack-md">
+<h2 class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Cost per Case Trends (30 Days)</h2>
+<button class="font-label-bold text-label-bold text-secondary hover:underline">Export CSV</button>
+</div>
+<div class="w-full h-48 bg-surface-container-high rounded-md flex items-end justify-between p-4 relative overflow-hidden" data-alt="A minimalist, clinical dark-mode style line chart showing cost per case trending slightly upwards over a 30 day period. The chart uses a strict corporate palette of deep navy blues and clean white grid lines with a sharp, vibrant blue trend line. The background is a very pale, almost clinical white-blue." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDXX0kj_yq1bmznvYZT9Q1aMiI0MODxTCWglIs1KeOdjfV3FJa5eDkK7zPS-JIMySQVOMZkJT_AMP0lUnJYbfb7l0SDf0J0Vjsv7fLr2AuMUlu5PGtWoyhQj_8CxIQTNIX80UI6ZZPES0Zu7dX5S5G8mDHeU3TsMBMdoeK5jqpz5qdfQTM-ZMqAb0NBD8DjS1avjDjG97t-Jid-cgCrymT1b2MFvK4fgEmGC8AW1PZwGTeO14Tkrp0eAsPQoC-BUp0rmPmaDVaJqOw7')">
+<!-- Simulated bars/lines via CSS for layout structure if needed, but background image handles the visual -->
+</div>
+</section>
+<!-- Knowledge Source Management -->
+<section class="glass-panel p-stack-md rounded-lg">
+<div class="flex justify-between items-center mb-stack-md pb-stack-sm border-b border-outline-variant">
+<h2 class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Knowledge Source Indexing Status</h2>
+<button class="bg-primary text-on-primary font-label-bold text-label-bold px-3 py-1.5 rounded flex items-center gap-1 hover:bg-on-background transition-colors">
+<span class="material-symbols-outlined text-[16px]">sync</span>
+                        Force Sync
+                    </button>
+</div>
+<div class="flex flex-col gap-2">
+<!-- Source Row 1 -->
+<div class="flex items-center justify-between p-3 bg-surface hover:bg-surface-container-high transition-colors rounded-md border border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">folder_special</span>
+<div>
+<p class="font-body-compact text-body-compact font-semibold">IRDAI Master Circulars 2024</p>
+<p class="font-mono-ui text-mono-ui text-on-surface-variant">Last synced: 2 hours ago • 45 docs</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="inline-flex items-center gap-1 font-label-bold text-label-bold text-secondary">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Indexed
+                            </span>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">more_vert</span></button>
+</div>
+</div>
+<!-- Source Row 2 -->
+<div class="flex items-center justify-between p-3 bg-surface hover:bg-surface-container-high transition-colors rounded-md border border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">menu_book</span>
+<div>
+<p class="font-body-compact text-body-compact font-semibold">National Health Policy Guidelines</p>
+<p class="font-mono-ui text-mono-ui text-on-surface-variant">Sync in progress... • 120 docs</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="inline-flex items-center gap-1 font-label-bold text-label-bold text-on-tertiary-container">
+<span class="material-symbols-outlined text-[14px] animate-spin">refresh</span> Indexing (45%)
+                            </span>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">more_vert</span></button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Technical Audit Log -->
+<aside class="lg:col-span-4 h-full flex flex-col">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg flex flex-col h-full overflow-hidden">
+<div class="p-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+<h2 class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Technical Audit Log</h2>
+<span class="material-symbols-outlined text-on-surface-variant">terminal</span>
+</div>
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 font-mono-ui text-mono-ui bg-[#0b1c30] text-surface-container-high rounded-b-lg">
+<!-- Log entries -->
+<div class="flex flex-col border-b border-surface-tint/30 pb-2">
+<div class="flex items-center gap-2 text-surface-dim mb-1">
+<span>[14:32:01]</span>
+<span class="text-tertiary-fixed-dim">INFO</span>
+<span>System</span>
+</div>
+<p class="break-words">Batch OCR processing completed for Case #8829-B. (14 pages, 2.1s)</p>
+</div>
+<div class="flex flex-col border-b border-surface-tint/30 pb-2">
+<div class="flex items-center gap-2 text-surface-dim mb-1">
+<span>[14:28:45]</span>
+<span class="text-error-container">WARN</span>
+<span>LLM_API</span>
+</div>
+<p class="break-words">High latency detected in reasoning endpoint (Response &gt; 4500ms). Retrying...</p>
+</div>
+<div class="flex flex-col border-b border-surface-tint/30 pb-2">
+<div class="flex items-center gap-2 text-surface-dim mb-1">
+<span>[14:15:22]</span>
+<span class="text-secondary-fixed">SUCCESS</span>
+<span>Indexer</span>
+</div>
+<p class="break-words">Vector DB successfully synced with IRDAI index update. 45 new embeddings generated.</p>
+</div>
+<div class="flex flex-col border-b border-surface-tint/30 pb-2">
+<div class="flex items-center gap-2 text-surface-dim mb-1">
+<span>[13:55:10]</span>
+<span class="text-tertiary-fixed-dim">INFO</span>
+<span>Auth</span>
+</div>
+<p class="break-words">Expert reviewer token refreshed via SAML endpoint.</p>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Footer -->
+<footer class="w-full py-md px-lg flex justify-between items-center bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant flat no shadows px-6 py-4 mt-auto">
+<span class="font-label-md text-label-md font-bold text-primary">BimaNyaya</span>
+<div class="flex gap-6">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary opacity-80 hover:opacity-100 transition-opacity" href="#">Legal Compliance</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary opacity-80 hover:opacity-100 transition-opacity" href="#">Data Privacy</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary opacity-80 hover:opacity-100 transition-opacity" href="#">Audit Logs</a>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant">© 2024 BimaNyaya Insurance Systems. Evidence-Based Design Protocol.</p>
+</footer>
+</body></html>

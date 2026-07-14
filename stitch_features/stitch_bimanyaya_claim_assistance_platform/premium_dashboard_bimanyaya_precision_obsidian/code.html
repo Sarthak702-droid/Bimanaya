@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BimaNyaya - Policyholder Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-secondary": "#09090b",
+                "tertiary-fixed": "#bbf7d0",
+                "on-surface": "#fafafa",
+                "on-secondary-fixed-variant": "#3f3f46",
+                "outline": "#52525b",
+                "error": "#ef4444",
+                "tertiary-fixed-dim": "#6ee7b7",
+                "surface-variant": "#18181b",
+                "surface-container-low": "#0f0f12",
+                "on-tertiary": "#001a12",
+                "on-error": "#1a0000",
+                "surface-dim": "#0c0c0f",
+                "on-secondary-fixed": "#18181b",
+                "background": "#030712",
+                "on-tertiary-fixed": "#003318",
+                "secondary-fixed": "#a1a1aa",
+                "outline-variant": "#27272a",
+                "on-primary-fixed": "#2e1065",
+                "on-tertiary-container": "#bbf7d0",
+                "secondary-fixed-dim": "#71717a",
+                "surface-tint": "#a78bfa",
+                "on-primary": "#0a0012",
+                "inverse-primary": "#5b21b6",
+                "inverse-on-surface": "#09090b",
+                "surface-container-high": "#18181b",
+                "secondary-container": "#27272a",
+                "on-primary-container": "#ede9fe",
+                "tertiary": "#34d399",
+                "on-surface-variant": "#a1a1aa",
+                "secondary": "#71717a",
+                "on-background": "#fafafa",
+                "inverse-surface": "#fafafa",
+                "surface-bright": "#18181b",
+                "tertiary-container": "#065f46",
+                "on-tertiary-fixed-variant": "#047857",
+                "primary-container": "#7c3aed",
+                "primary-fixed-dim": "#c4b5fd",
+                "surface-container": "#121215",
+                "on-secondary-container": "#a1a1aa",
+                "primary-fixed": "#ede9fe",
+                "primary": "#a78bfa",
+                "surface-container-highest": "#1e1e22",
+                "on-error-container": "#fca5a5",
+                "surface": "#09090b",
+                "surface-container-lowest": "#030712",
+                "on-primary-fixed-variant": "#5b21b6",
+                "error-container": "#3b1111"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+          "sm": "0.5rem",
+          "md": "1rem",
+          "lg": "1.5rem",
+          "xl": "2rem",
+          "2xl": "3rem",
+          "3xl": "4rem"
+        },
+        "fontFamily": {
+                "headline": [
+                        "Geist"
+                ],
+                "display": [
+                        "Geist"
+                ],
+                "body": [
+                        "Geist"
+                ],
+                "label": [
+                        "Geist"
+                ]
+        },
+        "boxShadow": {
+          'inner-glow': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.05)',
+        }
+},
+    },
+  }
+</script>
+</head>
+<body class="bg-background text-on-background font-body h-screen w-full flex overflow-hidden selection:bg-primary/20 selection:text-primary antialiased">
+<!-- SideNavBar (Docked Left) -->
+<nav class="bg-surface text-on-surface font-body border-r border-outline-variant/30 docked left-0 h-full w-64 hidden lg:flex flex-col p-6 gap-2 shrink-0 relative shadow-inner-glow">
+<div class="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none"></div>
+<!-- Header -->
+<div class="flex items-center gap-4 mb-8 px-2 relative z-10">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden shrink-0 border border-outline-variant/50 shadow-sm">
+<img alt="User Profile" class="w-full h-full object-cover opacity-90" data-alt="A professional headshot of a user against a neutral corporate background, crisp lighting, high quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwzlH-LyoxG-6RdD-B6qqPRbKbRiZdagB9DcFwtqaNV7dZtjcnBo-tEfulpEXTq8U4syhg8OGNhQK0I5X0a3mfiqZ8zhMZ5hB8NSPCG4bYVnlvjyuNCUF-k0VHlR2iSGp6QhDYDRYHgvTIxwRTjRlSZDoSPDYq7dihcYFPhdrsmEHIwShpUzKbCWBHVPGOn46aWPG7lrtVR7pPpiOPbrU_-V91kStZdKmXr9X5UmWVjqs5DpMOHxU0en33CugxKvAK8ov49AIkO4JY"/>
+</div>
+<div>
+<h1 class="text-[15px] font-headline font-semibold text-on-background tracking-tight">BimaNyaya Portal</h1>
+<p class="text-on-surface-variant text-[13px] font-light mt-0.5">Policyholder View</p>
+</div>
+</div>
+<!-- CTA -->
+<button class="w-full bg-primary/10 text-primary border border-primary/20 py-2.5 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 mb-8 hover:bg-primary/20 transition-all duration-300 relative z-10 shadow-inner-glow">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">add</span>
+            New Dispute
+        </button>
+<!-- Navigation Links -->
+<div class="flex flex-col gap-1.5 flex-grow relative z-10">
+<!-- Active: Overview -->
+<a class="bg-surface-container-highest text-on-background font-medium rounded-md px-4 py-2.5 flex items-center gap-3 transition-transform duration-200 active:scale-[0.98] border border-outline-variant/30 shadow-inner-glow text-sm" href="#">
+<span class="material-symbols-outlined text-[20px] text-primary">dashboard</span>
+<span>Overview</span>
+</a>
+<a class="text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-md px-4 py-2.5 flex items-center gap-3 transition-colors duration-300 active:scale-[0.98] text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">gavel</span>
+<span>My Claims</span>
+</a>
+<a class="text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-md px-4 py-2.5 flex items-center gap-3 transition-colors duration-300 active:scale-[0.98] text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span>Policy Vault</span>
+</a>
+<a class="text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-md px-4 py-2.5 flex items-center gap-3 transition-colors duration-300 active:scale-[0.98] text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">blind</span>
+<span>Legal Aid</span>
+</a>
+<a class="text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-md px-4 py-2.5 flex items-center gap-3 transition-colors duration-300 active:scale-[0.98] text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">contact_support</span>
+<span>Support</span>
+</a>
+<a class="text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-md px-4 py-2.5 flex items-center gap-3 transition-colors duration-300 active:scale-[0.98] text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span>Settings</span>
+</a>
+</div>
+<!-- Footer Links -->
+<div class="flex flex-col gap-1.5 mt-auto pt-6 border-t border-outline-variant/30 relative z-10">
+<a class="text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-md px-4 py-2 flex items-center gap-3 transition-colors duration-300 active:scale-[0.98] text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">published_with_changes</span>
+<span>Switch Role</span>
+</a>
+<a class="text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-md px-4 py-2 flex items-center gap-3 transition-colors duration-300 active:scale-[0.98] text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span>Sign Out</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow h-full overflow-y-auto bg-background relative">
+<div class="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-surface-container-highest/20 to-transparent pointer-events-none"></div>
+<div class="max-w-[1400px] mx-auto p-lg lg:p-2xl relative z-10">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-2xl">
+<div>
+<h2 class="text-3xl md:text-4xl font-headline font-semibold text-on-background tracking-tight">Welcome back, Rajesh</h2>
+<p class="text-base text-on-surface-variant mt-2 font-light tracking-wide">Here is the status of your current health insurance disputes.</p>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-md font-medium text-sm hover:bg-primary-fixed transition-colors flex items-center gap-2 w-full md:w-auto justify-center shadow-md">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+                    Create New Case
+                </button>
+</header>
+<!-- Summary Metrics Bento Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-2xl">
+<!-- Metric 1 -->
+<div class="bg-surface border border-outline-variant/40 rounded-xl p-6 flex flex-col justify-between shadow-inner-glow relative overflow-hidden group hover:border-outline-variant/80 transition-colors">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors"></div>
+<div class="flex items-center justify-between mb-8 relative z-10">
+<span class="text-sm font-medium text-on-surface-variant uppercase tracking-wider">Active Cases</span>
+<span class="material-symbols-outlined text-primary text-[20px]">folder_open</span>
+</div>
+<div class="text-4xl font-display font-semibold text-on-background relative z-10">2</div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-surface border border-outline-variant/40 rounded-xl p-6 flex flex-col justify-between shadow-inner-glow relative overflow-hidden group hover:border-outline-variant/80 transition-colors">
+<div class="flex items-center justify-between mb-8 relative z-10">
+<span class="text-sm font-medium text-on-surface-variant uppercase tracking-wider">Waiting for Docs</span>
+<span class="material-symbols-outlined text-primary text-[20px]">upload_file</span>
+</div>
+<div class="text-4xl font-display font-semibold text-on-background relative z-10">1</div>
+</div>
+<!-- Metric 3 -->
+<div class="bg-surface border border-error/20 rounded-xl p-6 flex flex-col justify-between shadow-inner-glow relative overflow-hidden group hover:border-error/40 transition-colors">
+<div class="absolute top-0 right-0 w-32 h-32 bg-error/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-error/10 transition-colors"></div>
+<div class="flex items-center justify-between mb-8 relative z-10">
+<span class="text-sm font-medium text-on-surface-variant uppercase tracking-wider">Review Required</span>
+<span class="material-symbols-outlined text-error text-[20px]" style="font-variation-settings: 'FILL' 1;">error</span>
+</div>
+<div class="text-4xl font-display font-semibold text-error relative z-10">1</div>
+</div>
+<!-- Metric 4 -->
+<div class="bg-surface border border-outline-variant/30 rounded-xl p-6 flex flex-col justify-between shadow-inner-glow relative overflow-hidden opacity-60">
+<div class="flex items-center justify-between mb-8 relative z-10">
+<span class="text-sm font-medium text-on-surface-variant uppercase tracking-wider">Ready for Export</span>
+<span class="material-symbols-outlined text-outline text-[20px]">download</span>
+</div>
+<div class="text-4xl font-display font-semibold text-on-surface-variant relative z-10">0</div>
+</div>
+</div>
+<!-- Two Column Layout for Table and Activity -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Cases Table Section (Spans 2 columns) -->
+<div class="lg:col-span-2 space-y-6">
+<h3 class="text-xl font-headline font-semibold text-on-background tracking-tight">Current Cases</h3>
+<div class="bg-surface border border-outline-variant/40 rounded-xl overflow-hidden shadow-inner-glow">
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container/50 border-b border-outline-variant/40">
+<tr>
+<th class="p-5 text-[13px] font-medium text-on-surface-variant uppercase tracking-wider">Case ID &amp; Insurer</th>
+<th class="p-5 text-[13px] font-medium text-on-surface-variant uppercase tracking-wider">Issue</th>
+<th class="p-5 text-[13px] font-medium text-on-surface-variant uppercase tracking-wider">Disputed Amount</th>
+<th class="p-5 text-[13px] font-medium text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="p-5 text-[13px] font-medium text-on-surface-variant uppercase tracking-wider text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20">
+<tr class="hover:bg-surface-container-lowest/50 transition-colors group">
+<td class="p-5">
+<div class="text-sm font-medium text-on-background group-hover:text-primary transition-colors">BN-2026-000142</div>
+<div class="text-[13px] text-on-surface-variant mt-1">Horizon Health</div>
+</td>
+<td class="p-5 text-sm text-on-background">Room-Rent Deduction</td>
+<td class="p-5 text-sm font-medium text-on-background tracking-wide">₹77,000</td>
+<td class="p-5">
+<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-error/10 border border-error/20 text-error text-[12px] font-medium shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-error mr-2 animate-pulse"></span>
+                                                Review Required
+                                            </span>
+</td>
+<td class="p-5 text-right">
+<button class="text-primary hover:text-primary-fixed text-sm font-medium transition-colors">View Details</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/50 transition-colors group">
+<td class="p-5">
+<div class="text-sm font-medium text-on-background group-hover:text-primary transition-colors">BN-2026-000089</div>
+<div class="text-[13px] text-on-surface-variant mt-1">Apex General</div>
+</td>
+<td class="p-5 text-sm text-on-background">Pre-existing Clause</td>
+<td class="p-5 text-sm font-medium text-on-background tracking-wide">₹1,45,000</td>
+<td class="p-5">
+<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-primary/10 border border-primary/20 text-primary text-[12px] font-medium shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary mr-2"></span>
+                                                Processing
+                                            </span>
+</td>
+<td class="p-5 text-right">
+<button class="text-primary hover:text-primary-fixed text-sm font-medium transition-colors">View Details</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Recent Activity Timeline -->
+<div class="space-y-6">
+<h3 class="text-xl font-headline font-semibold text-on-background tracking-tight">Recent Activity</h3>
+<div class="bg-surface border border-outline-variant/40 rounded-xl p-6 shadow-inner-glow relative">
+<div class="absolute top-0 right-0 bottom-0 w-32 bg-gradient-to-l from-surface-container-highest/5 to-transparent pointer-events-none rounded-r-xl"></div>
+<div class="relative pl-7 space-y-8 before:absolute before:inset-y-2 before:left-3 before:w-px before:bg-outline-variant/40">
+<!-- Timeline Item 1 -->
+<div class="relative">
+<span class="absolute -left-7 top-1 w-6 h-6 rounded-full bg-background border-2 border-primary flex items-center justify-center z-10 shadow-sm">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+</span>
+<div>
+<p class="text-sm font-medium text-on-background">Action Required: BN-2026-000142</p>
+<p class="text-[13px] text-on-surface-variant mt-1.5 leading-relaxed">Review the AI-generated dispute letter draft for Horizon Health.</p>
+<span class="text-[11px] text-outline block mt-2 tracking-wider uppercase font-medium">2 hours ago</span>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative">
+<span class="absolute -left-7 top-1 w-6 h-6 rounded-full bg-background border-2 border-outline-variant/50 flex items-center justify-center z-10">
+</span>
+<div>
+<p class="text-sm font-medium text-on-background">AI Analysis Completed</p>
+<p class="text-[13px] text-on-surface-variant mt-1.5 leading-relaxed">Case BN-2026-000142 policy documents analyzed against IRDAI guidelines.</p>
+<span class="text-[11px] text-outline block mt-2 tracking-wider uppercase font-medium">Yesterday, 14:30</span>
+</div>
+</div>
+<!-- Timeline Item 3 -->
+<div class="relative">
+<span class="absolute -left-7 top-1 w-6 h-6 rounded-full bg-background border-2 border-outline-variant/50 flex items-center justify-center z-10">
+</span>
+<div>
+<p class="text-sm font-medium text-on-background">Document OCR Successful</p>
+<p class="text-[13px] text-on-surface-variant mt-1.5 leading-relaxed">3 discharge summaries digitized and verified.</p>
+<span class="text-[11px] text-outline block mt-2 tracking-wider uppercase font-medium">Yesterday, 11:15</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-surface border-t border-outline-variant/40 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] lg:hidden">
+<a class="flex flex-col items-center justify-center text-primary p-2 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="mt-1 text-[10px] font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 tap-highlight-transparent hover:text-on-background transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">account_balance_wallet</span>
+<span class="mt-1 text-[10px] font-medium">Claims</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 tap-highlight-transparent hover:text-on-background transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+<span class="mt-1 text-[10px] font-medium">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 tap-highlight-transparent hover:text-on-background transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="mt-1 text-[10px] font-medium">Profile</span>
+</a>
+</nav>
+</body></html>

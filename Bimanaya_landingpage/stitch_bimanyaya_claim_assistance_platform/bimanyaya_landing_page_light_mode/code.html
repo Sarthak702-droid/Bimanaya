@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BimaNyaya - Medical Grievance Resolution</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface": "#0b1c30",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "error-container": "#ffdad6",
+                      "surface-dim": "#cbdbf5",
+                      "primary-container": "#131b2e",
+                      "on-primary-fixed": "#131b2e",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary": "#000000",
+                      "on-tertiary-fixed": "#2a1700",
+                      "surface-variant": "#d3e4fe",
+                      "secondary-container": "#316bf3",
+                      "surface-tint": "#565e74",
+                      "outline": "#76777d",
+                      "inverse-surface": "#213145",
+                      "on-surface-variant": "#45464d",
+                      "on-secondary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed": "#00174b",
+                      "on-tertiary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "surface-bright": "#f8f9ff",
+                      "surface-container-high": "#dce9ff",
+                      "surface-container": "#e5eeff",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-primary-container": "#7c839b",
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface-container-low": "#eff4ff",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "on-tertiary-container": "#b87500",
+                      "tertiary-container": "#2a1700",
+                      "primary": "#000000",
+                      "outline-variant": "#c6c6cd",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "tertiary-fixed": "#ffddb8",
+                      "primary-fixed": "#dae2fd",
+                      "on-background": "#0b1c30",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "on-primary": "#ffffff",
+                      "on-secondary-container": "#fefcff",
+                      "surface": "#f8f9ff",
+                      "inverse-primary": "#bec6e0",
+                      "secondary": "#0051d5",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "secondary-fixed": "#dbe1ff",
+                      "background": "#f8f9ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "sidebar-width": "320px",
+                      "container-max": "1280px",
+                      "stack-lg": "32px",
+                      "editor-width": "720px",
+                      "stack-sm": "8px",
+                      "stack-md": "16px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "label-bold": [
+                              "Inter"
+                      ],
+                      "display-doc": [
+                              "Work Sans"
+                      ],
+                      "body-main": [
+                              "\"Source Serif 4\""
+                      ],
+                      "body-compact": [
+                              "\"Source Serif 4\""
+                      ],
+                      "mono-ui": [
+                              "jetbrainsMono"
+                      ],
+                      "headline-lg": [
+                              "Work Sans"
+                      ],
+                      "headline-lg-mobile": [
+                              "Work Sans"
+                      ]
+              },
+              "fontSize": {
+                      "label-bold": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-doc": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-main": [
+                              "18px",
+                              {
+                                      "lineHeight": "30px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-compact": [
+                              "16px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "mono-ui": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&amp;family=Work+Sans:wght@600;700&amp;family=Source+Serif+4:wght@400&amp;family=JetBrains+Mono:wght@400&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #F8FAFC;
+            color: #0b1c30;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid #E2E8F0;
+        }
+    </style>
+</head>
+<body class="font-body-main antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="sticky top-0 z-50 flex justify-between items-center w-full px-6 py-3 bg-surface-container-lowest border-b border-outline-variant flat no shadows font-body text-on-background">
+<div class="flex items-center gap-6">
+<img alt="BimaNyaya Logo" class="h-8 w-auto" src="https://lh3.googleusercontent.com/aida/AP1WRLu4pLjGM0d596v3MDGcjo9gLH0oJytulHLVPatm2KzY9eEFxBGm7JfYmaugXkETstKHsHyJ0cEZUN69BuQT71KkFgwmt0_cvOC5OuDi9ghEzIWCeHx8DRoGR5gGDLtDA_EkMZpwy9r0NaQKK-Nso6bIL_K6mYIXvdaPjohzSpCU4EQBV0hmzVqzdni-gJcLDhVBNpA5K79u2uZSSG7AabMvpKH3w7yunSRW6uDWuLy7alJLukU3SAMc_8ff"/>
+<div class="hidden md:flex gap-6">
+<a class="text-secondary-fixed hover:text-on-background transition-colors text-label-bold font-label-bold" href="#">Dashboard</a>
+<a class="text-secondary-fixed hover:text-on-background transition-colors text-label-bold font-label-bold" href="#">Claims</a>
+<a class="text-secondary-fixed hover:text-on-background transition-colors text-label-bold font-label-bold" href="#">Appeals</a>
+<a class="text-secondary-fixed hover:text-on-background transition-colors text-label-bold font-label-bold" href="#">Documentation</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg text-label-bold font-label-bold hover:bg-on-primary-fixed-variant transition-colors">Check My Claim</button>
+<div class="flex gap-3 text-on-surface">
+<span class="material-symbols-outlined cursor-pointer hover:text-secondary transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-secondary transition-colors" data-icon="translate">translate</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-secondary transition-colors" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center justify-center p-8">
+<div class="max-w-[800px] w-full text-center space-y-8 mb-16 mt-12">
+<h1 class="font-display-doc text-display-doc text-on-surface">Objective Medical Grievance Resolution</h1>
+<p class="font-body-main text-body-main text-on-surface-variant max-w-2xl mx-auto">A clinical, secure environment for resolving medical claims and appeals. Designed for precision, trust, and transparency.</p>
+<div class="flex gap-4 justify-center mt-8">
+<button class="bg-primary text-on-primary px-6 py-3 rounded-lg text-label-bold font-label-bold hover:bg-on-primary-fixed-variant transition-colors shadow-sm">File a Grievance</button>
+<button class="bg-surface text-primary border-2 border-primary px-6 py-3 rounded-lg text-label-bold font-label-bold hover:bg-surface-variant transition-colors">Learn More</button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="w-full max-w-container-max grid grid-cols-1 md:grid-cols-3 gap-6 px-4 mb-24">
+<!-- Feature Card 1 -->
+<div class="glass-panel p-6 rounded-xl flex flex-col gap-4">
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">Clinical Integrity</h3>
+<p class="font-body-compact text-body-compact text-on-surface-variant">Every claim is evaluated in an isolated, secure environment designed to prevent tampering and ensure absolute objectivity.</p>
+</div>
+<!-- Feature Card 2 -->
+<div class="glass-panel p-6 rounded-xl flex flex-col gap-4">
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">Transparent Lifecycle</h3>
+<p class="font-body-compact text-body-compact text-on-surface-variant">Track every stage of your grievance from submission to resolution with immutable audit trails and real-time updates.</p>
+</div>
+<!-- Feature Card 3 -->
+<div class="glass-panel p-6 rounded-xl flex flex-col gap-4">
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">Legal Review Ready</h3>
+<p class="font-body-compact text-body-compact text-on-surface-variant">Documentation is formatted and stored to meet strict legal compliance standards, streamlining the review process for auditors.</p>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 lg:hidden bg-surface-container-lowest border-t border-outline-variant shadow-lg rounded-t-xl tap-highlight-transparent font-label-bold text-label-bold uppercase tracking-wider">
+<a class="flex flex-col items-center justify-center text-primary bg-primary-container/10 rounded-xl p-2 w-16" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed p-2 w-16 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="text-[10px]">Claims</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed p-2 w-16 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="notifications">notifications</span>
+<span class="text-[10px]">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed p-2 w-16 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="text-[10px]">Profile</span>
+</a>
+</nav>
+</body></html>

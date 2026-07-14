@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Grievance Draft - BimaNyaya</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&amp;family=JetBrains+Mono:wght@400&amp;family=Source+Serif+4:wght@400&amp;family=Work+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed": "#131b2e",
+                      "primary-container": "#131b2e",
+                      "surface-container-lowest": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface-dim": "#cbdbf5",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-surface": "#0b1c30",
+                      "on-tertiary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed": "#00174b",
+                      "surface-tint": "#565e74",
+                      "surface-variant": "#d3e4fe",
+                      "secondary-container": "#316bf3",
+                      "on-surface-variant": "#45464d",
+                      "on-secondary": "#ffffff",
+                      "inverse-surface": "#213145",
+                      "outline": "#76777d",
+                      "on-tertiary-fixed": "#2a1700",
+                      "tertiary": "#000000",
+                      "on-tertiary-container": "#b87500",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "tertiary-container": "#2a1700",
+                      "primary": "#000000",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface-container-low": "#eff4ff",
+                      "on-primary-container": "#7c839b",
+                      "surface-container-high": "#dce9ff",
+                      "surface-container": "#e5eeff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "surface-bright": "#f8f9ff",
+                      "secondary": "#0051d5",
+                      "inverse-primary": "#bec6e0",
+                      "secondary-fixed": "#dbe1ff",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "background": "#f8f9ff",
+                      "on-secondary-container": "#fefcff",
+                      "surface": "#f8f9ff",
+                      "on-background": "#0b1c30",
+                      "primary-fixed": "#dae2fd",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-primary": "#ffffff",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "primary-fixed-dim": "#bec6e0",
+                      "outline-variant": "#c6c6cd",
+                      "on-error": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "editor-width": "720px",
+                      "stack-lg": "32px",
+                      "container-max": "1280px",
+                      "sidebar-width": "320px",
+                      "gutter": "24px",
+                      "stack-sm": "8px",
+                      "stack-md": "16px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Work Sans"
+                      ],
+                      "mono-ui": [
+                              "JetBrains Mono"
+                      ],
+                      "body-compact": [
+                              "\"Source Serif 4\""
+                      ],
+                      "body-main": [
+                              "\"Source Serif 4\""
+                      ],
+                      "display-doc": [
+                              "Work Sans"
+                      ],
+                      "label-bold": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Work Sans"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "mono-ui": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-compact": [
+                              "16px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-main": [
+                              "18px",
+                              {
+                                      "lineHeight": "30px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-doc": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-bold": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        .editor-highlight-comment { background-color: theme('colors.surface-variant'); }
+        .editor-highlight-suggestion { background-color: theme('colors.secondary-fixed'); }
+        
+        /* Custom scrollbar for clinical feel */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: theme('colors.outline-variant'); border-radius: theme('borderRadius.full'); }
+        ::-webkit-scrollbar-thumb:hover { background: theme('colors.outline'); }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-main">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface text-primary dark:text-primary-fixed font-title-lg text-title-lg docked full-width top-0 border-b border-outline-variant dark:border-outline flat no shadows fixed top-0 left-0 w-full z-50 flex justify-between items-center px-lg h-16 max-w-container-max mx-auto px-6">
+<div class="flex items-center gap-8">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">BimaNyaya</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Dashboard</a>
+<a class="text-secondary font-bold border-b-2 border-secondary pb-1 hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Grievances</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Reviews</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70" href="#">Experts</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Workspace -->
+<main class="flex-grow pt-16 flex flex-col md:flex-row h-screen max-w-container-max mx-auto w-full">
+<!-- Left: Rich Text Editor -->
+<div class="flex-grow flex flex-col items-center bg-background overflow-y-auto pt-stack-lg pb-32 px-4 md:px-0">
+<div class="w-full max-w-editor-width bg-surface-container-lowest border border-outline-variant rounded-lg p-8 md:p-12 shadow-sm min-h-[800px] flex flex-col gap-6 relative">
+<!-- Status Badge -->
+<div class="absolute top-6 right-8 flex items-center gap-2 bg-surface-container-high px-3 py-1 rounded-full text-on-surface font-label-md text-label-md">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                    Draft - AI Assisted
+                </div>
+<div class="border-b-2 border-outline-variant focus-within:border-primary transition-colors pb-2 mt-8">
+<label class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-widest block mb-2">Subject</label>
+<input class="w-full bg-transparent border-none outline-none font-headline-lg text-headline-lg p-0 text-on-surface placeholder-outline" placeholder="Enter subject..." type="text" value="Formal Grievance: Unjustified Claim Denial"/>
+</div>
+<div class="border-b-2 border-outline-variant focus-within:border-primary transition-colors pb-2">
+<label class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-widest block mb-2">Addressed To</label>
+<input class="w-full bg-transparent border-none outline-none font-body-main text-body-main p-0 text-on-surface" type="text" value="Horizon Health Insurance - Grievance Redressal Cell"/>
+</div>
+<div class="mt-4 flex flex-col gap-6 font-body-main text-body-main text-on-surface leading-relaxed">
+<section>
+<h3 class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-widest mb-3">Factual Summary</h3>
+<p class="mb-4 focus:outline-none" contenteditable="true">
+                            I am writing to formally appeal the denial of my recent medical claim (Claim #HH-2023-8991) regarding my hospitalization from October 12th to October 15th, 2023. The claim was submitted for treatment of acute gastroenteritis requiring intravenous fluids and monitoring.
+                        </p>
+<p class="focus:outline-none" contenteditable="true">
+                            Horizon Health denied this claim, stating that the treatment "did not meet the criteria for inpatient admission" and could have been managed on an outpatient basis. <span class="editor-highlight-comment px-1 rounded cursor-pointer" title="AI Suggestion: Strengthen this with vitals data">This assertion contradicts the explicit medical advice of my attending physician, Dr. Sarah Jenkins.</span>
+</p>
+</section>
+<section>
+<h3 class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-widest mb-3 mt-4">Policy Citation</h3>
+<p class="focus:outline-none" contenteditable="true">
+                            As per <span class="editor-highlight-suggestion px-1 rounded font-mono-ui text-mono-ui text-secondary cursor-pointer">Section 4.2: Emergency Admissions</span> of my policy document, coverage is explicitly provided when "immediate inpatient care is deemed medically necessary by the admitting physician to prevent severe deterioration of health." 
+                        </p>
+</section>
+<section>
+<h3 class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-widest mb-3 mt-4">Requested Action</h3>
+<p class="focus:outline-none" contenteditable="true">
+                            I request a comprehensive human review of this claim, taking into account the attached Discharge Summary and the physician's notes which clearly document the medical necessity of the admission. I expect a response within the mandated 15-day regulatory timeframe.
+                        </p>
+</section>
+</div>
+<!-- Editor Toolbar (Floating at bottom of editor) -->
+<div class="mt-auto sticky bottom-0 left-0 w-full bg-surface-container-lowest/90 backdrop-blur border-t border-outline-variant py-3 px-4 flex justify-between items-center z-10 rounded-b-lg">
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container-high rounded text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-lg">format_bold</span></button>
+<button class="p-2 hover:bg-surface-container-high rounded text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-lg">format_italic</span></button>
+<div class="w-px h-6 bg-outline-variant mx-1 self-center"></div>
+<button class="p-2 hover:bg-surface-container-high rounded text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-lg">format_list_bulleted</span></button>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded font-label-bold text-label-bold hover:bg-inverse-surface transition-colors">
+                        Request Human Review
+                    </button>
+</div>
+</div>
+</div>
+<!-- Right: Citations & Evidence Sidebar -->
+<aside class="w-full md:w-sidebar-width bg-surface-container-low border-l border-outline-variant flex flex-col h-full overflow-y-auto shrink-0 hidden lg:flex">
+<div class="p-4 border-b border-outline-variant sticky top-0 bg-surface-container-low/95 backdrop-blur z-10 flex justify-between items-center">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Citations &amp; Evidence</h2>
+<button class="p-1 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">filter_list</span></button>
+</div>
+<div class="p-4 flex flex-col gap-4">
+<!-- AI Insight Card -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant p-4 shadow-sm">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-secondary text-sm">auto_awesome</span>
+<span class="font-label-bold text-label-bold text-secondary uppercase">AI Insight</span>
+</div>
+<p class="font-body-compact text-body-compact text-on-surface mb-3">
+                        The denial reason "outpatient management possible" is frequently overturned when severe dehydration markers are present in the admission vitals.
+                    </p>
+<button class="text-secondary font-label-bold text-label-bold hover:underline flex items-center gap-1">
+                        Insert Vitals Data <span class="material-symbols-outlined text-xs">arrow_forward</span>
+</button>
+</div>
+<!-- Policy Snippet -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant p-4 shadow-sm relative group cursor-pointer hover:border-secondary transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">menu_book</span>
+<span class="font-label-bold text-label-bold text-on-surface-variant uppercase">Policy Document</span>
+</div>
+<span class="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-mono-ui uppercase">Clause 4.2</span>
+</div>
+<h4 class="font-body-compact text-body-compact font-bold text-on-surface mb-2">Emergency Admissions</h4>
+<p class="font-mono-ui text-mono-ui text-on-surface-variant bg-surface-container-low p-2 rounded border border-outline-variant/50">
+                        "...coverage is explicitly provided when immediate inpatient care is deemed medically necessary by the admitting physician to prevent severe deterioration of health."
+                    </p>
+<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="bg-surface shadow p-1 rounded hover:text-secondary"><span class="material-symbols-outlined text-sm">content_copy</span></button>
+</div>
+</div>
+<!-- Evidence Document -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant p-4 shadow-sm relative group cursor-pointer hover:border-secondary transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">description</span>
+<span class="font-label-bold text-label-bold text-on-surface-variant uppercase">Medical Record</span>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-[10px] font-label-bold uppercase">Attached</span>
+</div>
+<h4 class="font-body-compact text-body-compact font-bold text-on-surface mb-2">Discharge Summary</h4>
+<div class="flex gap-3 mb-2">
+<div class="w-12 h-16 bg-surface-container-high border border-outline-variant rounded flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant">picture_as_pdf</span>
+</div>
+<div class="font-mono-ui text-mono-ui text-on-surface-variant text-xs flex flex-col justify-center">
+<span>Dr. Sarah Jenkins</span>
+<span>Oct 15, 2023</span>
+<span>Pages: 3</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest text-on-surface-variant dark:text-on-surface-variant font-body-sm text-body-sm docked bottom-0 w-full border-t border-outline-variant flat no shadows w-full py-md px-lg flex justify-between items-center px-6 py-4 mt-auto">
+<div class="font-label-md text-label-md font-bold text-primary">BimaNyaya</div>
+<div class="text-sm">© 2024 BimaNyaya Insurance Systems. Evidence-Based Design Protocol.</div>
+<div class="flex gap-4">
+<a class="text-on-surface-variant hover:text-primary opacity-80 hover:opacity-100 transition-opacity" href="#">Legal Compliance</a>
+<a class="text-on-surface-variant hover:text-primary opacity-80 hover:opacity-100 transition-opacity" href="#">Data Privacy</a>
+<a class="text-on-surface-variant hover:text-primary opacity-80 hover:opacity-100 transition-opacity" href="#">Audit Logs</a>
+</div>
+</footer>
+</body></html>

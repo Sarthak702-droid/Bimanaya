@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="h-full dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Expert Workspace - Case #BN-8829-B</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Work+Sans:wght@400;500;600;700&amp;family=Source+Serif+4:ital,wght@0,400;0,600;1,400&amp;family=JetBrains+Mono:wght@400;500&amp;family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-secondary": "#09090b",
+                "tertiary-fixed": "#bbf7d0",
+                "on-surface": "#fafafa",
+                "on-secondary-fixed-variant": "#3f3f46",
+                "outline": "#52525b",
+                "error": "#ef4444",
+                "tertiary-fixed-dim": "#6ee7b7",
+                "surface-variant": "#18181b",
+                "surface-container-low": "#0f0f12",
+                "on-tertiary": "#001a12",
+                "on-error": "#1a0000",
+                "surface-dim": "#0c0c0f",
+                "on-secondary-fixed": "#18181b",
+                "background": "#09090b",
+                "on-tertiary-fixed": "#003318",
+                "secondary-fixed": "#a1a1aa",
+                "outline-variant": "#27272a",
+                "on-primary-fixed": "#2e1065",
+                "on-tertiary-container": "#bbf7d0",
+                "secondary-fixed-dim": "#71717a",
+                "surface-tint": "#a78bfa",
+                "on-primary": "#0a0012",
+                "inverse-primary": "#5b21b6",
+                "inverse-on-surface": "#09090b",
+                "surface-container-high": "#18181b",
+                "secondary-container": "#27272a",
+                "on-primary-container": "#ede9fe",
+                "tertiary": "#34d399",
+                "on-surface-variant": "#a1a1aa",
+                "secondary": "#71717a",
+                "on-background": "#fafafa",
+                "inverse-surface": "#fafafa",
+                "surface-bright": "#18181b",
+                "tertiary-container": "#065f46",
+                "on-tertiary-fixed-variant": "#047857",
+                "primary-container": "#7c3aed",
+                "primary-fixed-dim": "#c4b5fd",
+                "surface-container": "#121215",
+                "on-secondary-container": "#a1a1aa",
+                "primary-fixed": "#ede9fe",
+                "primary": "#a78bfa",
+                "surface-container-highest": "#1e1e22",
+                "on-error-container": "#fca5a5",
+                "surface": "#0c0c0f",
+                "surface-container-lowest": "#09090b",
+                "on-primary-fixed-variant": "#5b21b6",
+                "error-container": "#3b1111"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                    "stack-lg": "32px",
+                    "container-max": "1280px",
+                    "stack-sm": "8px",
+                    "stack-md": "16px",
+                    "sidebar-width": "320px",
+                    "gutter": "24px",
+                    "editor-width": "720px"
+        },
+        "fontFamily": {
+                "headline": [
+                        "Geist"
+                ],
+                "display": [
+                        "Geist"
+                ],
+                "body": [
+                        "Geist"
+                ],
+                "label": [
+                        "Geist"
+                ],
+                "body-compact": [
+                        "Geist", "sans-serif"
+                ],
+                "display-doc": [
+                        "Geist", "sans-serif"
+                ],
+                "label-bold": [
+                        "Geist", "sans-serif"
+                ],
+                "headline-lg": [
+                        "Geist", "sans-serif"
+                ],
+                "headline-lg-mobile": [
+                        "Geist", "sans-serif"
+                ],
+                "mono-ui": [
+                        "JetBrains Mono", "monospace"
+                ],
+                "body-main": [
+                        "Geist", "sans-serif"
+                ]
+        },
+        "fontSize": {
+                "body-compact": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "display-doc": [
+                        "36px",
+                        {
+                                "lineHeight": "44px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-bold": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "28px",
+                        {
+                                "lineHeight": "36px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "mono-ui": [
+                        "13px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-main": [
+                        "15px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .editor-highlight-comment { background-color: rgba(167, 139, 250, 0.15); border-bottom: 2px solid #a78bfa; }
+        .editor-highlight-suggestion { background-color: rgba(16, 185, 129, 0.15); border-bottom: 2px solid #10B981; }
+        .clinical-shadow { box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.8); }
+        
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        .gradient-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+        }
+        
+        .gradient-error {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+        }
+        
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-main h-full overflow-hidden flex flex-col antialiased">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-surface-container-lowest border-b border-outline-variant glass-panel">
+<div class="flex items-center gap-8 pl-2">
+<span class="font-headline text-xl font-bold text-primary tracking-tight">BimaNyaya</span>
+<div class="hidden md:flex gap-6">
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer font-medium text-sm" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer font-medium text-sm" href="#">Grievances</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer font-medium text-sm" href="#">Reviews</a>
+<a class="text-primary font-semibold border-b-2 border-primary py-5 hover:text-primary transition-colors duration-200 cursor-pointer text-sm" href="#">Experts</a>
+</div>
+</div>
+<div class="flex items-center gap-5 pr-2">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="search">search</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="account_circle">account_circle</button>
+</div>
+</nav>
+<!-- Workspace Layout -->
+<main class="flex-1 mt-16 flex h-[calc(100vh-64px)] overflow-hidden">
+<!-- Left Column: Document List -->
+<aside class="w-[320px] bg-surface-container border-r border-outline-variant flex flex-col flex-shrink-0 z-10 shadow-[4px_0_24px_rgba(0,0,0,0.5)]">
+<div class="p-5 border-b border-outline-variant bg-surface-container-low">
+<h2 class="font-headline text-xl font-semibold mb-1 tracking-tight text-on-surface">Case Documents</h2>
+<p class="font-mono-ui text-xs text-on-surface-variant">#BN-8829-B</p>
+</div>
+<div class="overflow-y-auto flex-1 p-3 space-y-2 no-scrollbar bg-surface-container-lowest">
+<!-- Document Item 1 (Active) -->
+<div class="bg-surface-container-high rounded-xl p-4 cursor-pointer border border-primary shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">description</span>
+<span class="font-medium text-sm text-on-surface group-hover:text-primary transition-colors">Initial Claim Form</span>
+</div>
+<span class="bg-primary-container/20 text-primary border border-primary/30 text-[10px] px-2 py-0.5 rounded font-semibold tracking-wide">OCR: 98%</span>
+</div>
+<p class="font-mono-ui text-[11px] text-on-surface-variant">Uploaded: 2024-05-12 • 4 pages</p>
+</div>
+<!-- Document Item 2 -->
+<div class="bg-surface-container rounded-xl p-4 cursor-pointer border border-transparent hover:border-outline-variant hover:bg-surface-container-high transition-all group">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-on-surface transition-colors">medical_information</span>
+<span class="font-medium text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Discharge Summary</span>
+</div>
+<span class="bg-surface-container-highest text-on-surface-variant text-[10px] px-2 py-0.5 rounded font-semibold tracking-wide">OCR: 92%</span>
+</div>
+<p class="font-mono-ui text-[11px] text-on-surface-variant">Uploaded: 2024-05-14 • 12 pages</p>
+</div>
+<!-- Document Item 3 -->
+<div class="bg-surface-container rounded-xl p-4 cursor-pointer border border-transparent hover:border-outline-variant hover:bg-surface-container-high transition-all group">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-on-surface transition-colors">policy</span>
+<span class="font-medium text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Policy Master Docs</span>
+</div>
+<span class="bg-surface-container-highest text-on-surface-variant text-[10px] px-2 py-0.5 rounded font-semibold tracking-wide">NATIVE PDF</span>
+</div>
+<p class="font-mono-ui text-[11px] text-on-surface-variant">System Generated • 45 pages</p>
+</div>
+</div>
+</aside>
+<!-- Center Column: Editor/Viewer -->
+<section class="flex-1 bg-surface-container-lowest flex flex-col min-w-0 relative">
+<!-- Viewer Toolbar -->
+<div class="h-14 border-b border-outline-variant bg-surface-container-low flex items-center justify-between px-6 glass-panel z-10">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-xl">zoom_out</button>
+<div class="bg-surface-container-highest rounded px-3 py-1 border border-outline-variant/50">
+<span class="font-mono-ui text-xs text-on-surface font-medium">100%</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-xl">zoom_in</button>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-highest rounded-full px-4 py-1.5 border border-outline-variant/50">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-lg">navigate_before</button>
+<span class="font-mono-ui text-xs text-on-surface font-medium">Page 1 of 4</span>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-lg">navigate_next</button>
+</div>
+<div class="flex items-center gap-3">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors p-1.5 hover:bg-surface-container-highest rounded-md">print</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors p-1.5 hover:bg-surface-container-highest rounded-md">download</button>
+</div>
+</div>
+<!-- Document Canvas -->
+<div class="flex-1 overflow-y-auto p-8 flex justify-center bg-[#050505]">
+<div class="w-[720px] bg-surface-container border border-outline-variant/30 p-14 min-h-full clinical-shadow relative rounded-sm">
+<div class="mb-10 border-b-2 border-primary/50 pb-6">
+<h1 class="font-display-doc text-display-doc text-on-surface tracking-tight">INITIAL CLAIM FORM</h1>
+<p class="font-mono-ui text-xs text-on-surface-variant mt-3 opacity-80">Document ID: ICF-2024-8829-B | Scanned: 2024-05-12</p>
+</div>
+<div class="font-body-compact text-body-compact space-y-8">
+<div class="grid grid-cols-2 gap-10">
+<div>
+<label class="font-label-bold text-[10px] text-on-surface-variant block mb-2 uppercase tracking-widest">Patient Name</label>
+<div class="border-b border-outline-variant/50 pb-2 text-on-surface font-medium text-lg">John Doe</div>
+</div>
+<div>
+<label class="font-label-bold text-[10px] text-on-surface-variant block mb-2 uppercase tracking-widest">Policy Number</label>
+<div class="border-b border-outline-variant/50 pb-2 text-on-surface font-medium text-lg">POL-992-XYZ</div>
+</div>
+</div>
+<div>
+<label class="font-label-bold text-[10px] text-on-surface-variant block mb-3 uppercase tracking-widest">Claim Description</label>
+<p class="leading-relaxed text-on-surface text-[15px]">Patient was admitted to City Hospital on <span class="editor-highlight-comment cursor-help text-primary font-medium px-1 rounded-sm" title="Comment: Verify admission date with discharge summary">May 10th, 2024</span> for emergency appendectomy. Procedure was performed without complications. Patient was discharged on May 13th, 2024.</p>
+</div>
+<div class="bg-surface-container-highest/30 p-4 rounded-md border border-outline-variant/20">
+<label class="font-label-bold text-[10px] text-on-surface-variant block mb-2 uppercase tracking-widest">Claimed Amount</label>
+<div class="flex items-center justify-between text-on-surface">
+<span class="text-xl font-semibold">INR 1,50,000</span>
+<span class="editor-highlight-suggestion px-2 py-1 rounded font-bold text-[10px] text-tertiary uppercase tracking-wider border border-tertiary/30">VERIFIED AGAINST BILLS</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column: Analysis Panel -->
+<aside class="w-[340px] bg-surface-container border-l border-outline-variant flex flex-col flex-shrink-0 z-10 shadow-[-4px_0_24px_rgba(0,0,0,0.5)]">
+<div class="p-5 border-b border-outline-variant bg-surface-container-low">
+<h3 class="font-headline text-lg font-semibold text-primary tracking-tight">Analysis &amp; Actions</h3>
+</div>
+<div class="overflow-y-auto flex-1 p-5 space-y-8 no-scrollbar bg-surface-container-lowest">
+<!-- Extracted Facts -->
+<div>
+<h4 class="font-label-bold text-[11px] text-on-surface-variant uppercase tracking-widest mb-4">Key Facts</h4>
+<ul class="space-y-3">
+<li class="flex items-start gap-3 bg-surface-container p-3 rounded-lg border border-outline-variant/30">
+<span class="material-symbols-outlined text-lg text-primary">check_circle</span>
+<span class="font-body-compact text-sm text-on-surface font-medium">Admission: Emergency</span>
+</li>
+<li class="flex items-start gap-3 bg-error/10 p-3 rounded-lg border border-error/20">
+<span class="material-symbols-outlined text-lg text-error">error</span>
+<span class="font-body-compact text-sm text-error font-medium">Policy Status: Active (Premium pending 10 days)</span>
+</li>
+</ul>
+</div>
+<!-- Issue Summary -->
+<div class="bg-surface-container p-4 rounded-xl border border-outline-variant/50 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-secondary-fixed-dim"></div>
+<h4 class="font-label-bold text-[11px] text-on-surface-variant uppercase tracking-widest mb-3 mt-1">System Flag</h4>
+<p class="font-body-compact text-sm text-on-surface leading-relaxed">The claimed amount exceeds standard procedure costs for City Hospital by 15%.</p>
+</div>
+<!-- Reviewer Signatures Placeholder -->
+<div class="mt-8 pt-6 border-t border-outline-variant/50">
+<div class="flex items-center gap-2 mb-3">
+<span class="bg-primary/20 text-primary px-2.5 py-1 rounded text-[10px] font-bold tracking-widest border border-primary/30 uppercase">LEGAL REVIEWED</span>
+</div>
+<p class="font-medium text-sm text-on-surface-variant">Reviewer: <span class="text-on-surface">Dr. Sarah Jenkins (Sr. Analyst)</span></p>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="p-5 border-t border-outline-variant bg-surface-container-low space-y-3 glass-panel relative z-20">
+<button class="w-full gradient-primary text-white py-3 rounded-xl font-semibold text-sm shadow-[0_4px_14px_rgba(124,58,237,0.39)] hover:shadow-[0_6px_20px_rgba(124,58,237,0.23)] hover:scale-[1.02] transition-all duration-200">Approve Claim</button>
+<div class="flex gap-3">
+<button class="flex-1 bg-surface-container-highest border border-outline-variant/50 text-on-surface py-2.5 rounded-xl font-medium text-sm hover:bg-surface-container hover:border-primary/50 hover:text-primary transition-all duration-200">Edit &amp; Approve</button>
+<button class="flex-1 bg-surface-container-highest border border-outline-variant/50 text-on-surface py-2.5 rounded-xl font-medium text-sm hover:bg-surface-container hover:text-on-surface-variant transition-all duration-200">Request Info</button>
+</div>
+<button class="w-full bg-surface-container-highest border border-error/30 text-error py-2.5 rounded-xl font-medium text-sm hover:bg-error/10 hover:border-error/50 transition-all duration-200 flex items-center justify-center gap-2 mt-2">
+<span class="material-symbols-outlined text-lg">warning</span> Escalate to Senior
+</button>
+</div>
+</aside>
+</main>
+</body></html>

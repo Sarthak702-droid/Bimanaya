@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BimaNyaya - Premium Glass Landing</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap');
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#27272a",
+                        "on-error": "#1a0000",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "tertiary-fixed": "#bbf7d0",
+                        "primary-fixed": "#ede9fe",
+                        "on-background": "#fafafa",
+                        "tertiary-fixed-dim": "#6ee7b7",
+                        "on-primary": "#0a0012",
+                        "on-secondary-container": "#a1a1aa",
+                        "surface": "#0c0c0f",
+                        "inverse-primary": "#5b21b6",
+                        "secondary": "#71717a",
+                        "secondary-fixed-dim": "#71717a",
+                        "secondary-fixed": "#a1a1aa",
+                        "background": "#09090b",
+                        "surface-bright": "#18181b",
+                        "surface-container-high": "#18181b",
+                        "surface-container": "#121215",
+                        "on-tertiary-fixed-variant": "#047857",
+                        "on-primary-container": "#ede9fe",
+                        "inverse-on-surface": "#09090b",
+                        "surface-container-highest": "#1e1e22",
+                        "surface-container-low": "#0f0f12",
+                        "on-primary-fixed-variant": "#5b21b6",
+                        "on-tertiary-container": "#bbf7d0",
+                        "tertiary-container": "#065f46",
+                        "primary": "#a78bfa",
+                        "tertiary": "#34d399",
+                        "on-tertiary-fixed": "#003318",
+                        "surface-variant": "#18181b",
+                        "secondary-container": "#27272a",
+                        "surface-tint": "#a78bfa",
+                        "outline": "#52525b",
+                        "inverse-surface": "#fafafa",
+                        "on-surface-variant": "#a1a1aa",
+                        "on-secondary": "#09090b",
+                        "on-error-container": "#fca5a5",
+                        "on-secondary-fixed": "#18181b",
+                        "on-tertiary": "#001a12",
+                        "error": "#ef4444",
+                        "on-surface": "#fafafa",
+                        "on-secondary-fixed-variant": "#3f3f46",
+                        "error-container": "#3b1111",
+                        "surface-dim": "#0c0c0f",
+                        "primary-container": "#7c3aed",
+                        "on-primary-fixed": "#2e1065",
+                        "surface-container-lowest": "#09090b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Geist", "sans-serif"],
+                        "display": ["Geist", "sans-serif"],
+                        "body": ["Geist", "sans-serif"],
+                        "label": ["Geist", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(18, 18, 21, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(82, 82, 91, 0.3);
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02);
+        }
+        .glow-border {
+            position: relative;
+        }
+        .glow-border::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px; right: -1px; bottom: -1px;
+            background: linear-gradient(45deg, rgba(167, 139, 250, 0.5), transparent 60%);
+            z-index: -1;
+            border-radius: inherit;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body antialiased min-h-screen relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="sticky top-0 z-50 flex justify-between items-center w-full px-6 py-3 glass-panel border-b border-outline-variant">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<img alt="BimaNyaya Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLu4pLjGM0d596v3MDGcjo9gLH0oJytulHLVPatm2KzY9eEFxBGm7JfYmaugXkETstKHsHyJ0cEZUN69BuQT71KkFgwmt0_cvOC5OuDi9ghEzIWCeHx8DRoGR5gGDLtDA_EkMZpwy9r0NaQKK-Nso6bIL_K6mYIXvdaPjohzSpCU4EQBV0hmzVqzdni-gJcLDhVBNpA5K79u2uZSSG7AabMvpKH3w7yunSRW6uDWuLy7alJLukU3SAMc_8ff"/>
+<span class="text-xl font-headline font-black text-on-background tracking-tighter">BimaNyaya</span>
+</div>
+<div class="hidden md:flex gap-6">
+<a class="text-primary font-bold border-b-2 border-primary pb-1" href="#">Dashboard</a>
+<a class="text-secondary-fixed hover:text-on-background transition-colors hover:bg-surface-container-highest rounded-md px-2 py-1" href="#">Claims</a>
+<a class="text-secondary-fixed hover:text-on-background transition-colors hover:bg-surface-container-highest rounded-md px-2 py-1" href="#">Appeals</a>
+<a class="text-secondary-fixed hover:text-on-background transition-colors hover:bg-surface-container-highest rounded-md px-2 py-1" href="#">Documentation</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center gap-3">
+<button class="text-secondary-fixed hover:text-on-background transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-secondary-fixed hover:text-on-background transition-colors">
+<span class="material-symbols-outlined">translate</span>
+</button>
+<button class="text-secondary-fixed hover:text-on-background transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg font-medium hover:bg-primary-fixed transition-colors active:scale-95">Check My Claim</button>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="relative pt-32 pb-20 px-6 lg:px-12 flex flex-col items-center text-center max-w-6xl mx-auto">
+<div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background pointer-events-none"></div>
+<h1 class="text-5xl md:text-7xl font-headline font-black tracking-tight mb-6 leading-tight">
+            Resolve Disputes with <br/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-fixed-dim">Absolute Precision</span>
+</h1>
+<p class="text-lg md:text-xl text-secondary-fixed max-w-2xl mb-10 font-light">
+            BimaNyaya leverages advanced legal tech to accelerate your insurance claims and appeals. Secure, transparent, and built for policyholders.
+        </p>
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="bg-primary text-on-primary px-8 py-3 rounded-lg font-bold text-lg hover:bg-primary-fixed transition-all hover:shadow-[0_0_15px_rgba(167,139,250,0.5)] active:scale-95">Start New Dispute</button>
+<button class="glass-panel px-8 py-3 rounded-lg font-medium text-on-background hover:bg-surface-container-highest transition-colors active:scale-95 border border-outline-variant">Explore Vault</button>
+</div>
+</header>
+<!-- Bento Grid Features -->
+<section class="py-20 px-6 lg:px-12 max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Large Feature Card -->
+<div class="md:col-span-2 glass-panel rounded-xl p-8 glow-border relative overflow-hidden group">
+<div class="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl group-hover:bg-primary/30 transition-all duration-500"></div>
+<span class="material-symbols-outlined text-4xl text-primary mb-4 block" style="font-variation-settings: 'FILL' 1;">gavel</span>
+<h3 class="text-2xl font-headline font-bold mb-3 tracking-tight">Automated Legal Aid</h3>
+<p class="text-secondary-fixed mb-6 max-w-md">Our AI-driven engine analyzes your policy documents and identifies the optimal legal strategy for your claim, reducing appeal time by up to 60%.</p>
+<div class="h-32 rounded-lg bg-surface-container-lowest border border-outline-variant overflow-hidden relative">
+<!-- Decorative code/graph abstract -->
+<div class="absolute inset-0 p-4 font-mono text-xs text-secondary opacity-50 flex flex-col gap-2">
+<div>&gt; INITIALIZING CLAIM PROTOCOL...</div>
+<div>&gt; SCANNING POLICY #BN-84729...</div>
+<div class="text-tertiary">&gt; DISCREPANCY FOUND IN CLAUSE 4.2</div>
+<div>&gt; GENERATING APPEAL DRAFT...</div>
+</div>
+</div>
+</div>
+<!-- Small Feature Card 1 -->
+<div class="glass-panel rounded-xl p-8 border border-outline-variant hover:border-primary/50 transition-colors">
+<span class="material-symbols-outlined text-3xl text-tertiary mb-4 block">security</span>
+<h3 class="text-xl font-headline font-bold mb-2">Policy Vault</h3>
+<p class="text-secondary-fixed text-sm">Securely store and organize all your insurance documentation with end-to-end encryption.</p>
+</div>
+<!-- Small Feature Card 2 -->
+<div class="glass-panel rounded-xl p-8 border border-outline-variant hover:border-primary/50 transition-colors">
+<span class="material-symbols-outlined text-3xl text-primary mb-4 block">monitoring</span>
+<h3 class="text-xl font-headline font-bold mb-2">Real-time Tracking</h3>
+<p class="text-secondary-fixed text-sm">Monitor your claim status with live updates and granular milestone tracking.</p>
+</div>
+<!-- Medium Feature Card -->
+<div class="md:col-span-2 glass-panel rounded-xl p-8 border border-outline-variant flex flex-col md:flex-row items-center gap-8">
+<div class="flex-1">
+<h3 class="text-2xl font-headline font-bold mb-3 tracking-tight">Expert Support Integration</h3>
+<p class="text-secondary-fixed">Connect directly with vetted legal professionals when your dispute requires human intervention. Seamless handoffs with full context.</p>
+</div>
+<div class="w-full md:w-1/3 h-24 bg-surface-container-lowest rounded-lg border border-outline-variant flex items-center justify-center p-4">
+<span class="material-symbols-outlined text-secondary-fixed text-4xl animate-pulse">support_agent</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="border-t border-outline-variant glass-panel py-12 px-6 lg:px-12 mt-20">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-2">
+<img alt="BimaNyaya Logo" class="h-6 w-auto object-contain grayscale opacity-70" src="https://lh3.googleusercontent.com/aida/AP1WRLu4pLjGM0d596v3MDGcjo9gLH0oJytulHLVPatm2KzY9eEFxBGm7JfYmaugXkETstKHsHyJ0cEZUN69BuQT71KkFgwmt0_cvOC5OuDi9ghEzIWCeHx8DRoGR5gGDLtDA_EkMZpwy9r0NaQKK-Nso6bIL_K6mYIXvdaPjohzSpCU4EQBV0hmzVqzdni-gJcLDhVBNpA5K79u2uZSSG7AabMvpKH3w7yunSRW6uDWuLy7alJLukU3SAMc_8ff"/>
+<span class="text-lg font-headline font-bold text-secondary-fixed">BimaNyaya</span>
+</div>
+<div class="flex gap-6 text-sm text-secondary-fixed">
+<a class="hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms</a>
+<a class="hover:text-primary transition-colors" href="#">Security</a>
+</div>
+</div>
+</footer>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 lg:hidden bg-surface-container-low dark:bg-surface-container-low rounded-t-xl border-t border-outline-variant shadow-lg tap-highlight-transparent">
+<button class="flex flex-col items-center justify-center text-primary bg-primary-container/10 rounded-xl p-2 active:bg-surface-variant">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label text-[10px] uppercase tracking-wider mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-secondary-fixed p-2 active:bg-surface-variant">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-label text-[10px] uppercase tracking-wider mt-1">Claims</span>
+</button>
+<button class="flex flex-col items-center justify-center text-secondary-fixed p-2 active:bg-surface-variant">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-label text-[10px] uppercase tracking-wider mt-1">Alerts</span>
+</button>
+<button class="flex flex-col items-center justify-center text-secondary-fixed p-2 active:bg-surface-variant">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label text-[10px] uppercase tracking-wider mt-1">Profile</span>
+</button>
+</nav>
+</body></html>

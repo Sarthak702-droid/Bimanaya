@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BimaNyaya - Expert Collaboration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&amp;family=Source+Serif+4:wght@400;600&amp;family=JetBrains+Mono:wght@400;600&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed": "#131b2e",
+                      "primary-container": "#131b2e",
+                      "surface-container-lowest": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface-dim": "#cbdbf5",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-surface": "#0b1c30",
+                      "on-tertiary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed": "#00174b",
+                      "surface-tint": "#565e74",
+                      "surface-variant": "#d3e4fe",
+                      "secondary-container": "#316bf3",
+                      "on-surface-variant": "#45464d",
+                      "on-secondary": "#ffffff",
+                      "inverse-surface": "#213145",
+                      "outline": "#76777d",
+                      "on-tertiary-fixed": "#2a1700",
+                      "tertiary": "#000000",
+                      "on-tertiary-container": "#b87500",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "tertiary-container": "#2a1700",
+                      "primary": "#000000",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface-container-low": "#eff4ff",
+                      "on-primary-container": "#7c839b",
+                      "surface-container-high": "#dce9ff",
+                      "surface-container": "#e5eeff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "surface-bright": "#f8f9ff",
+                      "secondary": "#0051d5",
+                      "inverse-primary": "#bec6e0",
+                      "secondary-fixed": "#dbe1ff",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "background": "#f8f9ff",
+                      "on-secondary-container": "#fefcff",
+                      "surface": "#f8f9ff",
+                      "on-background": "#0b1c30",
+                      "primary-fixed": "#dae2fd",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-primary": "#ffffff",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "primary-fixed-dim": "#bec6e0",
+                      "outline-variant": "#c6c6cd",
+                      "on-error": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "editor-width": "720px",
+                      "stack-lg": "32px",
+                      "container-max": "1280px",
+                      "sidebar-width": "320px",
+                      "gutter": "24px",
+                      "stack-sm": "8px",
+                      "stack-md": "16px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Work Sans"
+                      ],
+                      "mono-ui": [
+                              "jetbrainsMono"
+                      ],
+                      "body-compact": [
+                              "\"Source Serif 4\""
+                      ],
+                      "body-main": [
+                              "\"Source Serif 4\""
+                      ],
+                      "display-doc": [
+                              "Work Sans"
+                      ],
+                      "label-bold": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Work Sans"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "mono-ui": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-compact": [
+                              "16px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-main": [
+                              "18px",
+                              {
+                                      "lineHeight": "30px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-doc": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-bold": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background h-full flex flex-col font-body-main">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-lg h-16 max-w-container-max mx-auto bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline">
+<div class="flex items-center gap-6">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">BimaNyaya</h1>
+<nav class="hidden md:flex gap-6">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70 font-title-lg text-title-lg" href="#">Dashboard</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70 font-title-lg text-title-lg" href="#">Grievances</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70 font-title-lg text-title-lg" href="#">Reviews</a>
+<a class="text-secondary font-bold border-b-2 border-secondary pb-1 hover:text-secondary transition-colors duration-200 cursor-pointer active:opacity-70 font-title-lg text-title-lg" href="#">Experts</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<input class="border-b-2 border-outline focus:border-secondary bg-transparent py-1 px-2 text-sm outline-none text-on-surface-variant placeholder:text-outline-variant w-48 font-mono-ui text-mono-ui" placeholder="Search..." type="text"/>
+<span class="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 text-outline-variant cursor-pointer hover:text-secondary">search</span>
+</div>
+<button class="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer active:opacity-70 flex items-center justify-center p-2 rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-secondary transition-colors cursor-pointer active:opacity-70 flex items-center justify-center p-2 rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<div class="flex flex-1 pt-16 relative">
+<!-- Main Content Canvas -->
+<main class="flex-1 flex justify-center p-gutter overflow-y-auto">
+<div class="w-full max-w-container-max flex flex-col md:flex-row gap-gutter">
+<!-- Left Pane: Editor (Read-Only) -->
+<section class="flex-1 max-w-[800px] bg-surface-container-lowest border border-outline-variant rounded-lg p-stack-lg shadow-sm">
+<header class="border-b border-outline-variant pb-stack-md mb-stack-md flex justify-between items-end">
+<div>
+<span class="inline-block bg-secondary-container text-on-secondary-container px-2 py-1 rounded font-label-bold text-label-bold mb-2">UNDER EXPERT REVIEW</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Grievance Case #8829-B: Denied Diagnostic Claim</h2>
+<p class="font-mono-ui text-mono-ui text-on-surface-variant mt-2">Submitted: Oct 12, 2024 • Status: Pending Clarification</p>
+</div>
+</header>
+<article class="prose max-w-none text-on-surface font-body-main">
+<p class="mb-4">To Whom It May Concern,</p>
+<p class="mb-4">I am writing to formally appeal the denial of claim #CL-992-441 regarding the diagnostic MRI performed on September 15th, 2024. The denial letter stated that the procedure was considered "experimental" for my condition, however, my primary care physician, Dr. Alan Grant, specifically ordered it as standard protocol for advanced musculoskeletal assessment following my injury.</p>
+<p class="mb-4">According to policy document SEC-4, clause B, diagnostic imaging necessary to confirm a preliminary diagnosis of severe tissue damage is covered under standard outpatient procedures. The preliminary diagnosis was established on <span class="bg-surface-variant px-1 rounded border-b-2 border-secondary cursor-help relative group" title="Reviewer Comment">September 10th</span>.</p>
+<p class="mb-4">I have attached the referral documents and the clinical notes from Dr. Grant detailing the necessity of this specific scan to rule out further complications that a standard X-ray could not detect. The delay in processing this claim is causing significant financial strain.</p>
+<p class="mt-8">Sincerely,</p>
+<p>John Doe</p>
+</article>
+<div class="mt-stack-lg pt-stack-md border-t border-outline-variant flex justify-end">
+<button class="bg-primary text-on-primary px-6 py-3 rounded-lg font-label-bold text-label-bold hover:bg-on-surface transition-colors flex items-center gap-2 shadow-md">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+                            Approve Expert Edits
+                        </button>
+</div>
+</section>
+<!-- Right Pane: Collaboration Thread -->
+<aside class="w-full md:w-sidebar-width shrink-0 flex flex-col gap-stack-md h-[calc(100vh-64px-48px)] sticky top-[88px]">
+<!-- Reviewer Info Card -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-4 shadow-sm flex items-start gap-4">
+<img class="w-12 h-12 rounded-full object-cover border-2 border-secondary object-center" data-alt="A professional headshot of an Indian female medical professional in her late 30s. She is wearing a dark navy blazer over a crisp white blouse. She has short dark hair and a serious, competent expression. The background is a clean, well-lit modern office space. High contrast, sharp focus, clinical but approachable aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmrDWwCWgISLWKtKywl8OfpwfZLNtSsgawGhY2scAHUfp9qvNOvh-UfiD6nCivs2xGFzuZCdBJzPUCoYOGlz8XtrlN3wOA_WFYJipvxoILDyS3X7SdjjmjTnNrpY6LWpjWZKd2SEr4wJtG6rnTugu92Hcagqe1i_lgOhKrkmWnay4nFsREkVdGV2w2I9lgIwcPegSXerwrzuH599FRuKfVZfFSC1wt85wYO7tFExHNO5ZGlNtmb9eF-CCgwpJWc7Pq6v-GeixHQB9i"/>
+<div>
+<p class="font-label-bold text-label-bold text-secondary">REVIEWER ASSIGNED</p>
+<h3 class="font-body-compact text-body-compact font-bold text-on-surface">Dr. Ananya Sharma</h3>
+<p class="font-mono-ui text-mono-ui text-on-surface-variant">Insurance Specialist • MedReview Inc.</p>
+</div>
+</div>
+<!-- Comment Thread -->
+<div class="flex-1 bg-surface-container-lowest border border-outline-variant rounded-lg flex flex-col overflow-hidden shadow-sm">
+<div class="bg-surface-container-low px-4 py-3 border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-label-bold text-label-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">forum</span> Discussion Thread
+                            </h3>
+<span class="bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full font-mono-ui text-mono-ui text-[10px]">1 Unresolved</span>
+</div>
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+<!-- Expert Comment -->
+<div class="flex gap-3 relative">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-bold text-label-bold shrink-0 ring-2 ring-secondary/20">AS</div>
+<div class="bg-surface-container rounded-lg rounded-tl-none p-3 text-sm font-body-compact border border-outline-variant shadow-sm relative group">
+<div class="flex justify-between items-baseline mb-1">
+<span class="font-bold text-on-surface">Dr. Ananya Sharma</span>
+<span class="font-mono-ui text-[10px] text-on-surface-variant">10:42 AM</span>
+</div>
+<p class="text-on-surface-variant">Regarding the highlighted date: Please clarify the exact date of the first diagnosis on page 3. Was it September 10th or 11th? The clinical notes attached seem to indicate the consultation occurred on the 11th. We need the exact date for compliance with policy clause C regarding wait periods.</p>
+<div class="mt-2 pt-2 border-t border-outline-variant flex gap-2">
+<button class="text-secondary font-label-bold text-label-bold text-[10px] hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">reply</span> Reply
+                                        </button>
+<button class="text-on-surface-variant font-label-bold text-label-bold text-[10px] hover:text-primary transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check</span> Resolve
+                                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-3 border-t border-outline-variant bg-surface-bright">
+<div class="relative">
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant focus:border-secondary rounded-lg px-3 py-2 text-sm font-body-compact outline-none resize-none placeholder:text-outline-variant" placeholder="Reply to Dr. Sharma..." rows="2"></textarea>
+<button class="absolute bottom-2 right-2 text-secondary p-1 rounded hover:bg-secondary-container hover:text-on-secondary-container transition-colors cursor-pointer flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</div>
+</body></html>
