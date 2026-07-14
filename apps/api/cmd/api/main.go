@@ -46,7 +46,7 @@ func main() {
 	}
 
 	// 3. Initialize Services
-	authSvc := auth.NewAuthService(database, cfg.ClerkSecretKey, cfg.ClerkJWTIssuer, cfg.ClerkJWKSURL, cfg.ConvexURL)
+	authSvc := auth.NewAuthService(database, cfg)
 	eligibilitySvc := eligibility.NewService(database)
 	caseSvc := cases.NewService(database)
 	consentSvc := consent.NewService(database)
@@ -80,9 +80,11 @@ func main() {
 		// Document Upload simulation endpoint (Public mock for multipart S3 upload emulation)
 		r.Post("/documents/upload-endpoint/{documentId}", docSvc.UploadEndpoint)
 
-		// Public Auth Routes (for local E2E simulation)
-		r.Post("/auth/request-otp", authSvc.RequestOTP)
-		r.Post("/auth/verify-otp", authSvc.VerifyOTP)
+		// Public Auth Routes (for local E2E simulation, only registered in development)
+		if cfg.Environment == "development" {
+			r.Post("/auth/request-otp", authSvc.RequestOTP)
+			r.Post("/auth/verify-otp", authSvc.VerifyOTP)
+		}
 
 		// Protected Routes
 		r.Group(func(r chi.Router) {

@@ -1,9 +1,11 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { validateCaseAccess } from "./authHelpers";
 
 export const getAnalysis = query({
   args: { caseId: v.string() },
   handler: async (ctx, args) => {
+    await validateCaseAccess(ctx, args.caseId);
     return await ctx.db.query("caseIssues")
       .withIndex("by_case_id", (q) => q.eq("caseId", args.caseId))
       .collect();
@@ -13,6 +15,7 @@ export const getAnalysis = query({
 export const getCitations = query({
   args: { caseId: v.string() },
   handler: async (ctx, args) => {
+    await validateCaseAccess(ctx, args.caseId);
     return await ctx.db.query("citations")
       .withIndex("by_case_id", (q) => q.eq("caseId", args.caseId))
       .collect();
@@ -22,6 +25,7 @@ export const getCitations = query({
 export const getEvidence = query({
   args: { caseId: v.string() },
   handler: async (ctx, args) => {
+    await validateCaseAccess(ctx, args.caseId);
     return await ctx.db.query("evidenceItems")
       .withIndex("by_case_id", (q) => q.eq("caseId", args.caseId))
       .collect();
@@ -69,6 +73,9 @@ export const saveAnalysisFindings = mutation({
     changedBy: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Validate case access
+    await validateCaseAccess(ctx, args.caseId, ["POLICYHOLDER", "REVIEWER", "SENIOR_REVIEWER", "ADMIN"], args.changedBy);
+
     // 1. Delete old findings
     const oldIssues = await ctx.db.query("caseIssues")
       .withIndex("by_case_id", (q) => q.eq("caseId", args.caseId))

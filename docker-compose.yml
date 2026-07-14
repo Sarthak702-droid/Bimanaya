@@ -14,8 +14,8 @@ services:
     restart: always
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -38,15 +38,17 @@ services:
       - PORT=8080
       - REDIS_URL=redis:6379
       - S3_ENDPOINT=http://minio:9000
-      - S3_ACCESS_KEY=minioadmin
-      - S3_SECRET_KEY=minioadmin
+      - S3_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
+      - S3_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
       - S3_BUCKET_NAME=bimanyaya-docs
       - AI_WORKER_URL=http://ai-worker:8000
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
       - CLERK_JWT_ISSUER=${CLERK_JWT_ISSUER}
       - CLERK_JWKS_URL=${CLERK_JWKS_URL}
       - CONVEX_URL=${CONVEX_URL}
+      - CONVEX_DEPLOY_KEY=${CONVEX_DEPLOY_KEY}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      - ENV=${ENV:-development}
 
   ai-worker:
     build:
@@ -58,10 +60,11 @@ services:
       - "8000:8000"
     volumes:
       - ./apps/ai-worker/app:/app/app
-      - /home/sarthaktripathy/Documents/BimaNyaya:/workspace
+      - .:/workspace
     environment:
       - PORT=8000
       - SARVAM_API_KEY=${SARVAM_API_KEY}
+      - ENV=${ENV:-development}
 
 volumes:
   minio_data:

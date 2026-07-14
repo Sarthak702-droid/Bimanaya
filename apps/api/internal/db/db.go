@@ -8,17 +8,35 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 
 	"bimanyaya/api/internal/config"
 )
 
+type contextKey string
+const authContextKey contextKey = "auth_context"
+
+type AuthContext struct {
+	ClerkUserID string
+	BearerToken string
+	Email       string
+}
+
+func WithAuthContext(ctx context.Context, authCtx AuthContext) context.Context {
+	return context.WithValue(ctx, authContextKey, authCtx)
+}
+
+func GetAuthContext(ctx context.Context) (AuthContext, bool) {
+	val, ok := ctx.Value(authContextKey).(AuthContext)
+	return val, ok
+}
+
 type DB struct {
-	convexURL      string
-	clerkSecretKey string
-	client         *http.Client
+	convexURL       string
+	convexDeployKey string
+	environment     string
+	client          *http.Client
 
 	// Local in-memory fallback databases for local simulation
 	localUsers       map[string]map[string]interface{}
@@ -47,8 +65,9 @@ func Connect(cfg *config.Config) (*DB, error) {
 	}
 
 	return &DB{
-		convexURL:      cfg.ConvexURL,
-		clerkSecretKey: cfg.ClerkSecretKey,
+		convexURL:       cfg.ConvexURL,
+		convexDeployKey: cfg.ConvexDeployKey,
+		environment:     cfg.Environment,
 		client: &http.Client{
 			Timeout: 15 * time.Second,
 		},
@@ -58,6 +77,10 @@ func Connect(cfg *config.Config) (*DB, error) {
 		localExtractions: make(map[string][]map[string]interface{}),
 		localComments:    make(map[string][]map[string]interface{}),
 	}, nil
+}
+
+func (d *DB) Environment() string {
+	return d.environment
 }
 
 // CallQuery invokes a Convex query function
@@ -122,12 +145,17 @@ func (d *DB) call(ctx context.Context, funcType, path string, args interface{}, 
 		}
 
 		req.Header.Set("Content-Type", "application/json")
-		if d.clerkSecretKey != "" && !strings.HasPrefix(d.clerkSecretKey, "sk_test_") && !strings.HasPrefix(d.clerkSecretKey, "sk_live_") {
-			// Bearer authentication (Convex deploy key)
-			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", d.clerkSecretKey))
+		
+		// If there is an auth context with BearerToken, forward it to Convex in non-development.
+		// Otherwise, fallback to the CONVEX_DEPLOY_KEY.
+		authCtx, hasAuth := GetAuthContext(ctx)
+		if hasAuth && authCtx.BearerToken != "" && d.environment != "development" {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", authCtx.BearerToken))
+		} else if d.convexDeployKey != "" {
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", d.convexDeployKey))
 		}
 
-		slog.Info("Outgoing Convex Request Headers", "url", url, "headers", req.Header)
+		slog.Debug("Calling Convex", "url", url, "path", path, "function_type", funcType)
 		resp, err := d.client.Do(req)
 		if err != nil {
 			lastErr = err
@@ -242,6 +270,7 @@ func (d *DB) handleLocalFallback(funcType, path string, args interface{}, dest i
 		}
 		
 		userMap := map[string]interface{}{
+			"_id":                mutArgs.LegacyID,
 			"id":                 mutArgs.LegacyID,
 			"email":              mutArgs.Email,
 			"phone":              mutArgs.Phone,

@@ -1,14 +1,37 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { getCurrentUserOrThrow, requireRole, validateCaseAccess } from "./authHelpers";
 
 // ── List cases for current user ─────────────────────────────────────────
 export const listForUser = query({
   args: { ownerUserId: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const user = await getCurrentUserOrThrow(ctx, args.ownerUserId);
+    
+    // Find cases by user._id or user.legacyId or user.clerkUserId using indexes
+    const casesById = await ctx.db
       .query("cases")
-      .withIndex("by_owner_user_id", (q) => q.eq("ownerUserId", args.ownerUserId))
+      .withIndex("by_owner_user_id", (q) => q.eq("ownerUserId", user._id))
       .collect();
+    
+    const casesByLegacyId = user.legacyId ? await ctx.db
+      .query("cases")
+      .withIndex("by_owner_user_id", (q) => q.eq("ownerUserId", user.legacyId!))
+      .collect() : [];
+
+    const casesByClerkId = await ctx.db
+      .query("cases")
+      .withIndex("by_owner_user_id", (q) => q.eq("ownerUserId", user.clerkUserId))
+      .collect();
+
+    // Deduplicate and return
+    const all = [...casesById, ...casesByLegacyId, ...casesByClerkId];
+    const seen = new Set();
+    return all.filter(c => {
+      if (seen.has(c._id)) return false;
+      seen.add(c._id);
+      return true;
+    });
   },
 });
 
@@ -16,6 +39,7 @@ export const listForUser = query({
 export const listAll = query({
   args: {},
   handler: async (ctx) => {
+    await requireRole(ctx, ["REVIEWER", "SENIOR_REVIEWER", "ADMIN"]);
     return await ctx.db.query("cases").collect();
   },
 });
@@ -24,8 +48,17 @@ export const listAll = query({
 export const listByWorkflowState = query({
   args: { states: v.array(v.string()) },
   handler: async (ctx, args) => {
-    const allCases = await ctx.db.query("cases").collect();
-    return allCases.filter((c) => args.states.includes(c.workflowState));
+    await requireRole(ctx, ["REVIEWER", "SENIOR_REVIEWER", "ADMIN"]);
+    
+    // Fetch cases for each state in parallel using the index instead of a full table scan
+    const promises = args.states.map(state => 
+      ctx.db
+        .query("cases")
+        .withIndex("by_workflow_state", (q) => q.eq("workflowState", state as any))
+        .collect()
+    );
+    const results = await Promise.all(promises);
+    return results.flat();
   },
 });
 
@@ -33,10 +66,8 @@ export const listByWorkflowState = query({
 export const getByLegacyId = query({
   args: { legacyId: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
-      .query("cases")
-      .withIndex("by_legacy_id", (q) => q.eq("legacyId", args.legacyId))
-      .first();
+    const { caseObj } = await validateCaseAccess(ctx, args.legacyId);
+    return caseObj;
   },
 });
 
@@ -44,10 +75,16 @@ export const getByLegacyId = query({
 export const getByCaseNumber = query({
   args: { caseNumber: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const caseObj = await ctx.db
       .query("cases")
       .withIndex("by_case_number", (q) => q.eq("caseNumber", args.caseNumber))
       .first();
+
+    if (!caseObj) return null;
+
+    // Validate access to the found case
+    await validateCaseAccess(ctx, caseObj.legacyId || caseObj._id);
+    return caseObj;
   },
 });
 
@@ -69,9 +106,13 @@ export const create = mutation({
     legacyId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Validate authenticated user
+    const user = await getCurrentUserOrThrow(ctx, args.ownerUserId);
+
     const now = new Date().toISOString();
     return await ctx.db.insert("cases", {
       ...args,
+      ownerUserId: user._id, // Store direct Convex document ID of the owner
       riskLevel: "LOW",
       workflowState: "DRAFT",
       createdAt: now,
@@ -96,13 +137,20 @@ export const update = mutation({
     closedAt: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const existing = await ctx.db
-      .query("cases")
-      .withIndex("by_legacy_id", (q) => q.eq("legacyId", args.legacyId))
-      .first();
+    // Validate case access
+    const { caseObj, user } = await validateCaseAccess(ctx, args.legacyId);
 
-    if (!existing) {
-      throw new Error(`Case not found for legacyId: ${args.legacyId}`);
+    // Enforce role constraints for update fields
+    if (user.role === "POLICYHOLDER" && process.env.ENV !== "development") {
+      if (args.riskLevel !== undefined || args.assignedReviewerId !== undefined || args.closedAt !== undefined) {
+        throw new Error("FORBIDDEN: Policyholder cannot update reviewer-only fields");
+      }
+      if (args.workflowState !== undefined && 
+          args.workflowState !== "DRAFT" && 
+          args.workflowState !== "CONSENT_PENDING" && 
+          args.workflowState !== "DOCUMENTS_PENDING") {
+        throw new Error("FORBIDDEN: Policyholder cannot perform this state transition");
+      }
     }
 
     const updates: Record<string, unknown> = { updatedAt: new Date().toISOString() };
@@ -117,8 +165,8 @@ export const update = mutation({
     if (args.assignedReviewerId !== undefined) updates.assignedReviewerId = args.assignedReviewerId || undefined;
     if (args.closedAt !== undefined) updates.closedAt = args.closedAt;
 
-    await ctx.db.patch(existing._id, updates);
-    return existing._id;
+    await ctx.db.patch(caseObj._id, updates);
+    return caseObj._id;
   },
 });
 
@@ -126,17 +174,10 @@ export const update = mutation({
 export const softDelete = mutation({
   args: { legacyId: v.string() },
   handler: async (ctx, args) => {
-    const existing = await ctx.db
-      .query("cases")
-      .withIndex("by_legacy_id", (q) => q.eq("legacyId", args.legacyId))
-      .first();
-
-    if (!existing) {
-      throw new Error(`Case not found for legacyId: ${args.legacyId}`);
-    }
+    const { caseObj } = await validateCaseAccess(ctx, args.legacyId);
 
     const now = new Date().toISOString();
-    await ctx.db.patch(existing._id, {
+    await ctx.db.patch(caseObj._id, {
       workflowState: "DELETED",
       closedAt: now,
       updatedAt: now,
@@ -149,6 +190,9 @@ export const softDelete = mutation({
 export const getTimeline = query({
   args: { caseId: v.string() },
   handler: async (ctx, args) => {
+    // Validate case access
+    await validateCaseAccess(ctx, args.caseId);
+
     return await ctx.db
       .query("caseStatusHistory")
       .withIndex("by_case_id", (q) => q.eq("caseId", args.caseId))
@@ -166,6 +210,9 @@ export const logTimeline = mutation({
     reason: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Validate case access
+    await validateCaseAccess(ctx, args.caseId);
+
     return await ctx.db.insert("caseStatusHistory", {
       ...args,
       createdAt: new Date().toISOString(),

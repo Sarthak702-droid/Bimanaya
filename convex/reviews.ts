@@ -1,9 +1,11 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { requireRole } from "./authHelpers";
 
 export const listByCase = query({
   args: { caseId: v.string() },
   handler: async (ctx, args) => {
+    await requireRole(ctx, ["REVIEWER", "SENIOR_REVIEWER", "ADMIN"]);
     return await ctx.db.query("reviews")
       .withIndex("by_case_id", (q) => q.eq("caseId", args.caseId))
       .collect();
@@ -13,6 +15,7 @@ export const listByCase = query({
 export const listByReviewer = query({
   args: { reviewerId: v.string() },
   handler: async (ctx, args) => {
+    await requireRole(ctx, ["REVIEWER", "SENIOR_REVIEWER", "ADMIN"], args.reviewerId);
     return await ctx.db.query("reviews")
       .withIndex("by_reviewer_id", (q) => q.eq("reviewerId", args.reviewerId))
       .collect();
@@ -22,6 +25,7 @@ export const listByReviewer = query({
 export const getBreachedReviews = query({
   args: { now: v.string() },
   handler: async (ctx, args) => {
+    await requireRole(ctx, ["REVIEWER", "SENIOR_REVIEWER", "ADMIN"]);
     return (await ctx.db.query("reviews")
       .withIndex("by_decision", (q) => q.eq("decision", "CLAIMED"))
       .collect()
@@ -39,6 +43,7 @@ export const create = mutation({
     legacyId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireRole(ctx, ["REVIEWER", "SENIOR_REVIEWER", "ADMIN"], args.reviewerId);
     return await ctx.db.insert("reviews", {
       ...args,
       startedAt: new Date().toISOString(),
@@ -54,6 +59,8 @@ export const updateDecision = mutation({
     comments: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireRole(ctx, ["REVIEWER", "SENIOR_REVIEWER", "ADMIN"], args.reviewerId);
+    
     const reviews = await ctx.db.query("reviews")
       .withIndex("by_case_id", (q) => q.eq("caseId", args.caseId))
       .collect();
@@ -71,6 +78,7 @@ export const updateDecision = mutation({
 export const addComment = mutation({
   args: { caseId: v.string(), reviewerId: v.string(), commentText: v.string(), legacyId: v.optional(v.string()) },
   handler: async (ctx, args) => {
+    await requireRole(ctx, ["REVIEWER", "SENIOR_REVIEWER", "ADMIN"], args.reviewerId);
     return await ctx.db.insert("reviewComments", { ...args, createdAt: new Date().toISOString() });
   },
 });
@@ -78,6 +86,7 @@ export const addComment = mutation({
 export const listComments = query({
   args: { caseId: v.string() },
   handler: async (ctx, args) => {
+    await requireRole(ctx, ["REVIEWER", "SENIOR_REVIEWER", "ADMIN"]);
     return await ctx.db.query("reviewComments")
       .withIndex("by_case_id", (q) => q.eq("caseId", args.caseId))
       .collect();

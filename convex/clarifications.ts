@@ -1,9 +1,11 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { validateCaseAccess } from "./authHelpers";
 
 export const getQuestions = query({
   args: { caseId: v.string() },
   handler: async (ctx, args) => {
+    await validateCaseAccess(ctx, args.caseId);
     return await ctx.db.query("clarificationQuestions")
       .withIndex("by_case_id", (q) => q.eq("caseId", args.caseId))
       .collect();
@@ -20,6 +22,9 @@ export const submitAnswer = mutation({
     legacyAnswerId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Validate case access and authorization
+    await validateCaseAccess(ctx, args.caseId, ["POLICYHOLDER", "REVIEWER", "SENIOR_REVIEWER", "ADMIN"], args.answeredBy);
+
     // 1. Get the question
     const qid = args.questionId;
     const question = await ctx.db

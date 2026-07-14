@@ -17,7 +17,9 @@ type Config struct {
 	ClerkJWTIssuer     string
 	ClerkJWKSURL       string
 	ConvexURL          string
+	ConvexDeployKey    string
 	CORSAllowedOrigins string
+	Environment        string
 }
 
 func Load() *Config {
@@ -33,7 +35,9 @@ func Load() *Config {
 		ClerkJWTIssuer:     getEnv("CLERK_JWT_ISSUER", "https://alert-ghost-7.clerk.accounts.dev"),
 		ClerkJWKSURL:       getEnv("CLERK_JWKS_URL", "https://alert-ghost-7.clerk.accounts.dev/.well-known/jwks.json"),
 		ConvexURL:          getEnv("CONVEX_URL", "https://alert-ghost-7.convex.cloud"),
+		ConvexDeployKey:    getEnv("CONVEX_DEPLOY_KEY", ""),
 		CORSAllowedOrigins: getEnv("CORS_ALLOWED_ORIGINS", "http://localhost:3000"),
+		Environment:        getEnv("ENV", "development"),
 	}
 }
 

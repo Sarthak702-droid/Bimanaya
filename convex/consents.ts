@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { validateCaseAccess } from "./authHelpers";
 
 // ── Record consent ──────────────────────────────────────────────────────
 export const record = mutation({
@@ -17,6 +18,9 @@ export const record = mutation({
     legacyId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Validate case access and authorization
+    await validateCaseAccess(ctx, args.caseId, ["POLICYHOLDER", "REVIEWER", "SENIOR_REVIEWER", "ADMIN"], args.userId);
+
     return await ctx.db.insert("consents", {
       ...args,
       createdAt: new Date().toISOString(),
@@ -28,6 +32,9 @@ export const record = mutation({
 export const listByCase = query({
   args: { caseId: v.string() },
   handler: async (ctx, args) => {
+    // Validate case access and authorization
+    await validateCaseAccess(ctx, args.caseId);
+
     return await ctx.db
       .query("consents")
       .withIndex("by_case_id", (q) => q.eq("caseId", args.caseId))
@@ -39,6 +46,9 @@ export const listByCase = query({
 export const withdraw = mutation({
   args: { caseId: v.string() },
   handler: async (ctx, args) => {
+    // Validate case access and authorization
+    await validateCaseAccess(ctx, args.caseId);
+
     const consents = await ctx.db
       .query("consents")
       .withIndex("by_case_id", (q) => q.eq("caseId", args.caseId))

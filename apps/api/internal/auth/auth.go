@@ -15,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	"bimanyaya/api/internal/config"
 	"bimanyaya/api/internal/db"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -32,7 +33,7 @@ type ClerkClaims struct {
 }
 
 type User struct {
-	ID                string `json:"id"`
+	ID                string `json:"_id"`
 	Email             string `json:"email"`
 	Phone             string `json:"phone"`
 	Role              string `json:"role"`
@@ -66,25 +67,27 @@ type OTPVerifyRequest struct {
 }
 
 type AuthService struct {
-	db             *db.DB
-	clerkSecret    string
-	clerkIssuer    string
-	clerkJWKSURL   string
-	convexURL      string
-	jwksMu         sync.RWMutex
-	jwksKeys       map[string]*rsa.PublicKey
-	lastJWKSFetch  time.Time
-	otpStore       map[string]string
-	otpMu          sync.Mutex
+	db            *db.DB
+	clerkSecret   string
+	clerkIssuer   string
+	clerkJWKSURL  string
+	convexURL     string
+	environment   string
+	jwksMu        sync.RWMutex
+	jwksKeys      map[string]*rsa.PublicKey
+	lastJWKSFetch time.Time
+	otpStore      map[string]string
+	otpMu         sync.Mutex
 }
 
-func NewAuthService(database *db.DB, clerkSecret, clerkIssuer, clerkJWKSURL, convexURL string) *AuthService {
+func NewAuthService(database *db.DB, cfg *config.Config) *AuthService {
 	return &AuthService{
 		db:           database,
-		clerkSecret:  clerkSecret,
-		clerkIssuer:  clerkIssuer,
-		clerkJWKSURL: clerkJWKSURL,
-		convexURL:    convexURL,
+		clerkSecret:  cfg.ClerkSecretKey,
+		clerkIssuer:  cfg.ClerkJWTIssuer,
+		clerkJWKSURL: cfg.ClerkJWKSURL,
+		convexURL:    cfg.ConvexURL,
+		environment:  cfg.Environment,
 		jwksKeys:     make(map[string]*rsa.PublicKey),
 		otpStore:     make(map[string]string),
 	}
@@ -120,14 +123,16 @@ func (s *AuthService) AuthMiddleware(next http.Handler) http.Handler {
 		claims := &ClerkClaims{}
 
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			// Support mock HMAC tokens signed with clerkSecret key
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); ok {
-				return []byte(s.clerkSecret), nil
+			// Support mock HMAC tokens signed with clerkSecret key only in development
+			if s.environment == "development" {
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); ok {
+					return []byte(s.clerkSecret), nil
+				}
 			}
 
-			// Validate algorithm is RS256
-			if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			// Validate algorithm is strictly RS256
+			if token.Method.Alg() != jwt.SigningMethodRS256.Alg() {
+				return nil, fmt.Errorf("unsupported signing algorithm: %v", token.Header["alg"])
 			}
 
 			kid, ok := token.Header["kid"].(string)
@@ -164,15 +169,23 @@ func (s *AuthService) AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		// Build the AuthContext with the bearer token to propagate user identity
+		authCtx := db.AuthContext{
+			ClerkUserID: claims.Subject,
+			BearerToken: tokenString,
+			Email:       claims.Email,
+		}
+		rCtx := db.WithAuthContext(r.Context(), authCtx)
+
 		// Resolve user profile via Convex database lookup or sync
-		user, err := s.resolveUserProfile(r.Context(), claims)
+		user, err := s.resolveUserProfile(rCtx, claims)
 		if err != nil {
 			slog.Error("Failed to resolve user profile", "error", err)
 			writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to resolve user profile")
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), UserKey, user)
+		ctx := context.WithValue(rCtx, UserKey, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -420,6 +433,7 @@ func (s *AuthService) VerifyOTP(w http.ResponseWriter, r *http.Request) {
 		"email_verified": true,
 		"role":           user.Role,
 		"iss":            s.clerkIssuer,
+		"aud":            "convex",
 		"exp":            time.Now().Add(24 * time.Hour).Unix(),
 	})
 

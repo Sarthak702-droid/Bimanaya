@@ -1,10 +1,12 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { validateCaseAccess } from "./authHelpers";
 
 // ── List documents by case ──────────────────────────────────────────────
 export const listByCase = query({
   args: { caseId: v.string() },
   handler: async (ctx, args) => {
+    await validateCaseAccess(ctx, args.caseId);
     const docs = await ctx.db
       .query("documents")
       .withIndex("by_case_id", (q) => q.eq("caseId", args.caseId))
@@ -17,10 +19,14 @@ export const listByCase = query({
 export const getByLegacyId = query({
   args: { legacyId: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const doc = await ctx.db
       .query("documents")
       .withIndex("by_legacy_id", (q) => q.eq("legacyId", args.legacyId))
       .first();
+    
+    if (!doc) return null;
+    await validateCaseAccess(ctx, doc.caseId);
+    return doc;
   },
 });
 
@@ -42,6 +48,7 @@ export const createMetadata = mutation({
     legacyId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await validateCaseAccess(ctx, args.caseId, ["POLICYHOLDER", "REVIEWER", "SENIOR_REVIEWER", "ADMIN"], args.uploadedBy);
     return await ctx.db.insert("documents", {
       ...args,
       createdAt: new Date().toISOString(),
@@ -69,6 +76,8 @@ export const updateStatus = mutation({
       throw new Error(`Document not found for legacyId: ${args.legacyId}`);
     }
 
+    await validateCaseAccess(ctx, doc.caseId);
+
     const updates: Record<string, unknown> = {};
     if (args.fileHash !== undefined) updates.fileHash = args.fileHash;
     if (args.pageCount !== undefined) updates.pageCount = args.pageCount;
@@ -94,6 +103,8 @@ export const softDelete = mutation({
       return false;
     }
 
+    await validateCaseAccess(ctx, doc.caseId);
+
     await ctx.db.patch(doc._id, {
       deletedAt: new Date().toISOString(),
     });
@@ -115,6 +126,22 @@ export const saveExtraction = mutation({
     legacyId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Find the document to check access on its parent case
+    let doc = await ctx.db
+      .query("documents")
+      .withIndex("by_legacy_id", (q) => q.eq("legacyId", args.documentId))
+      .first();
+    
+    if (!doc) {
+      try {
+        doc = await ctx.db.get(args.documentId as any);
+      } catch (e) {}
+    }
+
+    if (doc) {
+      await validateCaseAccess(ctx, doc.caseId);
+    }
+
     return await ctx.db.insert("documentExtractions", {
       ...args,
       createdAt: new Date().toISOString(),
@@ -131,6 +158,22 @@ export const savePage = mutation({
     legacyId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Find the document to check access on its parent case
+    let doc = await ctx.db
+      .query("documents")
+      .withIndex("by_legacy_id", (q) => q.eq("legacyId", args.documentId))
+      .first();
+    
+    if (!doc) {
+      try {
+        doc = await ctx.db.get(args.documentId as any);
+      } catch (e) {}
+    }
+
+    if (doc) {
+      await validateCaseAccess(ctx, doc.caseId);
+    }
+
     return await ctx.db.insert("documentPages", {
       ...args,
       createdAt: new Date().toISOString(),
@@ -155,6 +198,8 @@ export const updateTypeAndStatus = mutation({
     if (!doc) {
       throw new Error(`Document not found for legacyId: ${args.legacyId}`);
     }
+
+    await validateCaseAccess(ctx, doc.caseId);
 
     await ctx.db.patch(doc._id, {
       documentType: args.documentType,

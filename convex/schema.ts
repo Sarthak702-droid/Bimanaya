@@ -65,10 +65,7 @@ const validationStatus = v.union(
 // ── Schema ──────────────────────────────────────────────────────────────
 export default defineSchema({
   // ── Users ─────────────────────────────────────────────────────────────
-  // Clerk is the source of truth for identity.
-  // Convex is the source of truth for application profile and role data.
   users: defineTable({
-    // Clerk identity fields
     clerkUserId: v.string(),
     clerkSubject: v.string(),
     email: v.string(),
@@ -78,13 +75,11 @@ export default defineSchema({
     displayName: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
     phone: v.optional(v.string()),
-    // Application fields
     preferredLanguage: v.string(),
     role: userRole,
     status: userStatus,
     onboardingCompleted: v.boolean(),
     lastLoginAt: v.string(),
-    // Legacy migration fields
     legacyId: v.optional(v.string()),
     createdAt: v.string(),
     updatedAt: v.string(),
@@ -100,7 +95,7 @@ export default defineSchema({
   // ── Cases ─────────────────────────────────────────────────────────────
   cases: defineTable({
     caseNumber: v.string(),
-    ownerUserId: v.string(),
+    ownerUserId: v.union(v.id("users"), v.string()),
     insuranceType: v.string(),
     claimCategory: v.optional(v.string()),
     claimStatus: v.optional(v.string()),
@@ -113,8 +108,7 @@ export default defineSchema({
     riskLevel: riskLevel,
     workflowState: workflowState,
     preferredLanguage: v.string(),
-    assignedReviewerId: v.optional(v.string()),
-    // Legacy migration fields
+    assignedReviewerId: v.optional(v.union(v.id("users"), v.string())),
     legacyId: v.optional(v.string()),
     createdAt: v.string(),
     updatedAt: v.string(),
@@ -125,11 +119,12 @@ export default defineSchema({
     .index("by_assigned_reviewer_id", ["assignedReviewerId"])
     .index("by_workflow_state", ["workflowState"])
     .index("by_risk_level", ["riskLevel"])
-    .index("by_legacy_id", ["legacyId"]),
+    .index("by_legacy_id", ["legacyId"])
+    .index("by_workflow_state_and_risk", ["workflowState", "riskLevel"]),
 
   // ── Case Status History ───────────────────────────────────────────────
   caseStatusHistory: defineTable({
-    caseId: v.string(),
+    caseId: v.union(v.id("cases"), v.string()),
     fromState: v.string(),
     toState: v.string(),
     changedBy: v.optional(v.string()),
@@ -142,8 +137,8 @@ export default defineSchema({
 
   // ── Consents ──────────────────────────────────────────────────────────
   consents: defineTable({
-    caseId: v.string(),
-    userId: v.string(),
+    caseId: v.union(v.id("cases"), v.string()),
+    userId: v.union(v.id("users"), v.string()),
     consentVersion: v.string(),
     documentProcessingConsent: v.boolean(),
     reviewerAccessConsent: v.boolean(),
@@ -162,7 +157,7 @@ export default defineSchema({
 
   // ── Documents ─────────────────────────────────────────────────────────
   documents: defineTable({
-    caseId: v.string(),
+    caseId: v.union(v.id("cases"), v.string()),
     documentType: v.string(),
     originalFilename: v.string(),
     storageKey: v.string(),
@@ -184,7 +179,7 @@ export default defineSchema({
 
   // ── Document Pages ────────────────────────────────────────────────────
   documentPages: defineTable({
-    documentId: v.string(),
+    documentId: v.union(v.id("documents"), v.string()),
     pageNumber: v.number(),
     storageKey: v.string(),
     legacyId: v.optional(v.string()),
@@ -195,7 +190,7 @@ export default defineSchema({
 
   // ── Document Extractions ──────────────────────────────────────────────
   documentExtractions: defineTable({
-    documentId: v.string(),
+    documentId: v.union(v.id("documents"), v.string()),
     fieldName: v.string(),
     fieldValue: v.optional(v.string()),
     normalizedValue: v.optional(v.string()),
@@ -219,7 +214,7 @@ export default defineSchema({
     productName: v.optional(v.string()),
     version: v.optional(v.string()),
     effectiveDate: v.optional(v.string()),
-    supersededById: v.optional(v.string()),
+    supersededById: v.optional(v.union(v.id("knowledgeSources"), v.string())),
     title: v.string(),
     fileStorageKey: v.optional(v.string()),
     legacyId: v.optional(v.string()),
@@ -230,7 +225,7 @@ export default defineSchema({
 
   // ── Knowledge Chunks (RAG) ────────────────────────────────────────────
   knowledgeChunks: defineTable({
-    knowledgeSourceId: v.string(),
+    knowledgeSourceId: v.union(v.id("knowledgeSources"), v.string()),
     clauseNumber: v.optional(v.string()),
     heading: v.optional(v.string()),
     content: v.string(),
@@ -245,7 +240,7 @@ export default defineSchema({
 
   // ── Case Issues ───────────────────────────────────────────────────────
   caseIssues: defineTable({
-    caseId: v.string(),
+    caseId: v.union(v.id("cases"), v.string()),
     issueCategory: v.string(),
     summary: v.string(),
     details: v.optional(v.string()),
@@ -258,10 +253,10 @@ export default defineSchema({
 
   // ── Citations ─────────────────────────────────────────────────────────
   citations: defineTable({
-    caseId: v.string(),
+    caseId: v.union(v.id("cases"), v.string()),
     sourceType: v.string(),
-    documentId: v.optional(v.string()),
-    knowledgeSourceId: v.optional(v.string()),
+    documentId: v.optional(v.union(v.id("documents"), v.string())),
+    knowledgeSourceId: v.optional(v.union(v.id("knowledgeSources"), v.string())),
     pageNumber: v.optional(v.number()),
     sectionName: v.optional(v.string()),
     clauseNumber: v.optional(v.string()),
@@ -278,7 +273,7 @@ export default defineSchema({
 
   // ── Clarification Questions ───────────────────────────────────────────
   clarificationQuestions: defineTable({
-    caseId: v.string(),
+    caseId: v.union(v.id("cases"), v.string()),
     questionType: v.string(),
     questionText: v.string(),
     options: v.optional(v.string()),
@@ -293,9 +288,9 @@ export default defineSchema({
 
   // ── Clarification Answers ─────────────────────────────────────────────
   clarificationAnswers: defineTable({
-    questionId: v.string(),
+    questionId: v.union(v.id("clarificationQuestions"), v.string()),
     answerText: v.string(),
-    uploadedEvidenceDocumentId: v.optional(v.string()),
+    uploadedEvidenceDocumentId: v.optional(v.union(v.id("documents"), v.string())),
     answeredBy: v.string(),
     legacyId: v.optional(v.string()),
     createdAt: v.string(),
@@ -305,13 +300,13 @@ export default defineSchema({
 
   // ── Evidence Items ────────────────────────────────────────────────────
   evidenceItems: defineTable({
-    caseId: v.string(),
+    caseId: v.union(v.id("cases"), v.string()),
     documentName: v.string(),
     whyRequired: v.string(),
     priority: v.string(),
     isMandatory: v.boolean(),
     status: v.string(),
-    uploadedDocumentId: v.optional(v.string()),
+    uploadedDocumentId: v.optional(v.union(v.id("documents"), v.string())),
     legacyId: v.optional(v.string()),
     createdAt: v.string(),
   })
@@ -320,7 +315,7 @@ export default defineSchema({
 
   // ── Drafts ────────────────────────────────────────────────────────────
   drafts: defineTable({
-    caseId: v.string(),
+    caseId: v.union(v.id("cases"), v.string()),
     language: v.string(),
     status: v.string(),
     currentVersion: v.number(),
@@ -336,7 +331,7 @@ export default defineSchema({
 
   // ── Draft Versions ────────────────────────────────────────────────────
   draftVersions: defineTable({
-    draftId: v.string(),
+    draftId: v.union(v.id("drafts"), v.string()),
     versionNumber: v.number(),
     subject: v.string(),
     content: v.string(),
@@ -350,8 +345,8 @@ export default defineSchema({
 
   // ── Reviews ───────────────────────────────────────────────────────────
   reviews: defineTable({
-    caseId: v.string(),
-    reviewerId: v.string(),
+    caseId: v.union(v.id("cases"), v.string()),
+    reviewerId: v.union(v.id("users"), v.string()),
     decision: reviewDecision,
     riskOverride: v.optional(v.string()),
     comments: v.optional(v.string()),
@@ -367,8 +362,8 @@ export default defineSchema({
 
   // ── Review Comments ───────────────────────────────────────────────────
   reviewComments: defineTable({
-    caseId: v.string(),
-    reviewerId: v.string(),
+    caseId: v.union(v.id("cases"), v.string()),
+    reviewerId: v.union(v.id("users"), v.string()),
     commentText: v.string(),
     legacyId: v.optional(v.string()),
     createdAt: v.string(),
@@ -378,7 +373,7 @@ export default defineSchema({
 
   // ── Submissions ───────────────────────────────────────────────────────
   submissions: defineTable({
-    caseId: v.string(),
+    caseId: v.union(v.id("cases"), v.string()),
     submissionChannel: v.string(),
     submissionDate: v.string(),
     referenceNumber: v.optional(v.string()),
@@ -394,7 +389,7 @@ export default defineSchema({
 
   // ── Model Runs ────────────────────────────────────────────────────────
   modelRuns: defineTable({
-    caseId: v.optional(v.string()),
+    caseId: v.optional(v.union(v.id("cases"), v.string())),
     taskType: v.string(),
     provider: v.string(),
     model: v.string(),
@@ -434,7 +429,7 @@ export default defineSchema({
 
   // ── Eligibility Assessments ───────────────────────────────────────────
   eligibilityAssessments: defineTable({
-    userId: v.string(),
+    userId: v.union(v.id("users"), v.string()),
     insuranceType: v.string(),
     claimStatus: v.string(),
     disputedAmount: v.number(),
