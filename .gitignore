@@ -86,3 +86,14 @@ env/
 *.log
 *.pdf
 .system_generated/
+
+# Local agent / editor tooling (Convex AI skills install here)
+.agents/
+.claude/
+.cursor/
+
+# One-off design exports at repo root
+/Untitled*.svg
+
+# Bun / package manager noise
+*.tgz

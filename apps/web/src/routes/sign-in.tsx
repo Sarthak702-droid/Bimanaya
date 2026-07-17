@@ -68,19 +68,6 @@ function SignInPage() {
                   background: '#2eff8e',
                 },
               },
-              // CSS hack to hide phone number inputs if they render
-              formFieldRow__phone: {
-                display: 'none !important',
-              },
-              formFieldRow__phoneNumber: {
-                display: 'none !important',
-              },
-              formField__phone: {
-                display: 'none !important',
-              },
-              formField__phoneNumber: {
-                display: 'none !important',
-              },
             },
           }}
         />

@@ -1,48 +1,39 @@
-
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg'
   className?: string
 }
 
 const sizeMap = {
-  sm: { height: 24 },
-  md: { height: 32 },
-  lg: { height: 48 },
+  sm: { height: 24, maxWidth: 125 },
+  md: { height: 32, maxWidth: 167 },
+  lg: { height: 48, maxWidth: 250 },
 }
 
 export function Logo({ size = 'md', className = '' }: LogoProps) {
-  const height = sizeMap[size].height
+  const { height, maxWidth } = sizeMap[size]
   return (
-    <div 
-      style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: 12,
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        height,
+        maxWidth,
         cursor: 'pointer',
-        userSelect: 'none'
-      }} 
+        userSelect: 'none',
+      }}
       className={className}
     >
       <img
-        src="/logo.png"
-        alt="BimaNyaya Logo"
+        src="/bimanyaya-logo.svg"
+        alt="BimaNyaya"
         style={{
-          height: height,
+          height: '100%',
           width: 'auto',
+          maxWidth: '100%',
           objectFit: 'contain',
+          display: 'block',
         }}
       />
-      <span style={{
-        fontFamily: 'var(--font-headline)',
-        fontWeight: 300,
-        fontSize: height * 0.6,
-        color: 'var(--on-surface)',
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-        lineHeight: 1,
-      }}>
-        BIMA<span style={{ fontWeight: 800, color: 'var(--accent)' }}>NYAYA</span>
-      </span>
     </div>
   )
 }
